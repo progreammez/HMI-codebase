@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QString>
+#include "IDataSource.h"
 
 class VehicleData;
 
@@ -35,7 +36,7 @@ struct SimulationState
     QString warningMessage = "";
 };
 
-class TelemetrySimulator : public QObject
+class TelemetrySimulator : public QObject, public IdataSource
 {
     Q_OBJECT
 
@@ -43,7 +44,7 @@ public:
     explicit TelemetrySimulator(VehicleData *vehicleData,
                                 QObject *parent = nullptr);
 
-    void start();
+    void start() override;
 
 private slots:
     void generateFakeData();

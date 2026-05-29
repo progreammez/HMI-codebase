@@ -29,3 +29,23 @@
 ┌─────────────────────────────┐
   STM32 / Vehicle Controller  
 └─────────────────────────────┘
+
++---------------------+
+|     IDataSource     |
++---------------------+
+           |
+    ----------------
+    |              |
+    v              v
+
+TelemetrySimulator  SerialManager
+
+           |
+           v
+
+      VehicleData
+
+           |
+           v
+
+          QML
