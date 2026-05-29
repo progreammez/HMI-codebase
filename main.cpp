@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
         &vehicleData
     );
 
-    engine.load(QUrl("qrc:/qml/main.qml"));
+    engine.loadFromModule("EvHmi", "Main");
 
     if (engine.rootObjects().isEmpty())
         return -1;

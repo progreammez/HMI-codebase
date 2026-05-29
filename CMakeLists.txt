@@ -22,16 +22,37 @@ target_include_directories(EV_HMI PRIVATE
     backend
 )
 
-qt_add_resources(EV_HMI "resources"
-    PREFIX "/"
-    FILES
-        qml/main.qml
-        qml/components/BatteryBar.qml
-        qml/components/GearSelector.qml
-        qml/components/Speedometer.qml
-        qml/components/TelemetryCard.qml
+set_source_files_properties(
+    qml/themes/Colors.qml
+    qml/themes/Typography.qml
+    qml/themes/Theme.qml
+    PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
 
-target_link_libraries(EV_HMI PRIVATE
-    Qt6::Quick
+qt_add_qml_module(EV_HMI
+    URI EvHmi
+    VERSION 1.0
+    QML_FILES
+        qml/Main.qml
+        qml/AppShell.qml
+        qml/components/BaseCard.qml
+        qml/components/CockpitFrame.qml
+        qml/components/EnergyBar.qml
+        qml/components/MetricTile.qml
+        qml/components/ModeButton.qml
+        qml/pages/HomePage.qml
+        qml/pages/MusicPage.qml
+        qml/pages/SettingsPage.qml
+        qml/pages/DiagnosticsPage.qml
+        qml/themes/Colors.qml
+        qml/themes/Typography.qml
+        qml/themes/Theme.qml
+)
+
+target_link_libraries(EV_HMI 
+    PRIVATE
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Qml
+        Qt6::Quick
 )
