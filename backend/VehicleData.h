@@ -25,6 +25,14 @@ class VehicleData : public QObject
     Q_PROPERTY(int rangeKm READ rangeKm WRITE setRangeKm NOTIFY rangeKmChanged)
 
     Q_PROPERTY(QString driveMode READ driveMode WRITE setDriveMode NOTIFY driveModeChanged)
+    Q_PROPERTY(QString gearState READ gearState WRITE setGearState NOTIFY gearStateChanged)
+
+    Q_PROPERTY(bool leftIndicator READ leftIndicator WRITE setLeftIndicator NOTIFY leftIndicatorChanged)
+    Q_PROPERTY(bool rightIndicator READ rightIndicator WRITE setRightIndicator NOTIFY rightIndicatorChanged)
+
+    Q_PROPERTY(bool headlights READ headlights WRITE setHeadlights NOTIFY headlightsChanged)
+
+    Q_PROPERTY(QString warningMessage READ warningMessage WRITE setWarningMessage NOTIFY warningMessageChanged)
 
 public:
     explicit VehicleData(QObject *parent = nullptr);
@@ -39,6 +47,14 @@ public:
     int rangeKm() const;
 
     QString driveMode() const;
+    QString gearState() const;
+
+    bool leftIndicator() const;
+    bool rightIndicator() const;
+
+    bool headlights() const;
+
+    QString warningMessage() const;
     // Setter functions
     /*
     Receive new value
@@ -55,6 +71,14 @@ public:
     void setRangeKm(int rangeKm);
 
     void setDriveMode(const QString &driveMode);
+    void setGearState(const QString &gearState);
+
+    void setLeftIndicator(bool leftIndicator);
+    void setRightIndicator(bool rightIndicator);
+
+    void setHeadlights(bool headlights);
+
+    void setWarningMessage(const QString &warningMessage);
 
 signals:
     // Signals to notify the UI when a value changes
@@ -68,6 +92,14 @@ signals:
     void rangeKmChanged();
 
     void driveModeChanged();
+    void gearStateChanged();
+
+    void leftIndicatorChanged();
+    void rightIndicatorChanged();
+
+    void headlightsChanged();
+
+    void warningMessageChanged();
 
 private:
     // Member variables to store the current state of the vehicle
@@ -81,6 +113,14 @@ private:
     int m_rangeKm;
 
     QString m_driveMode;
+    QString m_gearState;
+
+    bool m_leftIndicator;
+    bool m_rightIndicator;
+
+    bool m_headlights;
+
+    QString m_warningMessage;
 };
 
 #endif

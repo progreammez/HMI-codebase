@@ -24,6 +24,15 @@ struct SimulationState
     QString driveMode = "ECO";
 
     bool accelerating = true;
+
+    QString gearState = "P";
+
+    bool leftIndicator = false;
+    bool rightIndicator = false;
+
+    bool headlights = false;
+
+    QString warningMessage = "";
 };
 
 class TelemetrySimulator : public QObject
@@ -45,7 +54,6 @@ private:
     QTimer m_timer;
 
     SimulationState m_state;
-    int m_batteryCounter = 0;
 };
 
 #endif // TELEMETRYSIMULATOR_H

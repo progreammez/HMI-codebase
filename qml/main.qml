@@ -9,6 +9,16 @@ Window {
 
     title: "EV HMI"
 
+    Rectangle {
+        width: 50
+        height: 50
+
+        color:
+            vehicleData.leftIndicator
+            ? "green"
+            : "gray"
+    }
+
     Column {
         anchors.centerIn: parent
         spacing: 10
@@ -31,6 +41,21 @@ Window {
 
         Text {
             text: "Mode: " + vehicleData.driveMode
+        }
+        Text {
+            text: vehicleData.gearState
+        }
+
+        Text {
+            text: vehicleData.warningMessage
+        }
+
+        Text {
+            text: "Right Indicator: " + vehicleData.rightIndicator
+        }
+
+        Text {
+            text: "Headlights: " + vehicleData.headlights
         }
     }
 }
