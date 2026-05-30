@@ -5,12 +5,14 @@
 #include "backend/VehicleData.h"
 #include "backend/TelemetrySimulator.h"
 #include "backend/WarningManager.h"
+#include "backend/LocalMusicPlayer.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
     VehicleData vehicleData;
+    LocalMusicPlayer musicPlayer;
 
     TelemetrySimulator simulator(&vehicleData);
 
@@ -39,6 +41,7 @@ int main(int argc, char *argv[])
     );
 
     simulator.start();
+    musicPlayer.play();
 
     QQmlApplicationEngine engine;
 
@@ -46,6 +49,7 @@ int main(int argc, char *argv[])
         "vehicleData",
         &vehicleData
     );
+
 
     engine.loadFromModule("EvHmi", "Main");
 

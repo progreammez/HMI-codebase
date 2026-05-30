@@ -5,7 +5,7 @@ project(EV_HMI VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick Multimedia)
 
 qt_standard_project_setup()
 
@@ -15,6 +15,7 @@ qt_add_executable(EV_HMI
     backend/VehicleData.cpp
     backend/TelemetrySimulator.cpp
     backend/WarningManager.cpp
+    backend/LocalMusicPlayer.cpp
     
 )
 
@@ -55,4 +56,5 @@ target_link_libraries(EV_HMI
         Qt6::Gui
         Qt6::Qml
         Qt6::Quick
+        Qt6::Multimedia
 )
