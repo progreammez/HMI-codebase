@@ -50,6 +50,10 @@ int main(int argc, char *argv[])
         &vehicleData
     );
 
+    engine.rootContext()->setContextProperty(
+        "musicPlayer",
+        &musicPlayer
+    );
 
     engine.loadFromModule("EvHmi", "Main");
 

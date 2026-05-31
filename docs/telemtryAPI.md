@@ -1,180 +1,171 @@
-# Telemetry API Contract
+# MediaPlayer API Contract
 
 ## Purpose
 
-This document defines all telemetry variables exposed by the backend to QML.
+This document defines all media playback variables exposed by the backend to QML.
 
 Backend developers are responsible for maintaining these properties.
 
-Frontend developers should consume these properties directly from `VehicleData`.
+Frontend developers should consume these properties directly from `musicPlayer`.
+
+Media playback data must remain separate from vehicle telemetry.
+
+Vehicle telemetry belongs to `VehicleData`.
+
+Media playback belongs to `LocalMusicPlayer`.
 
 ---
 
-# VehicleData Properties
+# LocalMusicPlayer Properties
 
-## Core Vehicle Data
+## Playback Information
 
-| Property | Type | Unit | Description |
-|-----------|------|------|-------------|
-| speed | int | km/h | Current vehicle speed |
-| rpm | int | RPM | Motor RPM |
-| batteryPercent | int | % | Battery state of charge |
-| rangeKm | int | km | Estimated remaining range |
-
----
-
-## Temperature Data
-
-| Property | Type | Unit | Description |
-|-----------|------|------|-------------|
-| motorTemp | int | °C | Motor temperature |
-| batteryTemp | int | °C | Battery temperature |
-| controllerTemp | int | °C | Motor controller temperature |
+| Property   | Type    | Description                               |
+| ---------- | ------- | ----------------------------------------- |
+| trackTitle | QString | Current track title                       |
+| duration   | qint64  | Total track duration in milliseconds      |
+| position   | qint64  | Current playback position in milliseconds |
+| isPlaying  | bool    | Current playback state                    |
 
 ---
 
-## Drive Information
+## Playlist Information
 
-| Property | Type | Unit | Description |
-|-----------|------|------|-------------|
-| driveMode | QString | - | ECO, CITY, SPORT |
-| gearState | QString | - | P, R, N, D |
-
----
-
-## Indicators & Lighting
-
-| Property | Type | Unit | Description |
-|-----------|------|------|-------------|
-| leftIndicator | bool | - | Left turn signal state |
-| rightIndicator | bool | - | Right turn signal state |
-| hazardLights | bool | - | Hazard lights active |
-| headlights | bool | - | Headlights enabled |
-| highBeam | bool | - | High beam enabled |
+| Property          | Type | Description                        |
+| ----------------- | ---- | ---------------------------------- |
+| currentTrackIndex | int  | Current track number (1-based)     |
+| trackCount        | int  | Total number of tracks in playlist |
 
 ---
 
-## Charging Data
+## Playback Modes
 
-| Property | Type | Unit | Description |
-|-----------|------|------|-------------|
-| charging | bool | - | Vehicle charging state |
-| chargingPower | float | kW | Charging power |
-| chargeTimeRemaining | int | min | Remaining charging time |
-
----
-
-## Powertrain Data
-
-| Property | Type | Unit | Description |
-|-----------|------|------|-------------|
-| batteryVoltage | float | V | Battery pack voltage |
-| batteryCurrent | float | A | Battery pack current |
-| motorPower | float | kW | Current motor output power |
-| regenLevel | int | Level | Regenerative braking level |
+| Property       | Type | Description          |
+| -------------- | ---- | -------------------- |
+| shuffleEnabled | bool | Shuffle mode enabled |
+| repeatEnabled  | bool | Repeat mode enabled  |
 
 ---
 
-## Trip Information
+# Invokable Functions
 
-| Property | Type | Unit | Description |
-|-----------|------|------|-------------|
-| odometer | float | km | Total lifetime distance |
-| tripDistance | float | km | Current trip distance |
+## Playback Control
 
----
-
-## Warning System
-
-| Property | Type | Unit | Description |
-|-----------|------|------|-------------|
-| warningMessage | QString | - | Active warning text |
-| lowBatteryWarning | bool | - | Low battery detected |
-| motorOverTempWarning | bool | - | Motor temperature exceeded threshold |
-| batteryOverTempWarning | bool | - | Battery temperature exceeded threshold |
-| communicationFault | bool | - | Communication failure detected |
+| Function         | Description       |
+| ---------------- | ----------------- |
+| play()           | Start playback    |
+| pause()          | Pause playback    |
+| togglePlayback() | Toggle play/pause |
 
 ---
 
-# Signals
+## Playlist Navigation
 
-## Telemetry Updates
+| Function        | Description            |
+| --------------- | ---------------------- |
+| nextTrack()     | Move to next track     |
+| previousTrack() | Move to previous track |
 
-| Signal | Description |
-|----------|-------------|
-| telemetryChanged() | Emitted whenever telemetry data changes |
+---
+
+## Playback Position
+
+| Function       | Description                                         |
+| -------------- | --------------------------------------------------- |
+| seek(position) | Jump to specified playback position in milliseconds |
+
+---
+
+## Playback Modes
+
+| Function        | Description         |
+| --------------- | ------------------- |
+| toggleShuffle() | Toggle shuffle mode |
+| toggleRepeat()  | Toggle repeat mode  |
 
 ---
 
 # Example QML Usage
 
-```qml
 Text {
-    text: vehicleData.speed + " km/h"
+text: musicPlayer.trackTitle
 }
 
 Text {
-    text: vehicleData.batteryPercent + "%"
-}
+text: musicPlayer.currentTrackIndex
+
+- " / "
+- musicPlayer.trackCount
+  }
 
 Text {
-    text: vehicleData.motorTemp + " °C"
+text: musicPlayer.isPlaying
+? "Playing"
+: "Paused"
 }
 
-Text {
-    text: vehicleData.driveMode
-}
+Slider {
+from: 0
+to: musicPlayer.duration
 
-Rectangle {
-    visible: vehicleData.leftIndicator
-}
+```
+value: musicPlayer.position
 
-Text {
-    text: vehicleData.odometer.toFixed(1) + " km"
+onMoved: {
+    musicPlayer.seek(value)
 }
 ```
 
----
+}
 
-# Data Flow
+Button {
+text: "Next"
 
-```text
-TelemetrySimulator
-        ↓
-
-UARTDataSource
-        ↓
-
-TelemetryParser
-        ↓
-
-VehicleData
-        ↓
-
-WarningManager
-        ↓
-
-QML Dashboard
 ```
+onClicked: {
+    musicPlayer.nextTrack()
+}
+```
+
+}
+
+Button {
+text: "Previous"
+
+```
+onClicked: {
+    musicPlayer.previousTrack()
+}
+```
+
+}
+
+Button {
+text: musicPlayer.isPlaying
+? "Pause"
+: "Play"
+
+```
+onClicked: {
+    musicPlayer.togglePlayback()
+}
+```
+
+}
 
 ---
 
 # Architecture Rules
 
-1. QML must only read/write data through `VehicleData`.
+1. QML must never directly access QMediaPlayer.
 
-2. QML must never directly access:
-   - UART
-   - Serial ports
-   - CAN bus
-   - Telemetry parser
-   - Simulator
+2. QML must never access playlist internals.
 
-3. `VehicleData` acts as the single source of truth for the dashboard.
+3. QML must communicate only through LocalMusicPlayer.
 
-4. `TelemetrySimulator` is used during development when hardware is unavailable.
+4. Track loading, playback control, playlist management, shuffle logic, repeat logic, and seeking are backend responsibilities.
 
-5. When STM32 integration begins, the simulator should be replaced by `UARTDataSource` without requiring changes to the QML layer.
+5. LocalMusicPlayer acts as the single source of truth for media playback.
 
 ---
 
@@ -182,36 +173,31 @@ QML Dashboard
 
 ## Implemented
 
-- speed
-- rpm
-- batteryPercent
-- rangeKm
-- motorTemp
-- batteryTemp
-- driveMode
-- gearState
-- leftIndicator
-- rightIndicator
-- hazardLights
-- headlights
-- highBeam
-- motorPower
-- regenLevel
-- odometer
-- tripDistance
-- warningMessage
-- lowBatteryWarning
-- motorOverTempWarning
-- batteryOverTempWarning
-- communicationFault
+- trackTitle
+- duration
+- position
+- isPlaying
+- currentTrackIndex
+- trackCount
+- shuffleEnabled
+- repeatEnabled
+- play()
+- pause()
+- togglePlayback()
+- nextTrack()
+- previousTrack()
+- seek()
+- toggleShuffle()
+- toggleRepeat()
 
 ## Planned
 
-- controllerTemp
-- charging
-- chargingPower
-- chargeTimeRemaining
-- batteryVoltage
-- batteryCurrent
-- UARTDataSource
-- STM32 integration
+- artistName
+- albumName
+- albumArt
+- volume
+- mute
+- playlistName
+- metadata extraction
+- Bluetooth audio source
+- USB media source
