@@ -32,6 +32,8 @@ class LocalMusicPlayer : public QObject
     Q_PROPERTY(QString artistName READ artistName NOTIFY artistNameChanged)
     Q_PROPERTY(QString albumName READ albumName NOTIFY albumNameChanged)
 
+    Q_PROPERTY(QString albumArtUrl READ albumArtUrl NOTIFY albumArtUrlChanged)
+
 public:
     explicit LocalMusicPlayer(QObject *parent = nullptr);
 
@@ -44,6 +46,8 @@ public:
 
     QString currentTime() const;
     QString totalTime() const;
+
+    QString albumArtUrl() const;
 
     bool isPlaying() const;
 
@@ -94,6 +98,8 @@ signals:
     void artistNameChanged();
     void albumNameChanged();
 
+    void albumArtUrlChanged();
+
 private:
     QMediaPlayer *m_player;
     QAudioOutput *m_audioOutput;
@@ -113,6 +119,7 @@ private:
     bool m_muted = false;
     QString m_artistName = "Unknown Artist";
     QString m_albumName = "Unknown Album";
+    QString m_albumArtUrl;
 };
 
 #endif

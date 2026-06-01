@@ -1,6 +1,7 @@
 #include "LocalMusicPlayer.h"
 
 #include <QUrl>
+#include <QFile>
 #include <QFileInfo>
 #include <QDir>
 #include <QRandomGenerator>
@@ -17,18 +18,12 @@ LocalMusicPlayer::LocalMusicPlayer(QObject *parent)
     m_volume = 50;
     m_audioOutput->setVolume(0.5);
 
-    QDir musicDir(
-        "/home/notbigboi/EV_HMI/assets/music/"
-    );
+    QDir musicDir("/home/notbigboi/EV_HMI/assets/music/");
 
     QStringList filters;
     filters << "*.mp3";
 
-    m_playlist =
-        musicDir.entryList(
-            filters,
-            QDir::Files
-        );
+    m_playlist = musicDir.entryList(filters,QDir::Files);
 
     if (!m_playlist.isEmpty())
     {
@@ -112,12 +107,21 @@ void LocalMusicPlayer::loadTrack(int index)
 
     m_currentIndex = index;
 
-    QString songPath =
-        "/home/notbigboi/EV_HMI/assets/music/"
-        + m_playlist[index];
+    QString songPath = "/home/notbigboi/EV_HMI/assets/music/" + m_playlist[index];
+    QString coverPath = "/home/notbigboi/EV_HMI/assets/albumcovers/" + QFileInfo(songPath).baseName() + ".png";
 
-    m_trackTitle =
-        QFileInfo(songPath).baseName();
+    if (QFile::exists(coverPath))
+    {
+        m_albumArtUrl =
+            QUrl::fromLocalFile(coverPath).toString();
+    }
+    else
+    {
+        m_albumArtUrl =
+            "qrc:/EV_HMI/assets/default_cover.png";
+    }
+
+    m_trackTitle = QFileInfo(songPath).baseName();
 
     emit trackTitleChanged();
     emit currentTrackIndexChanged();
@@ -126,10 +130,9 @@ void LocalMusicPlayer::loadTrack(int index)
 
     emit artistNameChanged();
     emit albumNameChanged();
+    emit albumArtUrlChanged();
 
-    m_player->setSource(
-        QUrl::fromLocalFile(songPath)
-    );
+    m_player->setSource(QUrl::fromLocalFile(songPath));
 }
 
 QString LocalMusicPlayer::trackTitle() const
@@ -149,14 +152,11 @@ qint64 LocalMusicPlayer::position() const
 
 QString LocalMusicPlayer::currentTime() const
 {
-    int totalSeconds =
-        m_player->position() / 1000;
+    int totalSeconds = m_player->position() / 1000;
 
-    int minutes =
-        totalSeconds / 60;
+    int minutes = totalSeconds / 60;
 
-    int seconds =
-        totalSeconds % 60;
+    int seconds = totalSeconds % 60;
 
     return QString("%1:%2")
         .arg(minutes)
@@ -165,14 +165,11 @@ QString LocalMusicPlayer::currentTime() const
 
 QString LocalMusicPlayer::totalTime() const
 {
-    int totalSeconds =
-        m_player->duration() / 1000;
+    int totalSeconds = m_player->duration() / 1000;
 
-    int minutes =
-        totalSeconds / 60;
+    int minutes = totalSeconds / 60;
 
-    int seconds =
-        totalSeconds % 60;
+    int seconds = totalSeconds % 60;
 
     return QString("%1:%2")
         .arg(minutes)
@@ -181,8 +178,7 @@ QString LocalMusicPlayer::totalTime() const
 
 bool LocalMusicPlayer::isPlaying() const
 {
-    return m_player->playbackState()
-           == QMediaPlayer::PlayingState;
+    return m_player->playbackState() == QMediaPlayer::PlayingState;
 }
 
 int LocalMusicPlayer::currentTrackIndex() const
@@ -235,6 +231,11 @@ QString LocalMusicPlayer::albumName() const
     return m_albumName;
 }
 
+QString LocalMusicPlayer::albumArtUrl() const
+{
+    return m_albumArtUrl;
+}
+
 void LocalMusicPlayer::togglePlayback()
 {
     if (isPlaying())
@@ -250,16 +251,14 @@ void LocalMusicPlayer::seek(qint64 position)
 
 void LocalMusicPlayer::toggleShuffle()
 {
-    m_shuffleEnabled =
-        !m_shuffleEnabled;
+    m_shuffleEnabled = !m_shuffleEnabled;
 
     emit shuffleEnabledChanged();
 }
 
 void LocalMusicPlayer::toggleRepeat()
 {
-    m_repeatEnabled =
-        !m_repeatEnabled;
+    m_repeatEnabled = !m_repeatEnabled;
 
     emit repeatEnabledChanged();
 }
@@ -271,10 +270,7 @@ void LocalMusicPlayer::nextTrack()
 
     if (m_shuffleEnabled)
     {
-        m_currentIndex =
-            QRandomGenerator::global()->bounded(
-                m_playlist.size()
-            );
+        m_currentIndex = QRandomGenerator::global()->bounded(m_playlist.size());
     }
     else
     {
@@ -300,8 +296,7 @@ void LocalMusicPlayer::previousTrack()
 
     if (m_currentIndex < 0)
     {
-        m_currentIndex =
-            m_playlist.size() - 1;
+        m_currentIndex = m_playlist.size() - 1;
     }
 
     loadTrack(m_currentIndex);
@@ -322,9 +317,7 @@ void LocalMusicPlayer::setVolume(int volume)
 
     m_volume = volume;
 
-    m_audioOutput->setVolume(
-        m_volume / 100.0
-    );
+    m_audioOutput->setVolume(m_volume / 100.0);
 
     emit volumeChanged();
 }

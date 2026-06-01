@@ -10,49 +10,74 @@ Item {
         spacing: Theme.cardGap
 
         BaseCard {
-            width: parent.width * 0.65
+            width: parent.width * 0.72
             height: parent.height
 
             title: "Now Playing"
 
             Column {
                 anchors.fill: parent
-                anchors.margins: 20
-                spacing: 16
+                anchors.margins: 16
+                spacing: 10
+
+                Image {
+                    width: 140
+                    height: 140
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    source: musicPlayer.albumArtUrl
+                    fillMode: Image.PreserveAspectFit
+                }
 
                 Text {
+                    width: parent.width
+
                     text: musicPlayer.trackTitle
-                    wrapMode: Text.WordWrap
+
                     color: Colors.textPrimary
 
-                    font.family: Typography.family
-                    font.pixelSize: Typography.displayMedium
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+
+                    font.pixelSize: 40
                 }
 
                 Text {
-                    text: "Track "
-                          + musicPlayer.currentTrackIndex
-                          + " / "
-                          + musicPlayer.trackCount
+                    width: parent.width
+
+                    text: musicPlayer.artistName
 
                     color: Colors.textSecondary
+
+                    horizontalAlignment: Text.AlignHCenter
+
+                    font.pixelSize: 22
                 }
 
                 Text {
-                    text: musicPlayer.isPlaying
-                          ? "▶ Playing"
-                          : "|| Paused"
+                    width: parent.width
 
-                    color: Colors.accentEco
+                    text: musicPlayer.albumName
+
+                    color: Colors.textSecondary
+
+                    horizontalAlignment: Text.AlignHCenter
+
+                    font.pixelSize: 16
                 }
 
                 Slider {
                     id: progressSlider
 
+                    width: parent.width
+
                     from: 0
                     to: musicPlayer.duration
 
-                    value: musicPlayer.position
+                    value: pressed
+                           ? value
+                           : musicPlayer.position
 
                     onMoved: {
                         musicPlayer.seek(value)
@@ -60,7 +85,7 @@ Item {
                 }
 
                 RowLayout {
-                    width: parent.width - 40
+                    width: parent.width
 
                     Text {
                         text: musicPlayer.currentTime
@@ -77,8 +102,70 @@ Item {
                     }
                 }
 
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 10
+
+                    Button {
+                        width: 80
+                        text: "<<"
+                        onClicked: musicPlayer.previousTrack()
+                    }
+
+                    Button {
+                        width: 100
+
+                        text: musicPlayer.isPlaying
+                              ? "||"
+                              : "▶"
+
+                        onClicked: musicPlayer.togglePlayback()
+                    }
+
+                    Button {
+                        width: 80
+                        text: ">>"
+                        onClicked: musicPlayer.nextTrack()
+                    }
+                }
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 10
+
+                    Button {
+                        text: musicPlayer.shuffleEnabled
+                              ? "Shuffle ON"
+                              : "Shuffle OFF"
+
+                        onClicked: musicPlayer.toggleShuffle()
+                    }
+
+                    Button {
+                        text: musicPlayer.repeatEnabled
+                              ? "Repeat ON"
+                              : "Repeat OFF"
+
+                        onClicked: musicPlayer.toggleRepeat()
+                    }
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    text: "Volume: "
+                          + Math.round(musicPlayer.volume)
+                          + "%"
+
+                    color: Colors.textSecondary
+
+                    font.pixelSize: 16
+                }
+
                 Slider {
-                    width: 400
+                    width: parent.width * 0.7
+
+                    anchors.horizontalCenter: parent.horizontalCenter
 
                     from: 0
                     to: 100
@@ -91,130 +178,96 @@ Item {
                 }
 
                 Button {
+                    anchors.horizontalCenter: parent.horizontalCenter
+
                     text: musicPlayer.muted
-                        ? "Unmute"
-                        : "Mute"
+                          ? "Unmute"
+                          : "Mute"
 
-                    onClicked: {
-                        musicPlayer.toggleMute()
-                    }
-                }
-
-                Row {
-                    spacing: 10
-
-                    Button {
-                        text: "<<"
-
-                        onClicked: {
-                            musicPlayer.previousTrack()
-                        }
-                    }
-
-                    Button {
-                        text: musicPlayer.isPlaying
-                              ? "||"
-                              : "▶"
-
-                        onClicked: {
-                            musicPlayer.togglePlayback()
-                        }
-                    }
-
-                    Button {
-                        text: ">>"
-
-                        onClicked: {
-                            musicPlayer.nextTrack()
-                        }
-                    }
-                }
-
-                Row {
-                    spacing: 10
-
-                    Button {
-                        text: musicPlayer.shuffleEnabled
-                              ? "Shuffle ON"
-                              : "Shuffle OFF"
-
-                        onClicked: {
-                            musicPlayer.toggleShuffle()
-                        }
-                    }
-
-                    Button {
-                        text: musicPlayer.repeatEnabled
-                              ? "Repeat ON"
-                              : "Repeat OFF"
-
-                        onClicked: {
-                            musicPlayer.toggleRepeat()
-                        }
-                    }
+                    onClicked: musicPlayer.toggleMute()
                 }
             }
         }
 
         BaseCard {
-            width: parent.width * 0.35
+            width: parent.width * 0.28
             height: parent.height
 
             title: "Playback Info"
 
             Column {
                 anchors.centerIn: parent
-                spacing: 18
+                spacing: 16
 
                 Text {
                     text: "Current Time"
-
                     color: Colors.textSecondary
-                    font.pixelSize: Typography.titleLarge
+                    font.pixelSize: 20
                 }
 
                 Text {
                     text: musicPlayer.currentTime
-
                     color: Colors.textPrimary
-                    font.pixelSize: Typography.displaySmall
+                    font.pixelSize: 42
                 }
 
                 Text {
                     text: "Total Time"
-
                     color: Colors.textSecondary
-                    font.pixelSize: Typography.titleLarge
+                    font.pixelSize: 20
                 }
 
                 Text {
                     text: musicPlayer.totalTime
-
                     color: Colors.textPrimary
-                    font.pixelSize: Typography.displaySmall
+                    font.pixelSize: 42
                 }
 
                 Text {
                     text: "Volume"
-
                     color: Colors.textSecondary
-                    font.pixelSize: Typography.titleLarge
+                    font.pixelSize: 20
                 }
 
                 Text {
                     text: Math.round(musicPlayer.volume) + "%"
-
                     color: Colors.textPrimary
-                    font.pixelSize: Typography.displaySmall
+                    font.pixelSize: 42
                 }
-                Text {
-                    text: musicPlayer.artistName
-                    color: "white"
+
+                Rectangle {
+                    width: parent.width * 0.8
+                    height: 1
+                    color: Colors.textSecondary
+                    opacity: 0.3
                 }
 
                 Text {
-                    text: musicPlayer.albumName
-                    color: "white"
+                    text: "Track "
+                          + musicPlayer.currentTrackIndex
+                          + " / "
+                          + musicPlayer.trackCount
+
+                    color: Colors.textSecondary
+                    font.pixelSize: 18
+                }
+
+                Text {
+                    text: musicPlayer.shuffleEnabled
+                          ? "Shuffle ON"
+                          : "Shuffle OFF"
+
+                    color: Colors.textSecondary
+                    font.pixelSize: 16
+                }
+
+                Text {
+                    text: musicPlayer.repeatEnabled
+                          ? "Repeat ON"
+                          : "Repeat OFF"
+
+                    color: Colors.textSecondary
+                    font.pixelSize: 16
                 }
             }
         }
