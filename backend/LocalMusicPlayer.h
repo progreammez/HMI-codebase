@@ -20,18 +20,26 @@ class LocalMusicPlayer : public QObject
 
     Q_PROPERTY(bool isPlaying READ isPlaying NOTIFY isPlayingChanged)
 
-    Q_PROPERTY(float volume READ volume WRITE setVolume NOTIFY volumeChanged)
-
     Q_PROPERTY(int currentTrackIndex READ currentTrackIndex NOTIFY currentTrackIndexChanged)
     Q_PROPERTY(int trackCount READ trackCount NOTIFY trackCountChanged)
 
     Q_PROPERTY(bool shuffleEnabled READ shuffleEnabled NOTIFY shuffleEnabledChanged)
     Q_PROPERTY(bool repeatEnabled READ repeatEnabled NOTIFY repeatEnabledChanged)
 
+    Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
+    Q_PROPERTY(bool muted READ muted WRITE setMuted NOTIFY mutedChanged)
+
+    Q_PROPERTY(QString artistName READ artistName NOTIFY artistNameChanged)
+    Q_PROPERTY(QString albumName READ albumName NOTIFY albumNameChanged)
+
+    Q_PROPERTY(QString albumArtUrl READ albumArtUrl NOTIFY albumArtUrlChanged)
+
 public:
     explicit LocalMusicPlayer(QObject *parent = nullptr);
 
     QString trackTitle() const;
+    QString artistName() const;
+    QString albumName() const;
 
     qint64 duration() const;
     qint64 position() const;
@@ -41,14 +49,17 @@ public:
 
     bool isPlaying() const;
 
-    float volume() const;
-    void setVolume(float value);
-
     int currentTrackIndex() const;
     int trackCount() const;
 
     bool shuffleEnabled() const;
     bool repeatEnabled() const;
+
+    int volume() const;
+    bool muted() const;
+
+    void setVolume(int volume);
+    void setMuted(bool muted);
 
     Q_INVOKABLE void play();
     Q_INVOKABLE void pause();
@@ -61,6 +72,8 @@ public:
 
     Q_INVOKABLE void toggleShuffle();
     Q_INVOKABLE void toggleRepeat();
+
+    Q_INVOKABLE void toggleMute();
 
 signals:
     void trackTitleChanged();
@@ -78,8 +91,10 @@ signals:
     void shuffleEnabledChanged();
     void repeatEnabledChanged();
 
-private:
-    void loadTrack(int index);
+    void mutedChanged();
+
+    void artistNameChanged();
+    void albumNameChanged();
 
 private:
     QMediaPlayer *m_player;
@@ -92,7 +107,14 @@ private:
     bool m_shuffleEnabled = false;
     bool m_repeatEnabled = false;
 
+    void loadTrack(int index);
+
     QString m_trackTitle;
+
+    int m_volume = 50;
+    bool m_muted = false;
+    QString m_artistName = "Unknown Artist";
+    QString m_albumName = "Unknown Album";
 };
 
 #endif

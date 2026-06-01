@@ -1,203 +1,250 @@
-# MediaPlayer API Contract
+# EV HMI Telemetry API
 
 ## Purpose
 
-This document defines all media playback variables exposed by the backend to QML.
+This document defines all telemetry variables exposed by the backend to QML.
 
 Backend developers are responsible for maintaining these properties.
 
-Frontend developers should consume these properties directly from `musicPlayer`.
+Frontend developers should consume these properties directly from `vehicleData`.
 
-Media playback data must remain separate from vehicle telemetry.
-
-Vehicle telemetry belongs to `VehicleData`.
-
-Media playback belongs to `LocalMusicPlayer`.
+Media playback information is not telemetry and must be accessed through `musicPlayer`.
 
 ---
 
-# LocalMusicPlayer Properties
+# VehicleData Properties
 
-## Playback Information
+## Core Vehicle Data
 
-| Property   | Type    | Description                               |
-| ---------- | ------- | ----------------------------------------- |
-| trackTitle | QString | Current track title                       |
-| duration   | qint64  | Total track duration in milliseconds      |
-| position   | qint64  | Current playback position in milliseconds |
-| isPlaying  | bool    | Current playback state                    |
-
----
-
-## Playlist Information
-
-| Property          | Type | Description                        |
-| ----------------- | ---- | ---------------------------------- |
-| currentTrackIndex | int  | Current track number (1-based)     |
-| trackCount        | int  | Total number of tracks in playlist |
+| Property       | Type | Unit | Description               |
+| -------------- | ---- | ---- | ------------------------- |
+| speed          | int  | km/h | Current vehicle speed     |
+| rpm            | int  | RPM  | Motor RPM                 |
+| batteryPercent | int  | %    | Battery state of charge   |
+| rangeKm        | int  | km   | Estimated remaining range |
 
 ---
 
-## Playback Modes
+## Temperature Data
 
-| Property       | Type | Description          |
-| -------------- | ---- | -------------------- |
-| shuffleEnabled | bool | Shuffle mode enabled |
-| repeatEnabled  | bool | Repeat mode enabled  |
-
----
-
-# Invokable Functions
-
-## Playback Control
-
-| Function         | Description       |
-| ---------------- | ----------------- |
-| play()           | Start playback    |
-| pause()          | Pause playback    |
-| togglePlayback() | Toggle play/pause |
+| Property       | Type | Unit | Description                  |
+| -------------- | ---- | ---- | ---------------------------- |
+| motorTemp      | int  | °C   | Motor temperature            |
+| batteryTemp    | int  | °C   | Battery temperature          |
+| controllerTemp | int  | °C   | Motor controller temperature |
 
 ---
 
-## Playlist Navigation
+## Drive Information
 
-| Function        | Description            |
-| --------------- | ---------------------- |
-| nextTrack()     | Move to next track     |
-| previousTrack() | Move to previous track |
-
----
-
-## Playback Position
-
-| Function       | Description                                         |
-| -------------- | --------------------------------------------------- |
-| seek(position) | Jump to specified playback position in milliseconds |
+| Property  | Type    | Description      |
+| --------- | ------- | ---------------- |
+| driveMode | QString | ECO, CITY, SPORT |
+| gearState | QString | P, N, R, D       |
 
 ---
 
-## Playback Modes
+## Indicators & Lighting
 
-| Function        | Description         |
-| --------------- | ------------------- |
-| toggleShuffle() | Toggle shuffle mode |
-| toggleRepeat()  | Toggle repeat mode  |
+| Property       | Type | Description                |
+| -------------- | ---- | -------------------------- |
+| leftIndicator  | bool | Left turn indicator state  |
+| rightIndicator | bool | Right turn indicator state |
+| hazardLights   | bool | Hazard light state         |
+| headlights     | bool | Headlight state            |
+| highBeam       | bool | High beam state            |
+
+---
+
+## Charging Data
+
+| Property            | Type  | Unit | Description             |
+| ------------------- | ----- | ---- | ----------------------- |
+| charging            | bool  | -    | Charging status         |
+| chargingPower       | float | kW   | Charging power          |
+| chargeTimeRemaining | int   | min  | Remaining charging time |
+
+---
+
+## Powertrain Data
+
+| Property       | Type  | Unit  | Description                |
+| -------------- | ----- | ----- | -------------------------- |
+| batteryVoltage | float | V     | Battery pack voltage       |
+| batteryCurrent | float | A     | Battery pack current       |
+| motorPower     | float | kW    | Current motor output power |
+| regenLevel     | int   | Level | Regenerative braking level |
+
+---
+
+## Trip Information
+
+| Property     | Type  | Unit | Description            |
+| ------------ | ----- | ---- | ---------------------- |
+| odometer     | float | km   | Total vehicle distance |
+| tripDistance | float | km   | Current trip distance  |
+
+---
+
+## Warning System
+
+| Property               | Type    | Description                         |
+| ---------------------- | ------- | ----------------------------------- |
+| warningMessage         | QString | Active warning message              |
+| lowBatteryWarning      | bool    | Battery below warning threshold     |
+| motorOverTempWarning   | bool    | Motor temperature above threshold   |
+| batteryOverTempWarning | bool    | Battery temperature above threshold |
+| communicationFault     | bool    | Communication fault detected        |
+
+---
+
+# Backend Data Flow
+
+## Development Mode
+
+```text
+TelemetrySimulator
+        ↓
+VehicleData
+        ↓
+QML Dashboard
+```
+
+---
+
+## Production Mode
+
+```text
+UARTManager / CANManager
+            ↓
+TelemetryParser
+            ↓
+VehicleData
+            ↓
+QML Dashboard
+```
+
+---
+
+# Context Property
+
+Registered in `main.cpp`:
+
+```cpp
+engine.rootContext()->setContextProperty(
+    "vehicleData",
+    &vehicleData
+);
+```
 
 ---
 
 # Example QML Usage
 
+## Speed
+
+```qml
 Text {
-text: musicPlayer.trackTitle
-}
-
-Text {
-text: musicPlayer.currentTrackIndex
-
-- " / "
-- musicPlayer.trackCount
-  }
-
-Text {
-text: musicPlayer.isPlaying
-? "Playing"
-: "Paused"
-}
-
-Slider {
-from: 0
-to: musicPlayer.duration
-
-```
-value: musicPlayer.position
-
-onMoved: {
-    musicPlayer.seek(value)
+    text: vehicleData.speed + " km/h"
 }
 ```
-
-}
-
-Button {
-text: "Next"
-
-```
-onClicked: {
-    musicPlayer.nextTrack()
-}
-```
-
-}
-
-Button {
-text: "Previous"
-
-```
-onClicked: {
-    musicPlayer.previousTrack()
-}
-```
-
-}
-
-Button {
-text: musicPlayer.isPlaying
-? "Pause"
-: "Play"
-
-```
-onClicked: {
-    musicPlayer.togglePlayback()
-}
-```
-
-}
 
 ---
 
-# Architecture Rules
+## Battery Percentage
 
-1. QML must never directly access QMediaPlayer.
-
-2. QML must never access playlist internals.
-
-3. QML must communicate only through LocalMusicPlayer.
-
-4. Track loading, playback control, playlist management, shuffle logic, repeat logic, and seeking are backend responsibilities.
-
-5. LocalMusicPlayer acts as the single source of truth for media playback.
+```qml
+Text {
+    text: vehicleData.batteryPercent + "%"
+}
+```
 
 ---
 
-# Current Integration Status
+## Motor Temperature
 
-## Implemented
+```qml
+Text {
+    text: vehicleData.motorTemp + "°C"
+}
+```
 
-- trackTitle
-- duration
-- position
-- isPlaying
-- currentTrackIndex
-- trackCount
-- shuffleEnabled
-- repeatEnabled
-- play()
-- pause()
-- togglePlayback()
-- nextTrack()
-- previousTrack()
-- seek()
-- toggleShuffle()
-- toggleRepeat()
+---
 
-## Planned
+## Drive Mode
 
-- artistName
-- albumName
-- albumArt
-- volume
-- mute
-- playlistName
-- metadata extraction
-- Bluetooth audio source
-- USB media source
+```qml
+Text {
+    text: vehicleData.driveMode
+}
+```
+
+---
+
+## Warning Banner
+
+```qml
+Text {
+    text: vehicleData.warningMessage
+}
+```
+
+---
+
+# Design Rules
+
+1. QML must never communicate directly with UART, CAN, or the simulator.
+2. All vehicle data must pass through `VehicleData`.
+3. Music information must never be added to `VehicleData`.
+4. Spotify, Bluetooth, USB, and local music data belong to `LocalMusicPlayer`.
+5. Frontend code must only consume properties defined in this document.
+
+---
+
+# Related APIs
+
+## Vehicle Telemetry
+
+```text
+vehicleData
+```
+
+Contains:
+
+```text
+Speed
+Battery
+Temperature
+Warnings
+Charging
+Powertrain
+Trip Information
+Indicators
+```
+
+---
+
+## Media Playback
+
+```text
+musicPlayer
+```
+
+Contains:
+
+```text
+Track Metadata
+Playback Controls
+Volume
+Mute
+Shuffle
+Repeat
+Playlist Information
+Album Artwork
+```
+
+See:
+
+```text
+docs/mediaAPI.md
+```

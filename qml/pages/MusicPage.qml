@@ -41,7 +41,7 @@ Item {
                 Text {
                     text: musicPlayer.isPlaying
                           ? "▶ Playing"
-                          : "⏸ Paused"
+                          : "|| Paused"
 
                     color: Colors.accentEco
                 }
@@ -77,22 +77,26 @@ Item {
                     }
                 }
 
-                Text {
-                    text: "Volume"
-
-                    color: Colors.textPrimary
-                }
-
                 Slider {
-                    width: parent.width - 40
+                    width: 400
 
                     from: 0
-                    to: 1
+                    to: 100
 
                     value: musicPlayer.volume
 
                     onMoved: {
                         musicPlayer.volume = value
+                    }
+                }
+
+                Button {
+                    text: musicPlayer.muted
+                        ? "Unmute"
+                        : "Mute"
+
+                    onClicked: {
+                        musicPlayer.toggleMute()
                     }
                 }
 
@@ -198,12 +202,19 @@ Item {
                 }
 
                 Text {
-                    text: Math.round(
-                              musicPlayer.volume * 100
-                          ) + "%"
+                    text: Math.round(musicPlayer.volume) + "%"
 
                     color: Colors.textPrimary
                     font.pixelSize: Typography.displaySmall
+                }
+                Text {
+                    text: musicPlayer.artistName
+                    color: "white"
+                }
+
+                Text {
+                    text: musicPlayer.albumName
+                    color: "white"
                 }
             }
         }
