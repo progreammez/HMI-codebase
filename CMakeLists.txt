@@ -16,7 +16,6 @@ qt_add_executable(EV_HMI
     backend/TelemetrySimulator.cpp
     backend/WarningManager.cpp
     backend/LocalMusicPlayer.cpp
-    
 )
 
 target_include_directories(EV_HMI PRIVATE
@@ -33,24 +32,46 @@ set_source_files_properties(
 qt_add_qml_module(EV_HMI
     URI EvHmi
     VERSION 1.0
+
     QML_FILES
         qml/Main.qml
         qml/AppShell.qml
+
         qml/components/BaseCard.qml
         qml/components/CockpitFrame.qml
         qml/components/EnergyBar.qml
         qml/components/MetricTile.qml
         qml/components/ModeButton.qml
+
         qml/pages/HomePage.qml
         qml/pages/MusicPage.qml
         qml/pages/SettingsPage.qml
         qml/pages/DiagnosticsPage.qml
+
         qml/themes/Colors.qml
         qml/themes/Typography.qml
         qml/themes/Theme.qml
 )
 
-target_link_libraries(EV_HMI 
+qt_add_resources(EV_HMI "assets"
+    PREFIX "/"
+
+    FILES
+        assets/music/placeholder/default_cover.png
+
+        assets/icons/play.png
+        assets/icons/pause.png
+        assets/icons/previous.png
+        assets/icons/next.png
+        assets/icons/shuffle.png
+        assets/icons/repeat.png
+        
+        assets/icons/volume-loud.png
+        assets/icons/volume-mute.png
+       
+)
+
+target_link_libraries(EV_HMI
     PRIVATE
         Qt6::Core
         Qt6::Gui

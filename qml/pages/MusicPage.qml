@@ -1,209 +1,550 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 import EvHmi
 
 Item {
-
     Row {
         anchors.fill: parent
         spacing: Theme.cardGap
 
+        // =====================================================
+        // NOW PLAYING
+        // =====================================================
         BaseCard {
-            width: parent.width * 0.65
+            width: parent.width * 0.68
             height: parent.height
 
             title: "Now Playing"
 
             Column {
                 anchors.fill: parent
-                anchors.margins: 20
-                spacing: 16
+                anchors.margins: 8
+                spacing: 8
 
-                Text {
-                    text: musicPlayer.trackTitle
-                    wrapMode: Text.WordWrap
-                    color: Colors.textPrimary
+                // ==========================================
+                // COVER + METADATA
+                // ==========================================
+                Row {
+                    width: parent.width
+                    spacing: 20
 
-                    font.family: Typography.family
-                    font.pixelSize: Typography.displayMedium
-                }
+                    Rectangle {
+                        width: 140
+                        height: 140
 
-                Text {
-                    text: "Track "
-                          + musicPlayer.currentTrackIndex
-                          + " / "
-                          + musicPlayer.trackCount
+                        radius: 14
 
-                    color: Colors.textSecondary
-                }
+                        color: Colors.surfaceRaised
 
-                Text {
-                    text: musicPlayer.isPlaying
-                          ? "▶ Playing"
-                          : "⏸ Paused"
+                        border.width: 2
+                        border.color: Colors.borderActive
 
-                    color: Colors.accentEco
-                }
+                        Image {
+                            id: albumArt
 
-                Slider {
-                    id: progressSlider
+                            anchors.fill: parent
+                            anchors.margins: 3
 
-                    from: 0
-                    to: musicPlayer.duration
+                            source: musicPlayer.albumArtUrl
 
-                    value: musicPlayer.position
+                            fillMode: Image.PreserveAspectCrop
 
-                    onMoved: {
-                        musicPlayer.seek(value)
+                            cache: false
+
+                            visible: status === Image.Ready
+                        }
+
+                        Text {
+                            anchors.centerIn: parent
+
+                            visible: albumArt.status !== Image.Ready
+
+                            text: "♪"
+
+                            color: Colors.accentCity
+
+                            font.family: Typography.family
+                            font.pixelSize: 54
+                        }
+                    }
+
+                    Column {
+                        width: parent.width - 160
+
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        spacing: 10
+
+                        Text {
+                            text: musicPlayer.trackTitle
+
+                            color: Colors.textPrimary
+
+                            font.family: Typography.family
+                            font.pixelSize: Typography.titleLarge
+
+                            font.weight: Font.DemiBold
+
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Text {
+                            text: musicPlayer.artistName
+
+                            color: Colors.textSecondary
+
+                            font.family: Typography.family
+                            font.pixelSize: Typography.titleSmall
+
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Text {
+                            text: musicPlayer.albumName
+
+                            color: Colors.textMuted
+
+                            font.family: Typography.family
+                            font.pixelSize: Typography.bodyMedium
+
+                            wrapMode: Text.WordWrap
+                        }
                     }
                 }
 
-                RowLayout {
-                    width: parent.width - 40
+               
+                // ==========================================
+                // PROGRESS & TIMESTAMPS
+                // ==========================================
+                Item {
+                    id: progressSectionContainer
+                    width: parent.width
+                    // Height is the slider height + gap + text height
+                    height: progressSlider.height + 6 + 16 
 
+                    Slider {
+                        id: progressSlider
+                        width: parent.width - 10
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
+
+                        from: 0
+                        to: musicPlayer.duration
+                        value: musicPlayer.position
+
+                        onMoved: {
+                            musicPlayer.seek(value)
+                        }
+                    }
+
+                    // Explicitly anchored relative to the container boundaries,
+                    // safe inside its own Item bubble!
                     Text {
+                        id: startTimeText
+                        anchors.left: progressSlider.left
+                        anchors.top: progressSlider.bottom
+                        anchors.topMargin: 4
+                        
                         text: musicPlayer.currentTime
                         color: Colors.textSecondary
-                    }
-
-                    Item {
-                        Layout.fillWidth: true
+                        font.family: Typography.family
+                        font.pixelSize: Typography.bodySmall
                     }
 
                     Text {
+                        id: endTimeText
+                        anchors.right: progressSlider.right
+                        anchors.top: progressSlider.bottom
+                        anchors.topMargin: 4
+                        
                         text: musicPlayer.totalTime
                         color: Colors.textSecondary
+                        font.family: Typography.family
+                        font.pixelSize: Typography.bodySmall
                     }
                 }
 
-                Text {
-                    text: "Volume"
-
-                    color: Colors.textPrimary
-                }
-
-                Slider {
-                    width: parent.width - 40
-
-                    from: 0
-                    to: 1
-
-                    value: musicPlayer.volume
-
-                    onMoved: {
-                        musicPlayer.volume = value
-                    }
-                }
-
+                // ==========================================
+                // CONTROLS
+                // ==========================================
                 Row {
-                    spacing: 10
+                    anchors.horizontalCenter: parent.horizontalCenter
 
-                    Button {
-                        text: "<<"
+                    spacing: 40
 
-                        onClicked: {
-                            musicPlayer.previousTrack()
+                    Rectangle {
+                        width: 52
+                        height: 52
+
+                        radius: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                        
+
+                        color: Colors.surfaceRaised
+
+                        border.width: 1
+                        border.color: Colors.borderWarm
+
+                        Image {
+                            anchors.centerIn: parent
+
+                            width: 22
+                            height: 22
+
+                            source: "qrc:/assets/icons/previous.png"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: musicPlayer.previousTrack()
                         }
                     }
 
-                    Button {
-                        text: musicPlayer.isPlaying
-                              ? "||"
-                              : "▶"
+                    Rectangle {
+                        width: 68
+                        height: 68
 
-                        onClicked: {
-                            musicPlayer.togglePlayback()
+                        radius: 34
+
+                        color: Colors.surfaceRaised
+
+                        border.width: 2
+                        border.color: Colors.borderActive
+
+                        Image {
+                            anchors.centerIn: parent
+
+                            width: 30
+                            height: 30
+
+                            source: musicPlayer.isPlaying
+                                    ? "qrc:/assets/icons/pause.png"
+                                    : "qrc:/assets/icons/play.png"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: musicPlayer.togglePlayback()
                         }
                     }
 
-                    Button {
-                        text: ">>"
+                    Rectangle {
+                        width: 52
+                        height: 52
 
-                        onClicked: {
-                            musicPlayer.nextTrack()
+                        radius: 10
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        color: Colors.surfaceRaised
+
+                        border.width: 1
+                        border.color: Colors.borderWarm
+
+                        Image {
+                            anchors.centerIn: parent
+
+                            width: 22
+                            height: 22
+
+                            source: "qrc:/assets/icons/next.png"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: musicPlayer.nextTrack()
                         }
                     }
                 }
 
+                Item {
+                    width: 1
+                    height: 4
+                }
+
+                // ==========================================
+                // SHUFFLE + REPEAT
+                // ==========================================
                 Row {
-                    spacing: 10
+                    anchors.horizontalCenter: parent.horizontalCenter
 
-                    Button {
-                        text: musicPlayer.shuffleEnabled
-                              ? "Shuffle ON"
-                              : "Shuffle OFF"
+                    spacing: 14
 
-                        onClicked: {
-                            musicPlayer.toggleShuffle()
+                    Rectangle {
+                        width: 120
+                        height: 36
+
+                        radius: 8
+
+                        color: musicPlayer.shuffleEnabled
+                               ? Colors.surfacePressed
+                               : Colors.surfaceRaised
+
+                        border.width: 1
+                        border.color: Colors.borderWarm
+
+                        Row {
+                            anchors.centerIn: parent
+
+                            spacing: 8
+
+                            Image {
+                                width: 16
+                                height: 16
+
+                                source: "qrc:/assets/icons/shuffle.png"
+                            }
+
+                            Text {
+                                text: "Shuffle"
+
+                                color: Colors.textPrimary
+
+                                font.family: Typography.family
+                                font.pixelSize: Typography.bodySmall
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: musicPlayer.toggleShuffle()
                         }
                     }
 
-                    Button {
-                        text: musicPlayer.repeatEnabled
-                              ? "Repeat ON"
-                              : "Repeat OFF"
+                    Rectangle {
+                        width: 120
+                        height: 36
 
-                        onClicked: {
-                            musicPlayer.toggleRepeat()
+                        radius: 8
+
+                        color: musicPlayer.repeatEnabled
+                               ? Colors.surfacePressed
+                               : Colors.surfaceRaised
+
+                        border.width: 1
+                        border.color: Colors.borderWarm
+
+                        Row {
+                            anchors.centerIn: parent
+
+                            spacing: 8
+
+                            Image {
+                                width: 16
+                                height: 16
+
+                                source: "qrc:/assets/icons/repeat.png"
+                            }
+
+                            Text {
+                                text: "Repeat"
+
+                                color: Colors.textPrimary
+
+                                font.family: Typography.family
+                                font.pixelSize: Typography.bodySmall
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: musicPlayer.toggleRepeat()
                         }
                     }
                 }
             }
         }
 
+        // =====================================================
+        // PLAYBACK INFO
+        // =====================================================
         BaseCard {
-            width: parent.width * 0.35
+            width: parent.width * 0.32 - Theme.cardGap
             height: parent.height
 
-            title: "Playback Info"
+            title: "Playback"
 
             Column {
-                anchors.centerIn: parent
-                spacing: 18
+                anchors.fill: parent
+                anchors.margins: 10
+
+                spacing: 8
 
                 Text {
-                    text: "Current Time"
+                    text: "Track"
 
                     color: Colors.textSecondary
-                    font.pixelSize: Typography.titleLarge
+
+                    font.family: Typography.family
+                    font.pixelSize: Typography.bodySmall
                 }
 
                 Text {
-                    text: musicPlayer.currentTime
+                    text: musicPlayer.currentTrackIndex
+                          + " / "
+                          + musicPlayer.trackCount
 
                     color: Colors.textPrimary
-                    font.pixelSize: Typography.displaySmall
+
+                    font.family: Typography.family
+                    font.pixelSize: Typography.titleMedium
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    color: Colors.borderSubtle
                 }
 
                 Text {
-                    text: "Total Time"
+                    text: "Status"
 
                     color: Colors.textSecondary
-                    font.pixelSize: Typography.titleLarge
+
+                    font.family: Typography.family
+                    font.pixelSize: Typography.bodySmall
                 }
 
                 Text {
-                    text: musicPlayer.totalTime
+                    text: musicPlayer.isPlaying
+                          ? "Playing"
+                          : "Paused"
 
-                    color: Colors.textPrimary
-                    font.pixelSize: Typography.displaySmall
+                    color: musicPlayer.isPlaying
+                           ? Colors.accentEco
+                           : Colors.textPrimary
+
+                    font.family: Typography.family
+                    font.pixelSize: Typography.bodyLarge
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    color: Colors.borderSubtle
+                }
+
+                Row {
+                    spacing: 10
+
+                    Column {
+                        spacing: 4
+
+                        Text {
+                            text: "Volume"
+
+                            color: Colors.textSecondary
+
+                            font.family: Typography.family
+                            font.pixelSize: Typography.bodySmall
+                        }
+
+                        Text {
+                            text: Math.round(
+                                      musicPlayer.volume
+                                  ) + "%"
+
+                            color: Colors.textPrimary
+
+                            font.family: Typography.family
+                            font.pixelSize: Typography.bodyLarge
+                        }
+
+                        Rectangle {
+                            width: 42
+                            height: 42
+
+                            radius: 8
+
+                            color: Colors.surfaceRaised
+
+                            border.width: 1
+                            border.color: Colors.borderWarm
+
+                            Image {
+                                anchors.centerIn: parent
+
+                                width: 20
+                                height: 20
+
+                                source: musicPlayer.muted
+                                        ? "qrc:/assets/icons/volume-mute.png"
+                                        : "qrc:/assets/icons/volume-loud.png"
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: musicPlayer.toggleMute()
+                            }
+                        }
+                    }
+
+                    Slider {
+                        orientation: Qt.Vertical
+
+                        width: 28
+                        height: 90
+
+                        from: 0
+                        to: 100
+
+                        value: musicPlayer.volume
+
+                        onValueChanged: {
+                            musicPlayer.volume = value
+                        }
+                    }
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    color: Colors.borderSubtle
                 }
 
                 Text {
-                    text: "Volume"
+                    text: "Shuffle"
 
                     color: Colors.textSecondary
-                    font.pixelSize: Typography.titleLarge
+
+                    font.family: Typography.family
+                    font.pixelSize: Typography.bodySmall
                 }
 
                 Text {
-                    text: Math.round(
-                              musicPlayer.volume * 100
-                          ) + "%"
+                    text: musicPlayer.shuffleEnabled
+                          ? "ON"
+                          : "OFF"
 
                     color: Colors.textPrimary
-                    font.pixelSize: Typography.displaySmall
+
+                    font.family: Typography.family
+                    font.pixelSize: Typography.bodyLarge
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    color: Colors.borderSubtle
+                }
+
+                Text {
+                    text: "Repeat"
+
+                    color: Colors.textSecondary
+
+                    font.family: Typography.family
+                    font.pixelSize: Typography.bodySmall
+                }
+
+                Text {
+                    text: musicPlayer.repeatEnabled
+                          ? "ON"
+                          : "OFF"
+
+                    color: Colors.textPrimary
+
+                    font.family: Typography.family
+                    font.pixelSize: Typography.bodyLarge
                 }
             }
         }

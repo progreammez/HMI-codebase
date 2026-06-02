@@ -1,9 +1,11 @@
 #include "LocalMusicPlayer.h"
 
 #include <QUrl>
+#include <QFile>
 #include <QFileInfo>
 #include <QDir>
 #include <QRandomGenerator>
+#include <QMediaMetaData>
 
 LocalMusicPlayer::LocalMusicPlayer(QObject *parent)
     : QObject(parent)
@@ -13,20 +15,15 @@ LocalMusicPlayer::LocalMusicPlayer(QObject *parent)
 
     m_player->setAudioOutput(m_audioOutput);
 
+    m_volume = 50;
     m_audioOutput->setVolume(0.5);
 
-    QDir musicDir(
-        "/home/aditya/HMI-codebase/assets/music"
-    );
+    QDir musicDir("/home/burner/Test06/assets/music/");
 
     QStringList filters;
     filters << "*.mp3";
 
-    m_playlist =
-        musicDir.entryList(
-            filters,
-            QDir::Files
-        );
+    m_playlist = musicDir.entryList(filters,QDir::Files);
 
     if (!m_playlist.isEmpty())
     {
@@ -74,6 +71,33 @@ LocalMusicPlayer::LocalMusicPlayer(QObject *parent)
             }
         }
     );
+
+    connect(
+        m_player,
+        &QMediaPlayer::metaDataChanged,
+        this,
+        [this]()
+        {
+            QString artist =
+                m_player->metaData().value(
+                    QMediaMetaData::ContributingArtist
+                ).toString();
+
+            QString album =
+                m_player->metaData().value(
+                    QMediaMetaData::AlbumTitle
+                ).toString();
+
+            if (!artist.isEmpty())
+                m_artistName = artist;
+
+            if (!album.isEmpty())
+                m_albumName = album;
+
+            emit artistNameChanged();
+            emit albumNameChanged();
+        }
+    );
 }
 
 void LocalMusicPlayer::loadTrack(int index)
@@ -83,19 +107,32 @@ void LocalMusicPlayer::loadTrack(int index)
 
     m_currentIndex = index;
 
-    QString songPath =
-        "/home/aditya/HMI-codebase/assets/music/"
-        + m_playlist[index];
+    QString songPath = "/home/burner/Test06/assets/music/" + m_playlist[index];
+    QString coverPath = "/home/burner/Test06/assets/albumcovers/" + QFileInfo(songPath).baseName() + ".png";
 
-    m_trackTitle =
-        QFileInfo(songPath).baseName();
+    if (QFile::exists(coverPath))
+    {
+        m_albumArtUrl =
+            QUrl::fromLocalFile(coverPath).toString();
+    }
+    else
+    {
+        m_albumArtUrl =
+            "qrc:/assets/music/placeholder/default_cover.png";
+    }
+
+    m_trackTitle = QFileInfo(songPath).baseName();
 
     emit trackTitleChanged();
     emit currentTrackIndexChanged();
+    m_artistName = "Unknown Artist";
+    m_albumName = "Unknown Album";
 
-    m_player->setSource(
-        QUrl::fromLocalFile(songPath)
-    );
+    emit artistNameChanged();
+    emit albumNameChanged();
+    emit albumArtUrlChanged();
+
+    m_player->setSource(QUrl::fromLocalFile(songPath));
 }
 
 QString LocalMusicPlayer::trackTitle() const
@@ -115,14 +152,11 @@ qint64 LocalMusicPlayer::position() const
 
 QString LocalMusicPlayer::currentTime() const
 {
-    int totalSeconds =
-        m_player->position() / 1000;
+    int totalSeconds = m_player->position() / 1000;
 
-    int minutes =
-        totalSeconds / 60;
+    int minutes = totalSeconds / 60;
 
-    int seconds =
-        totalSeconds % 60;
+    int seconds = totalSeconds % 60;
 
     return QString("%1:%2")
         .arg(minutes)
@@ -131,14 +165,11 @@ QString LocalMusicPlayer::currentTime() const
 
 QString LocalMusicPlayer::totalTime() const
 {
-    int totalSeconds =
-        m_player->duration() / 1000;
+    int totalSeconds = m_player->duration() / 1000;
 
-    int minutes =
-        totalSeconds / 60;
+    int minutes = totalSeconds / 60;
 
-    int seconds =
-        totalSeconds % 60;
+    int seconds = totalSeconds % 60;
 
     return QString("%1:%2")
         .arg(minutes)
@@ -147,26 +178,7 @@ QString LocalMusicPlayer::totalTime() const
 
 bool LocalMusicPlayer::isPlaying() const
 {
-    return m_player->playbackState()
-           == QMediaPlayer::PlayingState;
-}
-
-float LocalMusicPlayer::volume() const
-{
-    return m_audioOutput->volume();
-}
-
-void LocalMusicPlayer::setVolume(float value)
-{
-    if (value < 0.0f)
-        value = 0.0f;
-
-    if (value > 1.0f)
-        value = 1.0f;
-
-    m_audioOutput->setVolume(value);
-
-    emit volumeChanged();
+    return m_player->playbackState() == QMediaPlayer::PlayingState;
 }
 
 int LocalMusicPlayer::currentTrackIndex() const
@@ -189,6 +201,16 @@ bool LocalMusicPlayer::repeatEnabled() const
     return m_repeatEnabled;
 }
 
+int LocalMusicPlayer::volume() const
+{
+    return m_volume;
+}
+
+bool LocalMusicPlayer::muted() const
+{
+    return m_muted;
+}
+
 void LocalMusicPlayer::play()
 {
     m_player->play();
@@ -197,6 +219,21 @@ void LocalMusicPlayer::play()
 void LocalMusicPlayer::pause()
 {
     m_player->pause();
+}
+
+QString LocalMusicPlayer::artistName() const
+{
+    return m_artistName;
+}
+
+QString LocalMusicPlayer::albumName() const
+{
+    return m_albumName;
+}
+
+QString LocalMusicPlayer::albumArtUrl() const
+{
+    return m_albumArtUrl;
 }
 
 void LocalMusicPlayer::togglePlayback()
@@ -214,16 +251,14 @@ void LocalMusicPlayer::seek(qint64 position)
 
 void LocalMusicPlayer::toggleShuffle()
 {
-    m_shuffleEnabled =
-        !m_shuffleEnabled;
+    m_shuffleEnabled = !m_shuffleEnabled;
 
     emit shuffleEnabledChanged();
 }
 
 void LocalMusicPlayer::toggleRepeat()
 {
-    m_repeatEnabled =
-        !m_repeatEnabled;
+    m_repeatEnabled = !m_repeatEnabled;
 
     emit repeatEnabledChanged();
 }
@@ -235,10 +270,7 @@ void LocalMusicPlayer::nextTrack()
 
     if (m_shuffleEnabled)
     {
-        m_currentIndex =
-            QRandomGenerator::global()->bounded(
-                m_playlist.size()
-            );
+        m_currentIndex = QRandomGenerator::global()->bounded(m_playlist.size());
     }
     else
     {
@@ -264,11 +296,48 @@ void LocalMusicPlayer::previousTrack()
 
     if (m_currentIndex < 0)
     {
-        m_currentIndex =
-            m_playlist.size() - 1;
+        m_currentIndex = m_playlist.size() - 1;
     }
 
     loadTrack(m_currentIndex);
 
     play();
+}
+
+void LocalMusicPlayer::setVolume(int volume)
+{
+    if (volume < 0)
+        volume = 0;
+
+    if (volume > 100)
+        volume = 100;
+
+    if (m_volume == volume)
+        return;
+
+    m_volume = volume;
+
+    // Qt expects 0.0 - 1.0
+    m_audioOutput->setVolume(
+        static_cast<float>(m_volume) / 100.0f
+    );
+
+    emit volumeChanged();
+}
+
+void LocalMusicPlayer::setMuted(bool muted)
+{
+    if (m_muted == muted)
+        return;
+
+    m_muted = muted;
+
+    m_audioOutput->setMuted(m_muted);
+
+    emit mutedChanged();
+}
+
+void LocalMusicPlayer::toggleMute()
+{
+    setMuted(!m_muted);
 }
