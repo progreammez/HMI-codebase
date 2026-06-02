@@ -2,6 +2,7 @@
 #define SERIALMANAGER_H
 
 #include <QObject>
+#include <QSerialPort>
 
 class SerialManager : public QObject
 {
@@ -21,7 +22,13 @@ signals:
 
     void connectionLost();
 
+private slots:
+    void readData();
+
 private:
+    QSerialPort m_serial;
+
+    QString m_buffer;
 };
 
-#endif // SERIALMANAGER_H
+#endif

@@ -133,6 +133,11 @@ bool VehicleData::communicationFault() const
     return m_communicationFault;
 }
 
+bool VehicleData::lowRangeWarning() const
+{
+    return m_lowRangeWarning;
+}
+
 QString VehicleData::warningMessage() const
 {
     return m_warningMessage;
@@ -226,7 +231,6 @@ void VehicleData::setLeftIndicator(bool leftIndicator)
 
     m_leftIndicator = leftIndicator;
     emit leftIndicatorChanged();
-    emit telemetryChanged();
 }
 
 void VehicleData::setRightIndicator(bool rightIndicator)
@@ -236,7 +240,6 @@ void VehicleData::setRightIndicator(bool rightIndicator)
 
     m_rightIndicator = rightIndicator;
     emit rightIndicatorChanged();
-    emit telemetryChanged();
 }
 
 void VehicleData::setHazardLights(bool hazardLights)
@@ -246,8 +249,8 @@ void VehicleData::setHazardLights(bool hazardLights)
 
     m_hazardLights = hazardLights;
     emit hazardLightsChanged();
-    emit telemetryChanged();
 }
+
 void VehicleData::setHeadlights(bool headlights)
 {
     if (m_headlights == headlights)
@@ -255,7 +258,6 @@ void VehicleData::setHeadlights(bool headlights)
 
     m_headlights = headlights;
     emit headlightsChanged();
-    emit telemetryChanged();
 }
 
 void VehicleData::setHighBeam(bool highBeam)
@@ -265,7 +267,6 @@ void VehicleData::setHighBeam(bool highBeam)
 
     m_highBeam = highBeam;
     emit highBeamChanged();
-    emit telemetryChanged();
 }
 
 void VehicleData::setMotorPower(float motorPower)
@@ -275,7 +276,6 @@ void VehicleData::setMotorPower(float motorPower)
 
     m_motorPower = motorPower;
     emit motorPowerChanged();
-    emit telemetryChanged();
 }
 
 void VehicleData::setRegenLevel(int regenLevel)
@@ -285,7 +285,6 @@ void VehicleData::setRegenLevel(int regenLevel)
 
     m_regenLevel = regenLevel;
     emit regenLevelChanged();
-    emit telemetryChanged();
 }
 
 void VehicleData::setOdometer(float odometer)
@@ -295,7 +294,6 @@ void VehicleData::setOdometer(float odometer)
 
     m_odometer = odometer;
     emit odometerChanged();
-    emit telemetryChanged();
 }
 
 void VehicleData::setTripDistance(float tripDistance)
@@ -305,7 +303,6 @@ void VehicleData::setTripDistance(float tripDistance)
 
     m_tripDistance = tripDistance;
     emit tripDistanceChanged();
-    emit telemetryChanged();
 }
 
 void VehicleData::setLowBatteryWarning(bool lowBatteryWarning)
@@ -345,6 +342,19 @@ void VehicleData::setCommunicationFault(bool communicationFault)
 
     m_communicationFault = communicationFault;
     emit communicationFaultChanged();
+    emit telemetryChanged();
+}
+
+void VehicleData::setLowRangeWarning(
+    bool lowRangeWarning
+)
+{
+    if (m_lowRangeWarning == lowRangeWarning)
+        return;
+
+    m_lowRangeWarning = lowRangeWarning;
+
+    emit lowRangeWarningChanged();
     emit telemetryChanged();
 }
 

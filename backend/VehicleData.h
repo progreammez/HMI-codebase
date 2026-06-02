@@ -44,6 +44,7 @@ class VehicleData : public QObject
     Q_PROPERTY(bool motorOverTempWarning READ motorOverTempWarning WRITE setMotorOverTempWarning NOTIFY motorOverTempWarningChanged)
     Q_PROPERTY(bool batteryOverTempWarning READ batteryOverTempWarning WRITE setBatteryOverTempWarning NOTIFY batteryOverTempWarningChanged)
     Q_PROPERTY(bool communicationFault READ communicationFault WRITE setCommunicationFault NOTIFY communicationFaultChanged)
+    Q_PROPERTY(bool lowRangeWarning READ lowRangeWarning WRITE setLowRangeWarning NOTIFY lowRangeWarningChanged)
     Q_PROPERTY(QString warningMessage READ warningMessage WRITE setWarningMessage NOTIFY warningMessageChanged)
 
 public:
@@ -78,6 +79,7 @@ public:
     bool motorOverTempWarning() const;
     bool batteryOverTempWarning() const;
     bool communicationFault() const;
+    bool lowRangeWarning() const;
     QString warningMessage() const;
 
     // Setter functions
@@ -115,6 +117,7 @@ public:
     void setMotorOverTempWarning(bool motorOverTempWarning);
     void setBatteryOverTempWarning(bool batteryOverTempWarning);
     void setCommunicationFault(bool communicationFault);
+    void setLowRangeWarning(bool lowRangeWarning);
     void setWarningMessage(const QString &warningMessage);
 
 signals:
@@ -148,6 +151,7 @@ signals:
     void motorOverTempWarningChanged();
     void batteryOverTempWarningChanged();
     void communicationFaultChanged();
+    void lowRangeWarningChanged();
     void warningMessageChanged();
     
     void telemetryChanged();
@@ -183,6 +187,7 @@ private:
     bool m_motorOverTempWarning;
     bool m_batteryOverTempWarning;
     bool m_communicationFault;
+    bool m_lowRangeWarning;
     QString m_warningMessage;
 };
 

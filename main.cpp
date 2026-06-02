@@ -7,6 +7,8 @@
 #include "backend/WarningManager.h"
 #include "backend/LocalMusicPlayer.h"
 #include "backend/TelemetryParser.h"
+#include "backend/SerialManager.h"
+#include "backend/TelemetryLogger.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,60 +16,67 @@ int main(int argc, char *argv[])
 
     VehicleData vehicleData;
     LocalMusicPlayer musicPlayer;
+    SerialManager serialManager;
 
     TelemetrySimulator simulator(&vehicleData);
-
     WarningManager warningManager(&vehicleData);
+    TelemetryLogger telemetryLogger(&vehicleData);
 
-    TelemetryParser parser(
-        &vehicleData
-    );
+    TelemetryParser parser(&vehicleData);
 
-    parser.parsePacket(
-        "SPD=75,"
-        "RPM=3200,"
-        "BAT=88,"
-        "RNG=160,"
-        "MT=45,"
-        "BT=35,"
-        "PWR=28,"
-        "MODE=SPORT,"
-        "GEAR=D"
-    );
+    // Low battery warning test
+    // QTimer::singleShot(
+    //     5000,
+    //     [&]()
+    //     {
+    //         parser.parsePacket(
+    //             "SPD=75,"
+    //             "RPM=3200,"
+    //             "BAT=15,"
+    //             "RNG=160,"
+    //             "MT=45,"
+    //             "BT=35,"
+    //             "MODE=SPORT,"
+    //             "GEAR=D"
+    //         );
+    //     }
+    // );
 
-    QTimer::singleShot(
-        3000,
-        [&]()
-        {
-            parser.parsePacket(
-                "SPD=40,"
-                "RPM=1800,"
-                "BAT=87,"
-                "RNG=159,"
-                "MT=44,"
-                "BT=34,"
-                "MODE=CITY,"
-                "GEAR=D"
-            );
-        }
-    );
+    // // High motor temp warning test
+    // QTimer::singleShot(
+    //     10000,
+    //     [&]()
+    //     {
+    //         parser.parsePacket(
+    //             "SPD=75,"
+    //             "RPM=3200,"
+    //             "BAT=88,"
+    //             "RNG=160,"
+    //             "MT=70,"
+    //             "BT=35,"
+    //             "MODE=SPORT,"
+    //             "GEAR=D"
+    //         );
+    //     }
+    // );
 
-    QTimer::singleShot(
-        6000,
-        [&]()
-        {
-            parser.parsePacket(
-                "SPD=90,"
-                "RPM=4000,"
-                "BAT=86,"
-                "RNG=158,"
-                "MT=50,"
-                "BT=38,"
-                "MODE=SPORT,"
-                "GEAR=D"
-            );
-        }
-    );
+    // // High battery temp warning test
+    // QTimer::singleShot(
+    //     15000,
+    //     [&]()
+    //     {
+    //         parser.parsePacket(
+    //             "SPD=75,"
+    //             "RPM=3200,"
+    //             "BAT=88,"
+    //             "RNG=160,"
+    //             "MT=45,"
+    //             "BT=70,"
+    //             "MODE=SPORT,"
+    //             "GEAR=D"
+    //         );
+    //     }
+    // );
 
     // CONNECTS GO HERE
     QObject::connect(
@@ -91,7 +100,23 @@ int main(int argc, char *argv[])
         &WarningManager::evaluateWarnings
     );
 
-    //simulator.start();
+    // QObject::connect(
+    //     &serialManager,
+    //     &SerialManager::packetReceived,
+    //     &parser,
+    //     &TelemetryParser::parsePacket
+    // );
+
+    QObject::connect(
+        &serialManager,
+        &SerialManager::packetReceived,
+        [](const QString &packet)
+        {
+            qDebug() << packet;
+        }
+    );
+
+    simulator.start();
     musicPlayer.play();
 
     QQmlApplicationEngine engine;

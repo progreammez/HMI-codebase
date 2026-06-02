@@ -5,7 +5,7 @@ project(EV_HMI VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Multimedia)
+find_package(Qt6 REQUIRED COMPONENTS Quick Multimedia SerialPort)
 
 qt_standard_project_setup()
 
@@ -17,6 +17,8 @@ qt_add_executable(EV_HMI
     backend/WarningManager.cpp
     backend/LocalMusicPlayer.cpp
     backend/TelemetryParser.cpp
+    backend/SerialManager.cpp
+    backend/TelemetryLogger.cpp
 )
 
 target_include_directories(EV_HMI PRIVATE
@@ -57,4 +59,5 @@ target_link_libraries(EV_HMI
         Qt6::Qml
         Qt6::Quick
         Qt6::Multimedia
+        Qt6::SerialPort
 )
