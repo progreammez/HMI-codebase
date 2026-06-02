@@ -18,177 +18,302 @@ Item {
             Column {
                 anchors.fill: parent
                 anchors.margins: 16
-                spacing: 10
 
-                Image {
-                    width: 140
-                    height: 140
+                spacing: 12
 
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    source: musicPlayer.albumArtUrl
-                    fillMode: Image.PreserveAspectFit
-                }
-
-                Text {
+                Item {
                     width: parent.width
+                    height: parent.height * 0.65
 
-                    text: musicPlayer.trackTitle
+                    Column {
+                        anchors.fill: parent
+                        spacing: 8
 
-                    color: Colors.textPrimary
+                        Image {
+                            width: 140
+                            height: 140
 
-                    horizontalAlignment: Text.AlignHCenter
-                    wrapMode: Text.WordWrap
+                            anchors.horizontalCenter: parent.horizontalCenter
 
-                    font.pixelSize: 40
+                            source: musicPlayer.albumArtUrl
+                            fillMode: Image.PreserveAspectFit
+                        }
+
+                        Text {
+                            width: parent.width
+
+                            text: musicPlayer.trackTitle
+
+                            color: Colors.textPrimary
+
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+
+                            font.pixelSize: 36
+                        }
+
+                        Text {
+                            width: parent.width
+
+                            text: musicPlayer.artistName
+
+                            color: Colors.textSecondary
+
+                            horizontalAlignment: Text.AlignHCenter
+
+                            font.pixelSize: 22
+                        }
+
+                        Text {
+                            width: parent.width
+
+                            text: musicPlayer.albumName
+
+                            color: Colors.textSecondary
+
+                            horizontalAlignment: Text.AlignHCenter
+
+                            font.pixelSize: 16
+                        }
+
+                        Slider {
+                            width: parent.width
+
+                            from: 0
+                            to: musicPlayer.duration
+
+                            value: pressed
+                                ? value
+                                : musicPlayer.position
+
+                            onMoved: musicPlayer.seek(value)
+                        }
+
+                        RowLayout {
+                            width: parent.width
+
+                            Text {
+                                text: musicPlayer.currentTime
+                                color: Colors.textSecondary
+                            }
+
+                            Item {
+                                Layout.fillWidth: true
+                            }
+
+                            Text {
+                                text: musicPlayer.totalTime
+                                color: Colors.textSecondary
+                            }
+                        }
+
+                        Row {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 10
+
+                            Button {
+                                text: "<<"
+                                width: 80
+                                onClicked: musicPlayer.previousTrack()
+                            }
+
+                            Button {
+                                width: 100
+
+                                text: musicPlayer.isPlaying
+                                    ? "||"
+                                    : "▶"
+
+                                onClicked: musicPlayer.togglePlayback()
+                            }
+
+                            Button {
+                                text: ">>"
+                                width: 80
+                                onClicked: musicPlayer.nextTrack()
+                            }
+                        }
+
+                        Row {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 10
+
+                            Button {
+                                text: musicPlayer.shuffleEnabled
+                                    ? "Shuffle ON"
+                                    : "Shuffle OFF"
+
+                                onClicked: musicPlayer.toggleShuffle()
+                            }
+
+                            Button {
+                                text: musicPlayer.repeatEnabled
+                                    ? "Repeat ON"
+                                    : "Repeat OFF"
+
+                                onClicked: musicPlayer.toggleRepeat()
+                            }
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+
+                            text: "Volume: "
+                                + Math.round(musicPlayer.volume)
+                                + "%"
+
+                            color: Colors.textSecondary
+                        }
+
+                        Slider {
+                            width: parent.width * 0.7
+
+                            anchors.horizontalCenter: parent.horizontalCenter
+
+                            from: 0
+                            to: 100
+
+                            value: musicPlayer.volume
+
+                            onMoved: musicPlayer.volume = value
+                        }
+                    }
                 }
 
-                Text {
+                Rectangle {
                     width: parent.width
+                    height: 1
 
-                    text: musicPlayer.artistName
-
-                    color: Colors.textSecondary
-
-                    horizontalAlignment: Text.AlignHCenter
-
-                    font.pixelSize: 22
+                    color: Colors.border
+                    opacity: 0.5
                 }
 
-                Text {
+                Item {
                     width: parent.width
+                    height: parent.height * 0.32
 
-                    text: musicPlayer.albumName
+                    ListView {
+                        id: lyricsView
 
-                    color: Colors.textSecondary
+                        anchors.fill: parent
 
-                    horizontalAlignment: Text.AlignHCenter
+                        model: musicPlayer.lyricList
 
-                    font.pixelSize: 16
-                }
+                        interactive: false
 
-                Slider {
-                    id: progressSlider
+                        spacing: 18
 
-                    width: parent.width
+                        currentIndex: musicPlayer.currentLyricIndex
 
-                    from: 0
-                    to: musicPlayer.duration
+                        preferredHighlightBegin: height / 2
+                        preferredHighlightEnd: height / 2
 
-                    value: pressed
-                           ? value
-                           : musicPlayer.position
+                        highlightRangeMode: ListView.StrictlyEnforceRange
 
-                    onMoved: {
-                        musicPlayer.seek(value)
+                        clip: true
+                        Text {
+                            anchors.centerIn: parent
+
+                            visible: musicPlayer.lyricList.length === 0
+
+                            text: "♫"
+
+                            color: "#506070"
+
+                            font.pixelSize: 48
+
+                            SequentialAnimation on opacity {
+                                running: true
+                                loops: Animation.Infinite
+
+                                NumberAnimation {
+                                    from: 0.3
+                                    to: 0.8
+                                    duration: 1200
+                                }
+
+                                NumberAnimation {
+                                    from: 0.8
+                                    to: 0.3
+                                    duration: 1200
+                                }
+                            }
+                        }
+                        Behavior on contentY {
+                            NumberAnimation {
+                                duration: 450
+                                easing.type: Easing.OutCubic
+                            }
+                        }
+
+                        visible: musicPlayer.lyricList.length > 0
+
+                        delegate: Item {
+                            width: lyricsView.width
+                            height: lyricText.implicitHeight + 20
+
+                            Text {
+                                id: lyricText
+
+                                anchors.centerIn: parent
+
+                                width: parent.width * 0.90
+
+                                text: modelData
+
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
+
+                                color: index === lyricsView.currentIndex
+                                    ? "#6CCEFF"
+                                    : "#FFFFFF"
+
+                                opacity: {
+                                    var d = Math.abs(index - lyricsView.currentIndex)
+
+                                    if (d === 0)
+                                        return 1.0
+
+                                    if (d === 1)
+                                        return 0.35
+
+                                    if (d === 2)
+                                        return 0.15
+
+                                    return 0.05
+                                }
+
+                                font.pixelSize: {
+                                    var d = Math.abs(index - lyricsView.currentIndex)
+
+                                    if (d === 0)
+                                        return 30
+
+                                    if (d === 1)
+                                        return 22
+
+                                    return 18
+                                }
+
+                                font.bold: index === lyricsView.currentIndex
+
+                                Behavior on opacity {
+                                    NumberAnimation {
+                                        duration: 250
+                                    }
+                                }
+
+                                Behavior on font.pixelSize {
+                                    NumberAnimation {
+                                        duration: 250
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
-
-                RowLayout {
-                    width: parent.width
-
-                    Text {
-                        text: musicPlayer.currentTime
-                        color: Colors.textSecondary
-                    }
-
-                    Item {
-                        Layout.fillWidth: true
-                    }
-
-                    Text {
-                        text: musicPlayer.totalTime
-                        color: Colors.textSecondary
-                    }
-                }
-
-                Row {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 10
-
-                    Button {
-                        width: 80
-                        text: "<<"
-                        onClicked: musicPlayer.previousTrack()
-                    }
-
-                    Button {
-                        width: 100
-
-                        text: musicPlayer.isPlaying
-                              ? "||"
-                              : "▶"
-
-                        onClicked: musicPlayer.togglePlayback()
-                    }
-
-                    Button {
-                        width: 80
-                        text: ">>"
-                        onClicked: musicPlayer.nextTrack()
-                    }
-                }
-
-                Row {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 10
-
-                    Button {
-                        text: musicPlayer.shuffleEnabled
-                              ? "Shuffle ON"
-                              : "Shuffle OFF"
-
-                        onClicked: musicPlayer.toggleShuffle()
-                    }
-
-                    Button {
-                        text: musicPlayer.repeatEnabled
-                              ? "Repeat ON"
-                              : "Repeat OFF"
-
-                        onClicked: musicPlayer.toggleRepeat()
-                    }
-                }
-
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    text: "Volume: "
-                          + Math.round(musicPlayer.volume)
-                          + "%"
-
-                    color: Colors.textSecondary
-
-                    font.pixelSize: 16
-                }
-
-                Slider {
-                    width: parent.width * 0.7
-
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    from: 0
-                    to: 100
-
-                    value: musicPlayer.volume
-
-                    onMoved: {
-                        musicPlayer.volume = value
-                    }
-                }
-
-                Button {
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    text: musicPlayer.muted
-                          ? "Unmute"
-                          : "Mute"
-
-                    onClicked: musicPlayer.toggleMute()
                 }
             }
         }
-
         BaseCard {
             width: parent.width * 0.28
             height: parent.height
@@ -244,7 +369,7 @@ Item {
 
                 Text {
                     text: "Track "
-                          + musicPlayer.currentTrackIndex
+                          + musicPlayer.currentTrackIndex 
                           + " / "
                           + musicPlayer.trackCount
 
