@@ -9,6 +9,7 @@
 #include "backend/TelemetryParser.h"
 #include "backend/SerialManager.h"
 #include "backend/TelemetryLogger.h"
+#include "backend/SpotifyAPIManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +18,7 @@ int main(int argc, char *argv[])
     VehicleData vehicleData;
     LocalMusicPlayer musicPlayer;
     SerialManager serialManager;
+    SpotifyApiManager spotifyApi;
 
     TelemetrySimulator simulator(&vehicleData);
     WarningManager warningManager(&vehicleData);
@@ -130,6 +132,10 @@ int main(int argc, char *argv[])
         "musicPlayer",
         &musicPlayer
     );
+
+    engine.rootContext()->setContextProperty(
+        "spotifyApi",
+        &spotifyApi);
     
     #if QT_VERSION >= QT_VERSION_CHECK(6,5,0)
         engine.loadFromModule("EvHmi", "Main");

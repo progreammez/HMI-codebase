@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import EvHmi
 
 Item {
-
+    property string selectedTrackId: ""
     Row {
         anchors.fill: parent
         spacing: Theme.cardGap
@@ -318,46 +318,31 @@ Item {
             width: parent.width * 0.28
             height: parent.height
 
-            title: "Playback Info"
+            title: "Spotify Search"
 
             Column {
-                anchors.centerIn: parent
+                anchors.fill: parent
+                anchors.margins: 16
                 spacing: 16
 
-                Text {
-                    text: "Current Time"
-                    color: Colors.textSecondary
-                    font.pixelSize: 20
+                TextField {
+                    id: searchField
+                    width: 250
+                    height: 40
+
+                    onAccepted: {
+                        spotifyApi.searchTracks(text)
+                    }
+
+                    placeholderText: "Search Spotify..."
                 }
 
-                Text {
-                    text: musicPlayer.currentTime
-                    color: Colors.textPrimary
-                    font.pixelSize: 42
-                }
+                Button {
+                    text: "Search"
 
-                Text {
-                    text: "Total Time"
-                    color: Colors.textSecondary
-                    font.pixelSize: 20
-                }
-
-                Text {
-                    text: musicPlayer.totalTime
-                    color: Colors.textPrimary
-                    font.pixelSize: 42
-                }
-
-                Text {
-                    text: "Volume"
-                    color: Colors.textSecondary
-                    font.pixelSize: 20
-                }
-
-                Text {
-                    text: Math.round(musicPlayer.volume) + "%"
-                    color: Colors.textPrimary
-                    font.pixelSize: 42
+                    onClicked: {
+                        spotifyApi.searchTracks(searchField.text)
+                    }
                 }
 
                 Rectangle {
@@ -367,32 +352,86 @@ Item {
                     opacity: 0.3
                 }
 
-                Text {
-                    text: "Track "
-                          + musicPlayer.currentTrackIndex 
-                          + " / "
-                          + musicPlayer.trackCount
+                ListView {
+                    width: parent.width
+                    height: parent.height - 120
 
-                    color: Colors.textSecondary
-                    font.pixelSize: 18
-                }
+                    model: spotifyApi.tracks
 
-                Text {
-                    text: musicPlayer.shuffleEnabled
-                          ? "Shuffle ON"
-                          : "Shuffle OFF"
+                    clip: true
 
-                    color: Colors.textSecondary
-                    font.pixelSize: 16
-                }
+                    delegate: Rectangle {
+                        width: ListView.view.width
+                        height: 70
 
-                Text {
-                    text: musicPlayer.repeatEnabled
-                          ? "Repeat ON"
-                          : "Repeat OFF"
+                        property bool hovered: false
 
-                    color: Colors.textSecondary
-                    font.pixelSize: 16
+                        color:
+                            modelData.id === selectedTrackId
+                                ? "#1A5A8A"
+                                : hovered
+                                    ? "#12304A"
+                                    : (index % 2 === 0
+                                        ? "#08131D"
+                                        : "#0B1824")
+
+                        border.color: "#1A3145"
+
+                        Row {
+                            anchors.fill: parent
+                            anchors.margins: 8
+
+                            spacing: 10
+
+                            Image {
+                                width: 50
+                                height: 50
+
+                                source: modelData.imageUrl
+
+                                fillMode: Image.PreserveAspectFit
+                            }
+
+                            Column {
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    text: modelData.title
+                                    color: "white"
+                                    font.pixelSize: 16
+                                    elide: Text.ElideRight
+                                    width: 180
+                                }
+
+                                Text {
+                                    text: modelData.artist
+                                    color: "#8FA7B8"
+                                    font.pixelSize: 12
+                                    elide: Text.ElideRight
+                                    width: 180
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+
+                            onEntered: parent.hovered = true
+                            onExited: parent.hovered = false
+
+                            onClicked: {
+
+                                selectedTrackId = modelData.id
+
+                                spotifyApi.selectTrack(index)
+
+                                spotifyApi.loadLyrics(modelData.id)
+
+                                console.log("Selected:", modelData.title, "-", modelData.artist)
+                            }
+                        }
+                    }
                 }
             }
         }

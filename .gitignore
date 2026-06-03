@@ -1,3 +1,4 @@
+config/api_keys.json
 build/
 .vscode/
 *.o
