@@ -235,6 +235,30 @@ void LocalMusicPlayer::updateCurrentLyric(
     }
 }
 
+void LocalMusicPlayer::playTrack(int index)
+{
+    if (index < 0 || index >= m_playlist.size())
+        return;
+
+    loadTrack(index);
+
+    m_player->play();
+
+    emit isPlayingChanged();
+}
+
+QStringList LocalMusicPlayer::playlistTitles() const
+{
+    QStringList titles;
+
+    for (const QString &track : m_playlist)
+    {
+        titles.append(QFileInfo(track).baseName());
+    }
+
+    return titles;
+}
+
 QString LocalMusicPlayer::trackTitle() const
 {
     return m_trackTitle;

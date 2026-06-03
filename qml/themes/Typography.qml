@@ -13,6 +13,7 @@ QtObject {
     readonly property int displaySmall: Math.round(42 * scale)
     readonly property int titleLarge: Math.round(28 * scale)
     readonly property int titleMedium: Math.round(21 * scale)
+    readonly property int titleSmall: Math.round(16 * scale)
     readonly property int bodyLarge: Math.round(18 * scale)
     readonly property int bodyMedium: Math.round(15 * scale)
     readonly property int bodySmall: Math.round(13 * scale)

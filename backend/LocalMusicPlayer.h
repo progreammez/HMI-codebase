@@ -48,6 +48,8 @@ class LocalMusicPlayer : public QObject
     Q_PROPERTY(QString nextLyric READ nextLyric NOTIFY currentLyricChanged)
     Q_PROPERTY(QStringList lyricList READ lyricList NOTIFY lyricsLoadedChanged)
     Q_PROPERTY(int currentLyricIndex READ currentLyricIndex NOTIFY currentLyricIndexChanged)
+    
+    Q_PROPERTY(QStringList playlistTitles READ playlistTitles NOTIFY trackCountChanged)
 
 public:
     explicit LocalMusicPlayer(QObject *parent = nullptr);
@@ -85,6 +87,8 @@ public:
     Q_INVOKABLE void nextTrack();
     Q_INVOKABLE void previousTrack();
 
+    Q_INVOKABLE void playTrack(int index);
+
     Q_INVOKABLE void seek(qint64 position);
 
     Q_INVOKABLE void toggleShuffle();
@@ -97,6 +101,8 @@ public:
     QString nextLyric() const;
     QStringList lyricList() const;
     int currentLyricIndex() const;
+
+    QStringList playlistTitles() const;
 
 signals:
     void trackTitleChanged();
