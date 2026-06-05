@@ -44,7 +44,9 @@ Item {
                             anchors.fill: parent
                             anchors.margins: 3
 
-                            source: musicPlayer.albumArtUrl
+                            source: spotifyApi.selectedImageUrl !== ""
+                                ? spotifyApi.selectedImageUrl
+                                : musicPlayer.albumArtUrl
 
                             fillMode: Image.PreserveAspectCrop
 
@@ -75,7 +77,9 @@ Item {
                         spacing: 10
 
                         Text {
-                            text: musicPlayer.trackTitle
+                            text: spotifyApi.selectedTitle !== ""
+                                ? spotifyApi.selectedTitle
+                                : musicPlayer.trackTitle
 
                             color: Colors.textPrimary
 
@@ -88,7 +92,9 @@ Item {
                         }
 
                         Text {
-                            text: musicPlayer.artistName
+                            text: spotifyApi.selectedArtist !== ""
+                                ? spotifyApi.selectedArtist
+                                : musicPlayer.artistName
 
                             color: Colors.textSecondary
 
@@ -99,7 +105,9 @@ Item {
                         }
 
                         Text {
-                            text: musicPlayer.albumName
+                            text: spotifyApi.selectedAlbum !== ""
+                                ? spotifyApi.selectedAlbum
+                                : musicPlayer.albumName
 
                             color: Colors.textMuted
 
@@ -627,6 +635,8 @@ Item {
                     id: searchTab
 
                     Column {
+                        id: searchRoot
+                        property int selectedIndex: -1
                         width: parent.width
                         spacing: 10
 
@@ -717,10 +727,35 @@ Item {
 
                                 radius: 6
 
-                                color: Colors.surfaceRaised
+                                color: selectedIndex === index
+                                    ? Colors.surfacePressed
+                                    : Colors.surfaceRaised
 
-                                border.width: 1
-                                border.color: Colors.borderWarm
+                                border.width: selectedIndex === index
+                                    ? 2
+                                    : 1
+
+                                border.color: selectedIndex === index
+                                    ? Colors.borderActive
+                                    : Colors.borderWarm
+
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 120
+                                    }
+                                }
+
+                                Behavior on border.color {
+                                    ColorAnimation {
+                                        duration: 120
+                                    }
+                                }
+
+                                Behavior on border.width {
+                                    NumberAnimation {
+                                        duration: 120
+                                    }
+                                }
 
                                 Row {
                                     anchors.fill: parent
@@ -773,9 +808,11 @@ Item {
                                 }
 
                                 MouseArea {
+                                    id: trackMouseArea
                                     anchors.fill: parent
 
                                     onClicked: {
+                                        searchRoot.selectedIndex = index
                                         spotifyApi.selectTrack(index)
                                     }
                                 }
