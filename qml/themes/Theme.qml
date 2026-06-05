@@ -6,8 +6,8 @@ import EvHmi
 QtObject {
     property real scale: 1.0
 
-    readonly property int baseWidth: 1024
-    readonly property int baseHeight: 600
+    readonly property int baseWidth: 1280
+    readonly property int baseHeight: 800
 
     readonly property int pageMargin: Math.round(24 * scale)
     readonly property int sectionGap: Math.round(14 * scale)

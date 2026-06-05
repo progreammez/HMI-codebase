@@ -1,92 +1,376 @@
 import QtQuick
-import QtQuick.Layouts
+import QtQuick.Controls
 import EvHmi
 
 Item {
     id: root
+    anchors.fill: parent
 
-    readonly property color modeColor: vehicleData.driveMode === "SPORT" ? Colors.accentSport
-        : vehicleData.driveMode === "CITY" ? Colors.accentCity
-        : Colors.accentEco
-
-    GridLayout {
+    Column {
         anchors.fill: parent
-        columns: 3
-        rows: 2
-        columnSpacing: Theme.cardGap
-        rowSpacing: Theme.cardGap
+        anchors.margins: Theme.pageMargin
+        spacing: Theme.cardGap
 
-        Repeater {
-            model: [
-                { title: "Speed", value: vehicleData.speed, unit: "km/h", color: root.modeColor },
-                { title: "Motor RPM", value: vehicleData.rpm, unit: "rpm", color: Colors.textPrimary },
-                { title: "Battery", value: vehicleData.batteryPercent, unit: "%", color: Colors.accentEco },
-                { title: "Motor Temp", value: vehicleData.motorTemp, unit: "C", color: vehicleData.motorTemp > 70 ? Colors.warning : Colors.textPrimary },
-                { title: "Battery Temp", value: vehicleData.batteryTemp, unit: "C", color: vehicleData.batteryTemp > 45 ? Colors.warning : Colors.textPrimary },
-                { title: "Communication", value: vehicleData.communicationFault ? "Fault" : "Online", unit: "", color: vehicleData.communicationFault ? Colors.critical : Colors.accentEco }
-            ]
+        // =====================================================
+        // MAIN SECTION
+        // =====================================================
+
+        Row {
+            id: mainSection
+
+            width: parent.width
+            height: parent.height * 0.72
+
+            spacing: Theme.cardGap
+
+            // ==========================================
+            // VEHICLE OVERVIEW
+            // ==========================================
 
             BaseCard {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                title: modelData.title
+                id: vehicleOverviewCard
 
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: Math.round(8 * Theme.scale)
+                width: parent.width * 0.37
+                height: parent.height
+            }
 
-                    Item { Layout.fillHeight: true }
+            // ==========================================
+            // RIGHT SIDE
+            // ==========================================
 
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: Math.round(8 * Theme.scale)
-                        Text {
-                            text: modelData.value
-                            color: modelData.color
-                            font.family: Typography.family
-                            font.pixelSize: modelData.unit.length > 0 ? Typography.displaySmall : Typography.titleLarge
-                            font.weight: Font.DemiBold
-                            Layout.fillWidth: true
-                            elide: Text.ElideRight
-                        }
-                        Text {
-                            text: modelData.unit
-                            visible: modelData.unit.length > 0
-                            color: Colors.textMuted
-                            font.family: Typography.family
-                            font.pixelSize: Typography.bodyMedium
-                            font.weight: Font.Medium
+            Column {
+                id: rightColumn
+
+                width: parent.width
+                       - vehicleOverviewCard.width
+                       - Theme.cardGap
+
+                height: parent.height
+
+                spacing: Theme.cardGap
+
+                // ==================================
+                // TOP RIGHT
+                // ==================================
+
+                Row {
+                    id: topRightRow
+
+                    width: parent.width
+                    height: parent.height * 0.62
+
+                    spacing: Theme.cardGap
+
+                    BaseCard {
+                        id: vehicleHealthCard
+
+                        width: parent.width * 0.43
+                        height: parent.height
+
+                        Column {
+                            anchors.fill: parent
+                            anchors.margins: Theme.cardPadding
+                            spacing: 12
+
+                            Text {
+                                text: "VEHICLE HEALTH"
+                                color: Colors.textPrimary
+                                font.pixelSize: Typography.bodyLarge
+                                font.bold: true
+                            }
+
+                            Item {
+                                width: parent.width
+                                height: 80
+
+                                Text {
+                                    anchors.right: parent.right
+                                    text: "98%"
+                                    color: Colors.accentBlue
+                                    font.pixelSize: 44
+                                    font.bold: true
+                                }
+
+                                Text {
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    text: "HEALTHY"
+                                    color: Colors.accentBlue
+                                    font.pixelSize: Typography.bodyLarge
+                                    font.bold: true
+                                }
+
+                                Column {
+                                    spacing: 8
+
+                                    Text {
+                                        text: "Overall Score"
+                                        color: Colors.textSecondary
+                                        font.pixelSize: Typography.bodyMedium
+                                    }
+
+                                    Text {
+                                        text: "Status"
+                                        color: Colors.textSecondary
+                                        font.pixelSize: Typography.bodyMedium
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: Colors.borderColor
+                                opacity: 0.4
+                            }
+
+                            Repeater {
+                                model: [
+                                    ["Battery", "OK"],
+                                    ["Motor", "OK"],
+                                    ["Controller", "OK"],
+                                    ["Comms", "OK"]
+                                ]
+
+                                delegate: Row {
+                                    width: parent.width
+                                    spacing: 10
+
+                                    Text {
+                                        text: modelData[0]
+                                        color: Colors.textPrimary
+                                        font.pixelSize: Typography.bodyLarge
+                                    }
+
+                                    Item {
+                                        width: parent.width
+                                        height: 1
+                                    }
+
+                                    Text {
+                                        anchors.right: undefined
+                                        text: modelData[1]
+                                        color: "#3CFF5A"
+                                        font.pixelSize: Typography.bodyLarge
+                                    }
+                                }
+                            }
+
+                            Item {
+                                height: 1
+                                width: parent.width
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: Colors.borderColor
+                                opacity: 0.4
+                            }
+
+                            Text {
+                                text: "Last Check: 12:42:31"
+                                color: Colors.textSecondary
+                                font.pixelSize: Typography.bodyMedium
+                            }
                         }
                     }
 
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: Math.round(7 * Theme.scale)
-                        radius: height / 2
-                        color: Colors.surfaceSunken
-                        Rectangle {
-                            width: parent.width * (modelData.title === "Battery" ? vehicleData.batteryPercent / 100
-                                : modelData.title === "Speed" ? Math.min(1, vehicleData.speed / 140)
-                                : modelData.title === "Motor RPM" ? Math.min(1, vehicleData.rpm / 8200)
-                                : modelData.title.indexOf("Temp") >= 0 ? Math.min(1, parseFloat(modelData.value) / 100)
-                                : vehicleData.communicationFault ? 0.18 : 1)
-                            height: parent.height
-                            radius: parent.radius
-                            color: modelData.color
-                        }
-                    }
+                    BaseCard {
+                        id: activeWarningsCard
 
-                    Text {
-                        Layout.fillWidth: true
-                        text: modelData.title === "Communication" ? "Communication state mirrors the official communicationFault telemetry."
-                            : "Live value from VehicleDataManager telemetry."
-                        color: Colors.textMuted
-                        wrapMode: Text.WordWrap
-                        maximumLineCount: 2
-                        font.family: Typography.family
-                        font.pixelSize: Typography.label
+                        width: parent.width
+                            - vehicleHealthCard.width
+                            - Theme.cardGap
+
+                        height: parent.height
+
+                        Column {
+                            anchors.fill: parent
+                            anchors.margins: Theme.cardPadding
+                            spacing: 14
+
+                            Text {
+                                text: "ACTIVE WARNINGS"
+                                color: Colors.textPrimary
+                                font.pixelSize: Typography.bodyLarge
+                                font.bold: true
+                            }
+
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "✓"
+                                color: Colors.accentBlue
+                                font.pixelSize: 48
+                            }
+
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "NO ACTIVE WARNINGS"
+                                color: Colors.accentBlue
+                                font.pixelSize: Typography.bodyLarge
+                                font.bold: true
+                            }
+
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "All systems are functioning normally."
+                                color: Colors.textSecondary
+                                font.pixelSize: Typography.bodyMedium
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: Colors.borderColor
+                                opacity: 0.4
+                            }
+
+                            Text {
+                                text: "Last Fault (Historical)"
+                                color: Colors.textPrimary
+                                font.pixelSize: Typography.bodyLarge
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 70
+                                radius: Theme.cardRadius
+                                color: "transparent"
+                                border.color: Colors.borderColor
+
+                                Row {
+                                    anchors.fill: parent
+                                    anchors.margins: 12
+                                    spacing: 12
+
+                                    Text {
+                                        text: "⚠"
+                                        color: "#FFC72C"
+                                        font.pixelSize: 28
+                                    }
+
+                                    Column {
+                                        spacing: 4
+
+                                        Text {
+                                            text: "BMS Overtemp"
+                                            color: Colors.textPrimary
+                                        }
+
+                                        Text {
+                                            text: "02-Jun-2026 09:14:22"
+                                            color: Colors.textSecondary
+                                        }
+                                    }
+
+                                    Item {
+                                        anchors.horizontalCenter: undefined
+                                        width: 1
+                                        height: 1
+                                    }
+
+                                    Text {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        text: "Resolved"
+                                        color: "#3CFF5A"
+                                    }
+                                }
+                            }
+
+                            Row {
+                                spacing: 20
+
+                                Text {
+                                    text: "0 Active"
+                                    color: Colors.accentBlue
+                                }
+
+                                Text {
+                                    text: "|"
+                                    color: Colors.textSecondary
+                                }
+
+                                Text {
+                                    text: "2 Historical"
+                                    color: Colors.accentBlue
+                                }
+                            }
+                        }
                     }
                 }
+
+                // ==================================
+                // BOTTOM RIGHT
+                // ==================================
+
+                Row {
+                    id: bottomRightRow
+
+                    width: parent.width
+                    height: parent.height
+                            - topRightRow.height
+                            - Theme.cardGap
+
+                    spacing: Theme.cardGap
+
+                    BaseCard {
+                        id: batteryCard
+
+                        width: (parent.width - Theme.cardGap * 3) / 4
+                        height: parent.height
+                    }
+
+                    BaseCard {
+                        id: powertrainCard
+
+                        width: (parent.width - Theme.cardGap * 3) / 4
+                        height: parent.height
+                    }
+
+                    BaseCard {
+                        id: thermalCard
+
+                        width: (parent.width - Theme.cardGap * 3) / 4
+                        height: parent.height
+                    }
+
+                    BaseCard {
+                        id: communicationCard
+
+                        width: (parent.width - Theme.cardGap * 3) / 4
+                        height: parent.height
+                    }
+                }
+            }
+        }
+
+        // =====================================================
+        // BOTTOM SECTION
+        // =====================================================
+
+        Row {
+            id: bottomSection
+
+            width: parent.width
+            height: parent.height
+                    - mainSection.height
+                    - Theme.cardGap
+
+            spacing: Theme.cardGap
+
+            BaseCard {
+                id: temperatureStatusCard
+
+                width: (parent.width - Theme.cardGap) / 2
+                height: parent.height
+            }
+
+            BaseCard {
+                id: powertrainDataCard
+
+                width: (parent.width - Theme.cardGap) / 2
+                height: parent.height
             }
         }
     }
