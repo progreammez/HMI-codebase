@@ -33,8 +33,6 @@ Item {
                         width: 110
                         height: 110
 
-                        radius: 12
-
                         color: Colors.surfaceRaised
 
                         border.width: 2
@@ -46,7 +44,9 @@ Item {
                             anchors.fill: parent
                             anchors.margins: 3
 
-                            source: musicPlayer.albumArtUrl
+                            source: spotifyApi.selectedImageUrl !== ""
+                                ? spotifyApi.selectedImageUrl
+                                : musicPlayer.albumArtUrl
 
                             fillMode: Image.PreserveAspectCrop
 
@@ -77,7 +77,9 @@ Item {
                         spacing: 10
 
                         Text {
-                            text: musicPlayer.trackTitle
+                            text: spotifyApi.selectedTitle !== ""
+                                ? spotifyApi.selectedTitle
+                                : musicPlayer.trackTitle
 
                             color: Colors.textPrimary
 
@@ -90,7 +92,9 @@ Item {
                         }
 
                         Text {
-                            text: musicPlayer.artistName
+                            text: spotifyApi.selectedArtist !== ""
+                                ? spotifyApi.selectedArtist
+                                : musicPlayer.artistName
 
                             color: Colors.textSecondary
 
@@ -101,7 +105,9 @@ Item {
                         }
 
                         Text {
-                            text: musicPlayer.albumName
+                            text: spotifyApi.selectedAlbum !== ""
+                                ? spotifyApi.selectedAlbum
+                                : musicPlayer.albumName
 
                             color: Colors.textMuted
 
@@ -577,11 +583,14 @@ Item {
                         spacing: 60
 
                         Column {
+                            width: parent.width / 2 
                             spacing: 2
 
                             Text {
                                 text: "Shuffle"
                                 color: Colors.textSecondary
+                                font.family: Typography.family
+                                font.pixelSize: Typography.bodySmall
                             }
 
                             Text {
@@ -590,23 +599,32 @@ Item {
                                     : "OFF"
 
                                 color: Colors.textPrimary
+                                font.family: Typography.family
+                                font.pixelSize: Typography.bodyLarge
                             }
                         }
 
                         Column {
+                            width: parent.width / 2
                             spacing: 2
 
                             Text {
+                                horizontalAlignment: Text.AlignRight
                                 text: "Repeat"
                                 color: Colors.textSecondary
+                                font.family: Typography.family
+                                font.pixelSize: Typography.bodySmall
                             }
 
                             Text {
+                                horizontalAlignment: Text.AlignRight
                                 text: musicPlayer.repeatEnabled
                                     ? "ON"
                                     : "OFF"
 
                                 color: Colors.textPrimary
+                                font.family: Typography.family
+                                font.pixelSize: Typography.bodyLarge
                             }
                         }
                     }
@@ -614,34 +632,196 @@ Item {
             }
 
             Component {
-                id: searchTab
+                    id: searchTab
 
-                Column {
-                    width: parent.width
-                    spacing: 10
-
-                    TextField {
+                    Column {
+                        id: searchRoot
+                        property int selectedIndex: -1
                         width: parent.width
-                        placeholderText: "Search Spotify..."
-                    }
+                        spacing: 10
 
-                    Rectangle {
-                        width: parent.width
-                        height: 1
-                        color: Colors.borderSubtle
-                    }
+                        // ==========================================
+                        // SEARCH BAR
+                        // ==========================================
+                        Row {
+                            width: parent.width
+                            spacing: 6
 
-                    Text {
-                        text: "Spotify search results will appear here"
+                            TextField {
+                                id: searchField
 
-                        color: Colors.textSecondary
+                                width: parent.width - 46
 
-                        wrapMode: Text.WordWrap
+                                placeholderText: "Search Spotify..."
 
-                        width: parent.width
+                                onAccepted: {
+                                    if (text.length > 0)
+                                        spotifyApi.searchTracks(text)
+                                }
+                            }
+
+                            Rectangle {
+                                id: searchButton
+
+                                width: 40
+                                height: searchField.height
+
+                                radius: 6
+
+                                color: searchMouse.pressed
+                                    ? Colors.surfacePressed
+                                    : Colors.surfaceRaised
+
+                                border.width: 1
+                                border.color: Colors.borderWarm
+
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 100
+                                    }
+                                }
+
+                                Image {
+                                    anchors.centerIn: parent
+                                    width: 18
+                                    height: 18
+                                    source: Colors.dayNightMode === "day"
+                                        ? "qrc:/assets/icons/Light/MusicPage/search.png"
+                                        : "qrc:/assets/icons/Dark/MusicPage/search.png"
+
+                                }
+
+                                MouseArea {
+                                    id: searchMouse
+
+                                    anchors.fill: parent
+
+                                    onClicked: {
+                                        if(searchField.text.length > 0)
+                                            spotifyApi.searchTracks(searchField.text)
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            width: parent.width
+                            height: 1
+                            color: Colors.borderSubtle
+                        }
+
+                        // ==========================================
+                        // RESULTS
+                        // ==========================================
+                        ListView {
+                            width: parent.width
+                            height: 250
+
+                            clip: true
+
+                            model: spotifyApi.tracks
+
+                            delegate: Rectangle {
+                                width: ListView.view.width
+                                height: 64
+
+                                radius: 6
+
+                                color: selectedIndex === index
+                                    ? Colors.surfacePressed
+                                    : Colors.surfaceRaised
+
+                                border.width: selectedIndex === index
+                                    ? 2
+                                    : 1
+
+                                border.color: selectedIndex === index
+                                    ? Colors.borderActive
+                                    : Colors.borderWarm
+
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 120
+                                    }
+                                }
+
+                                Behavior on border.color {
+                                    ColorAnimation {
+                                        duration: 120
+                                    }
+                                }
+
+                                Behavior on border.width {
+                                    NumberAnimation {
+                                        duration: 120
+                                    }
+                                }
+
+                                Row {
+                                    anchors.fill: parent
+                                    anchors.margins: 8
+
+                                    spacing: 10
+
+                                    Image {
+                                        width: 48
+                                        height: 48
+
+                                        source: modelData.imageUrl
+
+                                        fillMode: Image.PreserveAspectFit
+                                    }
+
+                                    Column {
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        width: parent.width - 60
+
+                                        spacing: 2
+
+                                        Text {
+                                            text: modelData.title
+
+                                            color: Colors.textPrimary
+
+                                            font.family: Typography.family
+                                            font.pixelSize: Typography.bodyMedium
+
+                                            elide: Text.ElideRight
+
+                                            width: parent.width
+                                        }
+
+                                        Text {
+                                            text: modelData.artist
+
+                                            color: Colors.textSecondary
+
+                                            font.family: Typography.family
+                                            font.pixelSize: Typography.bodySmall
+
+                                            elide: Text.ElideRight
+
+                                            width: parent.width
+                                        }
+                                    }
+                                }
+
+                                MouseArea {
+                                    id: trackMouseArea
+                                    anchors.fill: parent
+
+                                    onClicked: {
+                                        searchRoot.selectedIndex = index
+                                        spotifyApi.selectTrack(index)
+                                    }
+                                }
+                            }
+
+                            ScrollBar.vertical: ScrollBar { }
+                        }
                     }
                 }
-            }
 
             Component {
                 id: queueTab

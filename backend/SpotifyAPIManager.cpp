@@ -110,44 +110,30 @@ void SpotifyApiManager::searchTracks(
 
                 for (const auto &item : items)
                 {
-                    QJsonObject data =
-                        item.toObject()["data"].toObject();
+                    QJsonObject data = item.toObject()["data"].toObject();
 
                     SpotifyTrack track;
 
-                    track.id =
-                        data["id"].toString();
+                    track.id = data["id"].toString();
 
-                    track.title =
-                        data["name"].toString();
+                    track.title = data["name"].toString();
 
-                    QJsonArray artistItems =
-                        data["artists"]
-                            .toObject()["items"]
-                            .toArray();
+                    track.album = data["albumOfTrack"].toObject()["name"].toString();
+
+                    QJsonArray artistItems = data["artists"].toObject()["items"].toArray();
 
                     if (!artistItems.isEmpty())
                     {
-                        track.artist =
-                            artistItems[0]
-                                .toObject()["profile"]
-                                .toObject()["name"]
-                                .toString();
+                        track.artist = artistItems[0].toObject()["profile"].toObject()["name"].toString();
                     }
 
                     // ALBUM ART
                     QJsonArray sources =
-                        data["albumOfTrack"]
-                            .toObject()["coverArt"]
-                            .toObject()["sources"]
-                            .toArray();
+                        data["albumOfTrack"].toObject()["coverArt"].toObject()["sources"].toArray();
 
                     if (!sources.isEmpty())
                     {
-                        track.imageUrl =
-                            sources[0]
-                                .toObject()["url"]
-                                .toString();
+                        track.imageUrl = sources[0].toObject()["url"].toString();
                     }
 
                     m_tracks.append(track);
@@ -156,6 +142,8 @@ void SpotifyApiManager::searchTracks(
                         << track.title
                         << "-"
                         << track.artist
+                        << "-"
+                        << track.album
                         << "-"
                         << track.imageUrl;
                 }
@@ -258,21 +246,21 @@ void SpotifyApiManager::selectTrack(int index)
     if(index < 0 || index >= m_tracks.size())
         return;
 
-    m_selectedTitle =
-        m_tracks[index].title;
+    m_selectedTitle = m_tracks[index].title;
 
-    m_selectedArtist =
-        m_tracks[index].artist;
+    m_selectedArtist = m_tracks[index].artist;
 
-    m_selectedImageUrl =
-        m_tracks[index].imageUrl;
+    m_selectedAlbum = m_tracks[index].album;
+
+    m_selectedImageUrl = m_tracks[index].imageUrl;
 
     emit selectedTrackChanged();
 
     qDebug()
         << "Selected:"
         << m_selectedTitle
-        << m_selectedArtist;
+        << m_selectedArtist
+        << m_selectedAlbum;
 }
 
 QStringList SpotifyApiManager::lyricList() const
@@ -298,4 +286,9 @@ QString SpotifyApiManager::selectedArtist() const
 QString SpotifyApiManager::selectedImageUrl() const
 {
     return m_selectedImageUrl;
+}
+
+QString SpotifyApiManager::selectedAlbum() const
+{
+    return m_selectedAlbum;
 }

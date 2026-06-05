@@ -10,6 +10,7 @@ struct SpotifyTrack
     QString id;
     QString title;
     QString artist;
+    QString album;
     QString imageUrl;
 };
 
@@ -30,6 +31,7 @@ class SpotifyApiManager : public QObject
     Q_PROPERTY(QString selectedTitle READ selectedTitle NOTIFY selectedTrackChanged)
     Q_PROPERTY(QString selectedArtist READ selectedArtist NOTIFY selectedTrackChanged)
     Q_PROPERTY(QString selectedImageUrl READ selectedImageUrl NOTIFY selectedTrackChanged)
+    Q_PROPERTY(QString selectedAlbum READ selectedAlbum NOTIFY selectedTrackChanged)
 
 public:
     explicit SpotifyApiManager(QObject *parent = nullptr);
@@ -46,6 +48,7 @@ public:
     QString selectedTitle() const;
     QString selectedArtist() const;
     QString selectedImageUrl() const;
+    QString selectedAlbum() const;
 
 signals:
     void searchFinished(QString result);
@@ -69,6 +72,7 @@ private:
     QString m_selectedTitle;
     QString m_selectedArtist;
     QString m_selectedImageUrl;
+    QString m_selectedAlbum;
 };
 
 #endif
