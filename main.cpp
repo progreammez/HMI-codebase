@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     );
 
     simulator.start();
-    musicPlayer.play();
+    //musicPlayer.play();
 
     QQmlApplicationEngine engine;
 

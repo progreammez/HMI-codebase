@@ -48,40 +48,37 @@ void WarningManager::evaluateWarnings()
         if (m_vehicleData->batteryTemp() > 60)
         {
             m_vehicleData->setBatteryOverTempWarning(true);
-            m_vehicleData->setWarningMessage(
-                "Battery Temperature High"
-            );
+            m_vehicleData->setWarningMessage("Battery Temperature High");
             return;
         }
 
         if (m_vehicleData->motorTemp() > 55)
         {
             m_vehicleData->setMotorOverTempWarning(true);
-            m_vehicleData->setWarningMessage(
-                "Motor Temperature High"
-            );
+            m_vehicleData->setWarningMessage("Motor Temperature High");
             return;
         }
 
         if (m_vehicleData->batteryPercent() < 20)
         {
             m_vehicleData->setLowBatteryWarning(true);
-            m_vehicleData->setWarningMessage(
-                "Low Battery"
-            );
+            m_vehicleData->setWarningMessage("Low Battery");
             return;
         }
 
         if (m_vehicleData->rangeKm() < 20)
         {
             m_vehicleData->setLowRangeWarning(true);
-            m_vehicleData->setWarningMessage(
-                "Low Range"
-            );
+            m_vehicleData->setWarningMessage("Low Range");
             return;
         }
 
-        m_vehicleData->setWarningMessage(
-            "SYSTEM NOMINAL"
-        );
+        if (m_vehicleData->lowBatteryWarning() || m_vehicleData->motorOverTempWarning() || m_vehicleData->batteryOverTempWarning() || m_vehicleData->lowRangeWarning())
+        {
+            m_vehicleData->setWarningMessage("WE FKED CHAT");
+        }
+         else
+        {
+            m_vehicleData->setWarningMessage("SYSTEM NOMINAL");
+        }
     }

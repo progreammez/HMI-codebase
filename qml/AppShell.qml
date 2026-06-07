@@ -93,10 +93,10 @@ Item {
         anchors.rightMargin: Theme.pageMargin
         height: Math.round(40 * Theme.scale)
         radius: Theme.controlRadius
-        color: vehicleData.communicationFault || vehicleData.warningMessage.length > 0
+        color: vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning
             ? Qt.rgba(Colors.critical.r, Colors.critical.g, Colors.critical.b, 0.16)
-            : Qt.rgba(Colors.accentEco.r, Colors.accentEco.g, Colors.accentEco.b, 0.11)
-        border.color: vehicleData.communicationFault || vehicleData.warningMessage.length > 0
+            : Qt.rgba(Colors.accentCity.r, Colors.accentCity.g, Colors.accentCity.b, 0.11)
+        border.color: vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning
             ? Colors.critical
             : Colors.borderSubtle
         border.width: 1
@@ -109,8 +109,8 @@ Item {
 
             Text {
                 anchors.verticalCenter: parent.verticalCenter
-                text: vehicleData.communicationFault || vehicleData.warningMessage.length > 0 ? "!" : "OK"
-                color: vehicleData.communicationFault || vehicleData.warningMessage.length > 0 ? Colors.critical : Colors.accentEco
+                text: vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? "!" : "OK"
+                color: vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? Colors.critical : Colors.accentEco
                 font.family: Typography.family
                 font.pixelSize: Typography.bodySmall
                 font.weight: Font.DemiBold

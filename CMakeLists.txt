@@ -30,6 +30,7 @@ set_source_files_properties(
     qml/themes/Colors.qml
     qml/themes/Typography.qml
     qml/themes/Theme.qml
+    qml/themes/Fonts.qml
     PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
 
@@ -46,6 +47,7 @@ qt_add_qml_module(EV_HMI
         qml/components/EnergyBar.qml
         qml/components/MetricTile.qml
         qml/components/ModeButton.qml
+        qml/components/BatteryGraphic.qml
 
         qml/pages/HomePage.qml
         qml/pages/MusicPage.qml
@@ -55,6 +57,7 @@ qt_add_qml_module(EV_HMI
         qml/themes/Colors.qml
         qml/themes/Typography.qml
         qml/themes/Theme.qml
+        qml/themes/Fonts.qml
 )
 
 qt_add_resources(EV_HMI "assets"
@@ -136,6 +139,14 @@ qt_add_resources(EV_HMI "assets"
         assets/icons/Light/SettingsPage/clock-format.png
         assets/icons/Light/SettingsPage/date-format.png
         assets/icons/Light/SettingsPage/restart.png
+        assets/icons/Light/SettingsPage/about.png
+
+    # Fonts
+        assets/fonts/Rajdhani-Regular.ttf
+        assets/fonts/Rajdhani-Medium.ttf
+        assets/fonts/Rajdhani-Bold.ttf
+        assets/fonts/Rajdhani-Light.ttf
+        assets/fonts/Rajdhani-SemiBold.ttf
 
 )
 
