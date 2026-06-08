@@ -18,6 +18,7 @@ public:
         VehicleData *vehicleData,
         QObject *parent = nullptr
     );
+    void logWarning(const QString& warning);
 
 public slots:
     void logTelemetry();

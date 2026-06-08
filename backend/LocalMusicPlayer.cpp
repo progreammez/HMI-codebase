@@ -19,7 +19,7 @@ LocalMusicPlayer::LocalMusicPlayer(QObject *parent)
     m_volume = 50;
     m_audioOutput->setVolume(0.5);
 
-    QDir musicDir("/home/notbigboi/EV_HMI/assets/music/");
+    QDir musicDir("/home/aditya/HMI-codebase/assets/music/");
 
     QStringList filters;
     filters << "*.mp3";
@@ -117,8 +117,8 @@ void LocalMusicPlayer::loadTrack(int index)
 
     m_currentIndex = index;
 
-    QString songPath = "/home/notbigboi/EV_HMI/assets/music/" + m_playlist[index];
-    QString coverPath = "/home/notbigboi/EV_HMI/assets/albumcovers/" + QFileInfo(songPath).baseName() + ".png";
+    QString songPath = "/home/aditya/HMI-codebase/assets/music/" + m_playlist[index];
+    QString coverPath = "/home/aditya/HMI-codebase/assets/albumcovers/" + QFileInfo(songPath).baseName() + ".png";
 
     if (QFile::exists(coverPath))
     {
@@ -175,7 +175,6 @@ void LocalMusicPlayer::loadLyrics(const QString &trackName)
 
         if (!match.hasMatch())
         {
-            qDebug() << "NO MATCH" << line;
             continue;
         }
 

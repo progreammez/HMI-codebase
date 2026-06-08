@@ -39,60 +39,47 @@ QtObject {
     // =====================================================
     
     // --- Backgrounds & Surfaces ---
-    readonly property color backgroundPrimary: isLightMode ? lightBgPrimary 
-                                             : isCopper ? "#080605" : isAmber ? "#070705" : "#040607"
-                                             
-    readonly property color backgroundSecondary: isLightMode ? lightBgSecondary 
-                                               : isCopper ? "#120D0A" : isAmber ? "#121009" : "#081014"
-                                               
-    readonly property color surfaceBase: isLightMode ? lightSurfaceBase 
-                                       : isCopper ? "#18100D" : isAmber ? "#17140B" : "#0E171C"
-                                       
-    readonly property color surfaceRaised: isLightMode ? lightSurfaceRaised 
-                                         : isCopper ? "#231711" : isAmber ? "#221C0E" : "#14222A"
-                                         
-    readonly property color surfaceSunken: isLightMode ? lightSurfaceSunken 
-                                         : isCopper ? "#0D0907" : isAmber ? "#0E0C07" : "#071014"
-                                         
-    readonly property color surfacePressed: isLightMode ? lightSurfacePressed 
-                                          : isCopper ? "#2E1F17" : isAmber ? "#2B2411" : "#1D303B"
+    readonly property color backgroundPrimary: isLightMode ? lightBgPrimary : isCopper ? "#080605" : isAmber ? "#070705" : "#020B16"
+    readonly property color backgroundSecondary: isLightMode ? lightBgSecondary : isCopper ? "#120D0A" : isAmber ? "#121009" : "#061321"             
+    readonly property color surfaceBase: isLightMode ? lightSurfaceBase : isCopper ? "#18100D" : isAmber ? "#17140B" : "#081725"
+
+    readonly property color surfaceRaised: isLightMode ? lightSurfaceRaised : isCopper ? "#231711" : isAmber ? "#221C0E" : "#0B1B2A"
+
+    readonly property color surfaceSunken: isLightMode ? lightSurfaceSunken : isCopper ? "#0D0907" : isAmber ? "#0E0C07" : "#040F1A"
+
+    readonly property color surfacePressed: isLightMode ? lightSurfacePressed : isCopper ? "#2E1F17" : isAmber ? "#2B2411" : "#102434"
 
     // --- Borders & Outlines ---
-    readonly property color borderSubtle: isLightMode ? lightBorderSubtle 
-                                         : isCopper ? "#4A342A" : isAmber ? "#443719" : "#29414C"
-                                         
-    readonly property color borderWarm: isLightMode ? lightBorderWarm 
-                                       : isCopper ? "#B2785E" : isAmber ? "#C49536" : "#587A90"
-                                       
-    readonly property color borderActive: isCopper ? "#E29572" : isAmber ? "#F0B84D" : "#72D7FF"
+    readonly property color borderSubtle: isLightMode ? lightBorderSubtle : isCopper ? "#4A342A" : isAmber ? "#443719" : "#0E2A3A"
+
+    readonly property color borderWarm: isLightMode ? lightBorderWarm : isCopper ? "#B2785E" : isAmber ? "#C49536" : "#1A3A4D"
+
+    readonly property color borderActive: isCopper ? "#E29572" : isAmber ? "#F0B84D" : "#00E7FF"
 
     // --- Typography (Dark graphite signatures for light mode) ---
-    readonly property color textPrimary: isLightMode ? lightTextPrimary 
-                                       : isCopper ? "#FFF4EE" : isAmber ? "#FFF8E8" : "#F1FAFF"
-                                       
-    readonly property color textSecondary: isLightMode ? lightTextSecondary 
-                                         : isCopper ? "#D8B9AA" : isAmber ? "#D8C699" : "#B8D1DC"
-                                         
-    readonly property color textMuted: isLightMode ? lightTextMuted 
-                                     : isCopper ? "#8B6C60" : isAmber ? "#89784D" : "#6E8895"
-                                     
-    readonly property color textWarm: isLightMode ? lightTextSecondary 
-                                    : isCopper ? "#E6A184" : isAmber ? "#E4B655" : "#A4DDF4"
+    readonly property color textPrimary: isLightMode ? lightTextPrimary : isCopper ? "#FFF4EE" : isAmber ? "#FFF8E8" : "#F5F7FA"
+    readonly property color textSecondary: isLightMode ? lightTextSecondary : isCopper ? "#D8B9AA" : isAmber ? "#D8C699" : "#C7D1DA"
+    readonly property color textMuted: isLightMode ? lightTextMuted : isCopper ? "#8B6C60" : isAmber ? "#89784D" : "#8A98A5"
+    readonly property color textWarm: isLightMode ? lightTextSecondary : isCopper ? "#E6A184" : isAmber ? "#E4B655" : "#00E7FF"
 
     // --- Safety Accents & Metrics Compliance ---
-    readonly property color accentEco: isLightMode ? (isCopper ? "#117A3C" : isAmber ? "#4E7A11" : "#027A48") : isCopper ? "#6FE09B" : isAmber ? "#9DD66F" : "#67E8C9"
-    readonly property color accentCity: isLightMode ? "#004EEB" : isCopper ? "#D1A78F" : isAmber ? "#E0C56D" : "#72D7FF"
+    readonly property color accentCity: isLightMode ? "#004EEB" : isCopper ? "#D1A78F" : isAmber ? "#E0C56D" : "#00E7FF"
+    readonly property color accentEco: isLightMode ? (isCopper ? "#117A3C" : isAmber ? "#4E7A11" : "#027A48") : isCopper ? "#6FE09B" : isAmber ? "#9DD66F" : "#3CFF4E"
     readonly property color accentSport: isLightMode ? "#D92D20" : isCopper ? "#F08B61" : isAmber ? "#FFB02E" : "#FF8D6B"
+
     readonly property color accentCopper: "#C47F61"
     readonly property color accentCopperDim: isLightMode ? "#F3E9E5" : "#523328"
     readonly property color accentBlue: "#72D7FF"
-    readonly property color warning: isLightMode ? "#B54708" : isCopper ? "#F0B066" : isAmber ? "#F4C24E" : "#F4C95D"
-    readonly property color critical: "#FF6B6B"
+    readonly property color warning: isLightMode ? "#B54708" : isCopper ? "#F0B066" : isAmber ? "#F4C24E" : "#FFC72B"
+
+    readonly property color critical: "#FF4040"
 
     // --- Glass Panels & Structural Underlays ---
-    readonly property color transparentPanel: isLightMode ? "#EAEAEAFF" : isCopper ? "#AA18100D" : isAmber ? "#AA17140B" : "#AA0E171C"
-    readonly property color glassPanel: isLightMode ? "#FAFAFAFF" : isCopper ? "#E018100D" : isAmber ? "#E017140B" : "#E00E171C"
-    readonly property color mapBase: isLightMode ? lightBgPrimary : isCopper ? "#1B120D" : isAmber ? "#181509" : "#101A20"
-    readonly property color mapRoad: isLightMode ? "#FFFFFF" : isCopper ? "#5B3B2E" : isAmber ? "#554519" : "#2F4E5D"
-    readonly property color shadow: isLightMode ? "#15000000" : "#66000000"
+    readonly property color transparentPanel: isLightMode ? "#EAEAEAFF" : isCopper ? "#AA18100D" : isAmber ? "#AA17140B" : "#AA081725"
+
+    readonly property color glassPanel: isLightMode ? "#FAFAFAFF" : isCopper ? "#E018100D" : isAmber ? "#E017140B" : "#E0081725"
+    readonly property color mapBase: isLightMode ? lightBgPrimary : isCopper ? "#1B120D" : isAmber ? "#181509" : "#081725"
+
+    readonly property color mapRoad: isLightMode ? "#FFFFFF" : isCopper ? "#5B3B2E" : isAmber ? "#554519" : "#2A4C60"
+    readonly property color shadow: isLightMode ? "#00E7FF" : "#66000000"
 }

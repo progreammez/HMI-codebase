@@ -47,6 +47,10 @@ class VehicleData : public QObject
     Q_PROPERTY(bool lowRangeWarning READ lowRangeWarning WRITE setLowRangeWarning NOTIFY lowRangeWarningChanged)
     Q_PROPERTY(QString warningMessage READ warningMessage WRITE setWarningMessage NOTIFY warningMessageChanged)
 
+    Q_PROPERTY(bool hasWarning READ hasWarning WRITE setHasWarning NOTIFY hasWarningChanged)
+    Q_PROPERTY(QString warningTimestamp READ warningTimestamp WRITE setWarningTimestamp NOTIFY warningTimestampChanged)
+    Q_PROPERTY(int historicalWarnings READ historicalWarnings WRITE setHistoricalWarnings NOTIFY historicalWarningsChanged)
+
 public:
     explicit VehicleData(QObject *parent = nullptr);
     // Getter functions
@@ -81,6 +85,21 @@ public:
     bool communicationFault() const;
     bool lowRangeWarning() const;
     QString warningMessage() const;
+
+    bool hasWarning() const
+    {
+        return m_hasWarning;
+    }
+
+    QString warningTimestamp() const
+    {
+        return m_warningTimestamp;
+    }
+
+    int historicalWarnings() const
+    {
+        return m_historicalWarnings;
+    }
 
     // Setter functions
     /*
@@ -120,6 +139,33 @@ public:
     void setLowRangeWarning(bool lowRangeWarning);
     void setWarningMessage(const QString &warningMessage);
 
+    void setHasWarning(bool value)
+    {
+        if (m_hasWarning == value)
+            return;
+
+        m_hasWarning = value;
+        emit hasWarningChanged();
+    }
+
+    void setWarningTimestamp(const QString &value)
+    {
+        if (m_warningTimestamp == value)
+            return;
+
+        m_warningTimestamp = value;
+        emit warningTimestampChanged();
+    }
+
+    void setHistoricalWarnings(int value)
+    {
+        if (m_historicalWarnings == value)
+            return;
+
+        m_historicalWarnings = value;
+        emit historicalWarningsChanged();
+    }
+
 signals:
     // Signals to notify the UI when a value changes
     void rpmChanged();
@@ -155,6 +201,9 @@ signals:
     void warningMessageChanged();
     
     void telemetryChanged();
+    void hasWarningChanged();
+    void warningTimestampChanged();
+    void historicalWarningsChanged();
 
 private:
     // Member variables to store the current state of the vehicle
@@ -189,6 +238,10 @@ private:
     bool m_communicationFault;
     bool m_lowRangeWarning;
     QString m_warningMessage;
+
+    bool m_hasWarning = false;
+    QString m_warningTimestamp;
+    int m_historicalWarnings = 0;
 };
 
 #endif

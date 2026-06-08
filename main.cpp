@@ -21,9 +21,8 @@ int main(int argc, char *argv[])
     SpotifyApiManager spotifyApi;
 
     TelemetrySimulator simulator(&vehicleData);
-    WarningManager warningManager(&vehicleData);
     TelemetryLogger telemetryLogger(&vehicleData);
-
+    WarningManager warningManager(&vehicleData, &telemetryLogger);
     TelemetryParser parser(&vehicleData);
 
     // Low battery warning test
@@ -119,7 +118,7 @@ int main(int argc, char *argv[])
     );
 
     simulator.start();
-    musicPlayer.play();
+    //musicPlayer.play();
 
     QQmlApplicationEngine engine;
 

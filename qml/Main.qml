@@ -7,8 +7,8 @@ Window {
 
     width: Theme.baseWidth
     height: Theme.baseHeight
-    minimumWidth: 800
-    minimumHeight: 480
+    minimumWidth: 1280
+    minimumHeight: 800
     visible: true
     title: "EV HMI"
     color: Colors.backgroundPrimary

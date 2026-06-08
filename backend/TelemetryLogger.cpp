@@ -1,5 +1,6 @@
 #include "TelemetryLogger.h"
 #include "VehicleData.h"
+#include "WarningManager.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -81,5 +82,35 @@ void TelemetryLogger::logTelemetry()
         << m_vehicleData->gearState()
         << "\n";
 
+    out.flush();
+}
+
+void TelemetryLogger::logWarning(const QString& warning)
+{
+    QDir().mkpath("logs");
+    
+    // Use a local QFile instead of the member variable m_logFile
+    QFile warningFile("logs/warnings.csv");
+
+    bool exists = warningFile.exists();
+
+    // Open, write, and automatically close via block scope
+    if (!warningFile.open(QIODevice::Append | QIODevice::Text))
+        return;
+
+    QTextStream out(&warningFile);
+
+    if (!exists)
+    {
+        out << "Timestamp,Warning\n";
+    }
+
+    out
+        << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss")
+        << ","
+        << warning
+        << "\n";
+
+    // Optional: flush is handled safely when the file closes out of scope
     out.flush();
 }

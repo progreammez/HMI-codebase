@@ -1,11 +1,9 @@
 #include "WarningManager.h"
 #include "VehicleData.h"
+#include "TelemetryLogger.h"
+#include <QDateTime>
 
-WarningManager::WarningManager(
-    VehicleData *vehicleData,
-    QObject *parent)
-    : QObject(parent),
-      m_vehicleData(vehicleData)
+WarningManager::WarningManager(VehicleData *vehicleData, TelemetryLogger *logger, QObject *parent) : QObject(parent), m_vehicleData(vehicleData), m_logger(logger)
 {
     connect(
         m_vehicleData,
@@ -40,48 +38,116 @@ WarningManager::WarningManager(
 
 void WarningManager::evaluateWarnings()
     {
+        bool hasWarning = false;
+
         m_vehicleData->setLowBatteryWarning(false);
         m_vehicleData->setLowRangeWarning(false);
         m_vehicleData->setMotorOverTempWarning(false);
         m_vehicleData->setBatteryOverTempWarning(false);
 
+        // --- 1. Battery Temperature Check ---
         if (m_vehicleData->batteryTemp() > 60)
         {
             m_vehicleData->setBatteryOverTempWarning(true);
-            m_vehicleData->setWarningMessage(
-                "Battery Temperature High"
-            );
-            return;
+            QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
+            m_vehicleData->setWarningTimestamp(timestamp);
+            
+            if (!m_batteryTempLogged)
+            {
+                m_batteryTempLogged = true;
+                m_logger->logWarning("Battery Temperature High");
+                m_vehicleData->setHistoricalWarnings(m_vehicleData->historicalWarnings() + 1);
+            }
+            hasWarning = true;
+        }
+        else 
+        {
+            // Temperature went back down! Reset the tracking flag
+            m_batteryTempLogged = false;
         }
 
+        // --- 2. Motor Temperature Check ---
         if (m_vehicleData->motorTemp() > 55)
         {
             m_vehicleData->setMotorOverTempWarning(true);
-            m_vehicleData->setWarningMessage(
-                "Motor Temperature High"
-            );
-            return;
+            QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
+            m_vehicleData->setWarningTimestamp(timestamp);
+            
+            if (!m_motorTempLogged)
+            {
+                m_motorTempLogged = true;
+                m_logger->logWarning("Motor Temperature High");
+                m_vehicleData->setHistoricalWarnings(m_vehicleData->historicalWarnings() + 1);
+            }
+            hasWarning = true;
+        }
+        else 
+        {
+            // Temperature went back down! Reset the tracking flag
+            m_motorTempLogged = false; 
         }
 
+        // --- 3. Battery Percentage Check ---
         if (m_vehicleData->batteryPercent() < 20)
         {
             m_vehicleData->setLowBatteryWarning(true);
-            m_vehicleData->setWarningMessage(
-                "Low Battery"
-            );
-            return;
+            QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
+            m_vehicleData->setWarningTimestamp(timestamp);
+            
+            if (!m_lowBatteryLogged)
+            {
+                m_lowBatteryLogged = true;
+                m_logger->logWarning("Low Battery");
+                m_vehicleData->setHistoricalWarnings(m_vehicleData->historicalWarnings() + 1);
+            }
+            hasWarning = true;
+        }
+        else 
+        {
+            // Battery level went back up! Reset the tracking flag
+            m_lowBatteryLogged = false; 
         }
 
+        // --- 4. Range Check ---
         if (m_vehicleData->rangeKm() < 20)
         {
             m_vehicleData->setLowRangeWarning(true);
-            m_vehicleData->setWarningMessage(
-                "Low Range"
-            );
-            return;
+            QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
+            m_vehicleData->setWarningTimestamp(timestamp);
+            
+            if (!m_lowRangeLogged)
+            {
+                m_lowRangeLogged = true;
+                m_logger->logWarning("Low Range");
+                m_vehicleData->setHistoricalWarnings(m_vehicleData->historicalWarnings() + 1);
+            }
+            hasWarning = true;
+        }
+        else 
+        {
+            // Range went back up! Reset the tracking flag
+            m_lowRangeLogged = false; 
         }
 
-        m_vehicleData->setWarningMessage(
-            "SYSTEM NOMINAL"
-        );
+        // --- 5. Global UI Message Handling ---
+        if (hasWarning)
+        {
+            if (m_vehicleData->batteryOverTempWarning())
+                m_vehicleData->setWarningMessage("Battery Temperature High");
+
+            else if (m_vehicleData->motorOverTempWarning())
+                m_vehicleData->setWarningMessage("Motor Temperature High");
+
+            else if (m_vehicleData->lowBatteryWarning())
+                m_vehicleData->setWarningMessage("Low Battery");
+
+            else if (m_vehicleData->lowRangeWarning())
+                m_vehicleData->setWarningMessage("Low Range");
+        }
+        else
+        {
+            m_vehicleData->setWarningMessage("SYSTEM NOMINAL");
+        }
+        
+        m_vehicleData->setHasWarning(hasWarning);
     }

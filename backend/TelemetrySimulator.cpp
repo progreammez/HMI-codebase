@@ -41,7 +41,7 @@ void TelemetrySimulator::generateFakeData()
     {
         static int batteryCounter = 0;
         batteryCounter++;
-        if (batteryCounter >= 1500)
+        if (batteryCounter >= 10)
             {
             batteryCounter = 0;
 
