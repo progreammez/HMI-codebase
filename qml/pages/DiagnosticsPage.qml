@@ -286,39 +286,180 @@ Item {
 
                 // CARD D: ACTIVE WARNINGS LOG REGISTRY
                 DashboardCard {
-                    title: "Active Warnings"
+                    id: activeWarningsCard
+                    property int activeWarnings:
+                        (vehicleData.lowBatteryWarning ? 1 : 0) +
+                        (vehicleData.lowRangeWarning ? 1 : 0) +
+                        (vehicleData.motorOverTempWarning ? 1 : 0) +
+                        (vehicleData.batteryOverTempWarning ? 1 : 0)
+                    title: "ACTIVE WARNINGS"
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
                     ColumnLayout {
                         anchors.fill: parent
-                        spacing: 5
+                        anchors.margins: 2
+                        spacing: 7
                         
-                        RowLayout {
-                            spacing: 8
-                            Rectangle { 
-                                width: 18; height: 18; radius: 9; color: "transparent"; border.color: Colors.accentCity; border.width: 1
-                                Text { text: "✓"; color: Colors.accentCity; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; anchors.centerIn: parent }
-                            }
-                            Text { text: "NO ACTIVE WARNINGS"; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Bold; color: Colors.accentCity }
-                        }
-                        
-                        Text { text: "All diagnostic systems operating normal."; font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textMuted }
-                        
-                        Rectangle { Layout.fillWidth: true; height: 1; color: Colors.borderSubtle; Layout.topMargin: 2; Layout.bottomMargin: 2 }
-                        
-                        Text { text: "Last Fault (Historical):"; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; color: Colors.textSecondary }
-                        
-                        RowLayout {
+                        // --- Top System Status Section ---
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignHCenter
                             spacing: 6
-                            Text { text: "⚠  BMS Overtemp — 02-Jun-2026 | Resolved"; font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.warning; Layout.fillWidth: true; elide: Text.ElideRight }
+
+                            // Checkmark Circle
+                            Rectangle {
+                                Layout.alignment: Qt.AlignHCenter
+                                width: 36
+                                height: 36
+                                radius: 18
+                                color: "transparent"
+                                border.color: vehicleData.hasWarning ? Colors.warning : Colors.accentCity
+                                border.width: 2
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: vehicleData.hasWarning ? "!" : "✓"
+                                    color: vehicleData.hasWarning ? Colors.warning : Colors.accentCity
+                                    font.pixelSize: 20
+                                    font.bold: true
+                                }
+                            }
+
+                            Text {
+                                Layout.alignment: Qt.AlignHCenter
+                                text: vehicleData.hasWarning ? "ACTIVE WARNINGS" : "NO ACTIVE WARNINGS"
+                                color: vehicleData.hasWarning ? Colors.warning : Colors.accentCity
+                                font.family: Typography.family
+                                font.pixelSize: Typography.bodyMedium
+                                font.bold: true
+                                font.letterSpacing: 0.5
+                            }
+
+                            Text {
+                                Layout.alignment: Qt.AlignHCenter
+                                text: vehicleData.hasWarning ? "One or more vehicle alerts require attention." : "All systems are functioning normally."
+                                color: Colors.textSecondary
+                                font.family: Typography.family
+                                font.pixelSize: Typography.bodySmall
+                            }
+                        }
+                                                
+                        // Divider Line
+                        Rectangle { 
+                            Layout.fillWidth: true; 
+                            height: 1; 
+                            color: Colors.borderSubtle 
+                            Layout.topMargin: 3
+                            Layout.bottomMargin: 3
                         }
                         
+                        // --- Historical Fault Section ---
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Text {
+                                text: vehicleData.hasWarning
+                                    ? "Current Fault"
+                                    : "Last Fault (Historical)"
+
+                                font.family: Typography.family
+                                font.pixelSize: Typography.label
+                                font.weight: Font.DemiBold
+                                color: Colors.textSecondary
+                            }
+                            
+                            // Fault Card Container
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 40
+                                radius: Theme.controlRadius
+                                color: Qt.rgba(1, 1, 1, 0.02)
+                                border.color: Colors.borderSubtle
+                                border.width: 1
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 14
+                                    anchors.rightMargin: 14
+                                    spacing: 2
+
+                                    // Warning Sign Icon
+                                    Text { 
+                                        text: vehicleData.hasWarning ? "⚠" : "✓"
+                                        font.pixelSize: 20
+                                        color: vehicleData.hasWarning ? Colors.warning : Colors.accentEco
+                                        Layout.alignment: Qt.AlignVCenter
+                                    }
+
+                                    // Fault Details Text Block
+                                    ColumnLayout {
+                                        spacing: 2
+                                        Layout.fillWidth: true
+                                        Layout.alignment: Qt.AlignVCenter
+
+                                        Text {
+                                            text: vehicleData.hasWarning
+                                                ? vehicleData.warningMessage
+                                                : "No active faults"
+
+                                            font.family: Typography.family
+                                            font.pixelSize: Typography.bodySmall
+                                            font.weight: Font.Medium
+                                            color: Colors.textPrimary
+                                        }
+                                        Text { 
+                                            text: vehicleData.warningTimestamp
+                                            font.family: Typography.family
+                                            font.pixelSize: Typography.bodySmall
+                                            color: Colors.textMuted 
+                                        }
+                                    }
+
+                                    // Resolution Status Badge
+                                    Text { 
+                                        text: vehicleData.hasWarning ? "Active" : "Resolved"
+                                        font.family: Typography.family
+                                        font.pixelSize: Typography.bodySmall
+                                        font.weight: Font.Medium
+                                        color: vehicleData.hasWarning ? Colors.warning : Colors.accentEco
+                                        Layout.alignment: Qt.AlignVCenter
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // --- Bottom Summary Counter Section ---
                         RowLayout {
-                            Layout.topMargin: 1
-                            spacing: 10
-                            Text { text: "0 Active"; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; color: Colors.textMuted }
-                            Text { text: "2 Historical"; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; color: Colors.accentCity }
+                            Layout.fillWidth: true
+                            Layout.topMargin: 4
+                            spacing: 12
+                            
+                            Text {
+                                text: activeWarningsCard.activeWarnings + " Active"
+                                font.family: Typography.family
+                                font.pixelSize: Typography.label
+                                font.weight: Font.DemiBold
+                                color: activeWarningsCard.activeWarnings > 0
+                                    ? Colors.warning
+                                    : Colors.accentCity
+                            }
+
+                            Rectangle {
+                                width: 1
+                                height: 12
+                                color: Colors.borderSubtle
+                                Layout.alignment: Qt.AlignVCenter
+                            }
+
+                            Text { 
+                                text: vehicleData.historicalWarnings + " Historical" 
+                                font.family: Typography.family
+                                font.pixelSize: Typography.label
+                                font.weight: Font.DemiBold
+                                color: Colors.accentCity 
+                            }
                         }
                     }
                 }
@@ -446,12 +587,12 @@ Item {
                                     width: 6
                                     height: 6
                                     radius: 3
-                                    color: vehicleData.batteryOverTempWarning || vehicleData.lowBatteryWarning ? Colors.critical : Colors.accentEco
+                                    color: vehicleData.batteryOverTempWarning || vehicleData.lowBatteryWarning ? Colors.warning  : Colors.accentEco
                                 }
 
                                 Text {
-                                    text: vehicleData.batteryOverTempWarning || vehicleData.lowBatteryWarning ? "Warning" : statusText
-                                    color: vehicleData.batteryOverTempWarning || vehicleData.lowBatteryWarning ? Colors.critical : Colors.accentCity
+                                    text: vehicleData.batteryOverTempWarning || vehicleData.lowBatteryWarning ? "Low Battery" : statusText
+                                    color: vehicleData.batteryOverTempWarning || vehicleData.lowBatteryWarning ? Colors.warning : Colors.accentCity
                                     font.family: Typography.family
                                     font.bold: true
                                     font.pixelSize: Typography.label

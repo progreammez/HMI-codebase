@@ -95,10 +95,10 @@ Item {
         radius: Theme.controlRadius
         color: vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning
             ? Qt.rgba(Colors.critical.r, Colors.critical.g, Colors.critical.b, 0.16)
-            : Qt.rgba(Colors.accentCity.r, Colors.accentCity.g, Colors.accentCity.b, 0.11)
+            : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Qt.rgba(Colors.warning.r, Colors.warning.g, Colors.warning.b, 0.16) : Qt.rgba(Colors.accentCity.r, Colors.accentCity.g, Colors.accentCity.b, 0.11)
         border.color: vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning
             ? Colors.critical
-            : Colors.borderSubtle
+            : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Colors.warning : Colors.borderSubtle
         border.width: 1
 
         Row {
@@ -109,8 +109,8 @@ Item {
 
             Text {
                 anchors.verticalCenter: parent.verticalCenter
-                text: vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? "!" : "OK"
-                color: vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? Colors.critical : Colors.accentEco
+                text: vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? "!" : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? "WARN" : "OK"
+                color: vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? Colors.critical : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Colors.warning : Colors.accentEco
                 font.family: Typography.family
                 font.pixelSize: Typography.bodySmall
                 font.weight: Font.DemiBold
