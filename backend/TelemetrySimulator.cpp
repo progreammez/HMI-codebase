@@ -48,7 +48,7 @@ void TelemetrySimulator::generateFakeData()
     }
     // Simulate temperature changes based on speed
     m_state.motorTemp = 35 + (m_state.speed / 4);
-    m_state.batteryTemp = 60 + (m_state.speed / 8);
+    m_state.batteryTemp = 50 + (m_state.speed / 8);
     m_state.controllerTemp = 30 + (m_state.speed / 6);
 
     // Simulate motor power based on speed
@@ -110,13 +110,9 @@ void TelemetrySimulator::generateFakeData()
     m_vehicleData->setHeadlights(m_state.headlights);
 
     m_vehicleData->setCommunicationFault(m_state.communicationFault);
-    m_vehicleData->setWarningMessage(m_state.warningMessage);
     m_vehicleData->setMotorPower(m_state.motorPower);
     m_vehicleData->setRegenLevel(m_state.regenLevel);
     m_vehicleData->setOdometer(m_state.odometer);
     m_vehicleData->setTripDistance(m_state.tripDistance);
-    m_vehicleData->setLowBatteryWarning(m_state.lowBatteryWarning);
-    m_vehicleData->setMotorOverTempWarning(m_state.motorOverTempWarning);
-    m_vehicleData->setBatteryOverTempWarning(m_state.batteryOverTempWarning);
 
 }

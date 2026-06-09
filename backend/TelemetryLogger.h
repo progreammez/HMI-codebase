@@ -12,6 +12,7 @@ class TelemetryLogger : public QObject
 {
     Q_OBJECT
     QTimer m_timer;
+    Q_PROPERTY(QStringList recentWarnings READ recentWarnings NOTIFY recentWarningsChanged)
 
 public:
     explicit TelemetryLogger(
@@ -19,12 +20,19 @@ public:
         QObject *parent = nullptr
     );
     void logWarning(const QString& warning);
+    QStringList recentWarnings() const;
+    QStringList readRecentWarnings(int maxEntries) const;
+    Q_INVOKABLE void clearWarnings();
 
 public slots:
     void logTelemetry();
 
+signals:
+    void recentWarningsChanged();
+
 private:
     VehicleData *m_vehicleData;
+    QStringList m_displayWarnings;
 
     QFile m_logFile;
 };

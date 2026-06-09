@@ -53,8 +53,7 @@ class TelemetrySimulator : public QObject, public IDataSource
     Q_OBJECT
 
 public:
-    explicit TelemetrySimulator(VehicleData *vehicleData,
-                                QObject *parent = nullptr);
+    explicit TelemetrySimulator(VehicleData *vehicleData, QObject *parent = nullptr);
 
     void start() override;
 

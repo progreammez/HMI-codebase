@@ -110,7 +110,7 @@ Item {
 
             // CARD A: VEHICLE OVERVIEW CHASSIS WIREFRAME MODEL
             DashboardCard {
-                title: "Vehicle Overview"
+                title: vehicleData.communicationFault ? "Vehicle Overview  • Unavailable" : "Vehicle Overview"
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 
@@ -127,8 +127,8 @@ Item {
                         border.width: 1.5
                         radius: 36
                         
-                        Text { text: "FRONT"; anchors.bottom: parent.top; anchors.horizontalCenter: parent.horizontalCenter; anchors.bottomMargin: 6; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; color: Colors.textMuted }
-                        Text { text: "REAR"; anchors.top: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; anchors.topMargin: 6; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; color: Colors.textMuted }
+                        Text { text: vehicleData.communicationFault ? "CONNECTION LOST" : "FRONT"; anchors.bottom: parent.top; anchors.horizontalCenter: parent.horizontalCenter; anchors.bottomMargin: 6; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; color: Colors.textMuted }
+                        Text { text: vehicleData.communicationFault ? "" : "REAR"; anchors.top: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; anchors.topMargin: 6; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; color: Colors.textMuted }
                     }
 
                     // Internal Layout Actuator & Thermal Pack Component Chain
@@ -152,7 +152,7 @@ Item {
                                 RowLayout { 
                                     spacing: 4; Layout.alignment: Qt.AlignHCenter
                                     Rectangle { width: 4; height: 4; radius: 2; color: Colors.accentEco } 
-                                    Text { text: "OK"; font.family: Typography.family; font.pixelSize: 9; font.weight: Font.Bold; color: Colors.accentEco } 
+                                    Text { text: vehicleData.communicationFault ? "--" : "OK" ; font.family: Typography.family; font.pixelSize: 9; font.weight: Font.Bold; color: Colors.accentEco } 
                                 }
                             }
                         }
@@ -175,7 +175,7 @@ Item {
                                 RowLayout { 
                                     spacing: 4; Layout.alignment: Qt.AlignHCenter
                                     Rectangle { width: 4; height: 4; radius: 2; color: Colors.accentEco } 
-                                    Text { text: "OK"; font.family: Typography.family; font.pixelSize: 9; font.weight: Font.Bold; color: Colors.accentEco } 
+                                    Text { text: vehicleData.communicationFault ? "--" : "OK" ; font.family: Typography.family; font.pixelSize: 9; font.weight: Font.Bold; color: Colors.accentEco } 
                                 }
                             }
                         }
@@ -196,7 +196,7 @@ Item {
                                 RowLayout { 
                                     spacing: 4; Layout.alignment: Qt.AlignHCenter
                                     Rectangle { width: 4; height: 4; radius: 2; color: Colors.accentEco } 
-                                    Text { text: "OK"; font.family: Typography.family; font.pixelSize: 9; font.weight: Font.Bold; color: Colors.accentEco } 
+                                    Text { text: vehicleData.communicationFault ? "--" : "OK" ; font.family: Typography.family; font.pixelSize: 9; font.weight: Font.Bold; color: Colors.accentEco } 
                                 }
                             }
                         }
@@ -224,9 +224,9 @@ Item {
 
             // CARD B: METRICS MATRIX WITH INDEPENDENT SEGMENTED TRACK LAYOUTS
             DashboardCard {
-                title: "Temperature Status"
+                title: vehicleData.communicationFault ? "Temperature Status • Unavailable" : "Temperature Status"
                 Layout.fillWidth: true
-                Layout.preferredHeight: Math.round(190   * Theme.scale) // Aspect ratio locked
+                Layout.preferredHeight: Math.round(190 * Theme.scale) // Aspect ratio locked
 
                 ColumnLayout {
                     anchors.fill: parent
@@ -237,13 +237,12 @@ Item {
                         property string moduleName: ""
                         property string currentTemp: ""
                         property int temperature: 0
-                        property bool offline: false
 
                         readonly property real fillRatio:
-                            offline ? 0.0 : Math.min(temperature / 80.0, 1.0)
+                            vehicleData.communicationFault ? 0.0 : Math.min(temperature / 80.0, 1.0)
 
                         readonly property color statusColor:
-                            offline
+                            vehicleData.communicationFault
                                 ? Colors.textMuted
                                 : temperature > 70
                                     ? Colors.critical
@@ -262,9 +261,8 @@ Item {
                                 Rectangle {
                                     Layout.fillWidth: true
                                     height: Math.round(10 * Theme.scale)
-                                    radius: 1.5
 
-                                    color: (index / 12.0 < fillRatio)
+                                    color: vehicleData.communicationFault ? Colors.textMuted : (index / 12.0 < fillRatio)
                                         ? statusColor
                                         : Colors.surfaceSunken
 
@@ -314,9 +312,11 @@ Item {
                         Layout.fillWidth: true
                         spacing: 12
                         
-                        RowLayout { spacing: 5; Rectangle { width: 8; height: 8; radius: 4; color: Colors.accentCity } Text { text: "< 50°C Normal"; font.family: Typography.family; font.pixelSize: 10; color: Colors.textMuted } }
-                        RowLayout { spacing: 5; Rectangle { width: 8; height: 8; radius: 4; color: Colors.warning } Text { text: "50°C - 70°C Elevated"; font.family: Typography.family; font.pixelSize: 10; color: Colors.textMuted } }
-                        RowLayout { spacing: 5; Rectangle { width: 8; height: 8; radius: 4; color: Colors.critical } Text { text: "> 70°C High"; font.family: Typography.family; font.pixelSize: 10; color: Colors.textMuted } }
+                        RowLayout { spacing: 5; Rectangle { width: 8; height: 8; radius: 4; color: Colors.accentCity } Text { text: "< 50°C Normal";font.weight: Font.DemiBold; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary } }
+                        Item { Layout.fillWidth: true }
+                        RowLayout { spacing: 5; Rectangle { width: 8; height: 8; radius: 4; color: Colors.warning } Text { text: "50°C - 70°C Elevated";font.weight: Font.DemiBold; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary } }
+                        Item { Layout.fillWidth: true }
+                        RowLayout { spacing: 5; Rectangle { width: 8; height: 8; radius: 4; color: Colors.critical } Text { text: "> 70°C High";font.weight: Font.DemiBold; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary } }
                     }
                 }
             }
@@ -339,7 +339,7 @@ Item {
 
                 // CARD C: VEHICLE OPERATIONAL HEALTH SCORES
                 DashboardCard {
-                    title: "Vehicle Health"
+                    title: vehicleData.communicationFault ? "Vehicle Health • Critical" : "Vehicle Health"
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
@@ -437,7 +437,7 @@ Item {
                         (vehicleData.lowRangeWarning ? 1 : 0) +
                         (vehicleData.motorOverTempWarning ? 1 : 0) +
                         (vehicleData.batteryOverTempWarning ? 1 : 0)
-                    title: "ACTIVE WARNINGS"
+                    title: vehicleData.communicationFault ? "Inacitve Warnings" : "ACTIVE WARNINGS"
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
@@ -580,7 +580,7 @@ Item {
                             spacing: 12
                             
                             Text {
-                                text: vehicleData.communicationFault ? activeWarningsCard.activeWarnings + " Critical" : vehicleData.hasWarning ? activeWarningsCard.activeWarnings + " Active" : "Resolved"
+                                text: vehicleData.communicationFault ? "1 Critical" : vehicleData.hasWarning ? activeWarningsCard.activeWarnings + " Active" : "Resolved"
                                 font.family: Typography.family
                                 font.pixelSize: Typography.label
                                 font.weight: Font.DemiBold
@@ -728,12 +728,12 @@ Item {
                                     width: 6
                                     height: 6
                                     radius: 3
-                                    color: vehicleData.communicationFault ? Colors.textMuted : vehicleData.batteryOverTempWarning || vehicleData.lowBatteryWarning ? Colors.warning : Colors.accentEco
+                                    color: vehicleData.communicationFault ? Colors.textMuted : vehicleData.lowBatteryWarning ? Colors.warning : Colors.accentEco
                                 }
 
                                 Text {
-                                    text: vehicleData.communicationFault ? "DATA UNAVAILABLE" : vehicleData.batteryOverTempWarning || vehicleData.lowBatteryWarning ? "Low Battery" : statusText
-                                    color: vehicleData.communicationFault ? Colors.textMuted : vehicleData.batteryOverTempWarning || vehicleData.lowBatteryWarning ? Colors.warning : Colors.accentCity
+                                    text: vehicleData.communicationFault ? "DATA UNAVAILABLE" : vehicleData.lowBatteryWarning ? "Low Battery" : statusText
+                                    color: vehicleData.communicationFault ? Colors.textMuted : vehicleData.lowBatteryWarning ? Colors.warning : Colors.accentCity
                                     font.family: Typography.family
                                     font.bold: true
                                     font.pixelSize: Typography.label
@@ -866,43 +866,334 @@ Item {
                 }
             }
 
-            // DETAILED STREAM POWERTRAIN MATRIX RAW VIEWPORT
-            DashboardCard {
-                title: "Powertrain Data"
+            RowLayout {
                 Layout.fillHeight: true
-                Layout.preferredHeight: Math.round(201 * Theme.scale)
-                Layout.fillWidth: true
+                Layout.preferredWidth: parent.width * 0.63
+                spacing: Theme.sectionGap
 
-                ListView {
-                    anchors.fill: parent
-                    anchors.topMargin: Math.round(4 * Theme.scale)
-                    interactive: false
-                    spacing: 0
-                    
-                    model: ListModel {
-                        ListElement { metric: "Battery Voltage"; reading: "72.4 V"; symbol: "🔋" }
-                        ListElement { metric: "Battery Current"; reading: "18.2 A"; symbol: "📈" }
-                        ListElement { metric: "Motor Power"; reading: "4.8 kW"; symbol: "⚙" }
-                        ListElement { metric: "Regen Level"; reading: "2"; symbol: "🔄" }
-                    }
-                    
-                    delegate: ColumnLayout {
-                        width: parent.width
+                // DETAILED STREAM POWERTRAIN MATRIX RAW VIEWPORT
+                DashboardCard {
+                    title: vehicleData.communicationFault ? "POWERTRAIN DATA • OFFLINE" : "POWERTRAIN DATA"
+                    Layout.fillHeight: true
+                    Layout.preferredHeight: Math.round(201 * Theme.scale)
+                    Layout.preferredWidth: 364
+
+                    ListView {
+                        anchors.fill: parent
+                        anchors.topMargin: Math.round(4 * Theme.scale)
+                        interactive: false
                         spacing: 0
                         
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: Math.round(34 * Theme.scale)
-                            
-                            Text { text: model.symbol; font.family: Typography.family; font.pixelSize: Typography.bodySmall; color: Colors.textMuted; Layout.rightMargin: 4 }
-                            Text { text: model.metric; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary }
-                            Item { Layout.fillWidth: true }
-                            Text { text: model.reading; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.weight: Font.Bold; color: Colors.textPrimary }
+                        model: ListModel {
+                            ListElement { metric: "Battery Voltage"; reading: "72.4 V"; symbol: "🔋" }
+                            ListElement { metric: "Battery Current"; reading: "18.2 A"; symbol: "📈" }
+                            ListElement { metric: "Motor Power"; reading: "4.8 kW"; symbol: "⚙" }
+                            ListElement { metric: "Regen Level"; reading: "2"; symbol: "🔄" }
                         }
                         
-                        Rectangle { 
-                            Layout.fillWidth: true; height: 1; color: Colors.surfaceSunken
-                            visible: index < 3
+                        delegate: ColumnLayout {
+                            width: parent.width
+                            spacing: 0
+                            
+                            RowLayout {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: Math.round(34 * Theme.scale)
+                                
+                                Text { text: model.symbol; font.family: Typography.family; font.pixelSize: Typography.bodySmall; color: Colors.textMuted; Layout.rightMargin: 4 }
+                                Text { text: model.metric; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary }
+                                Item { Layout.fillWidth: true }
+                                Text { text: model.reading; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.weight: Font.Bold; color: Colors.textPrimary }
+                            }
+                            
+                            Rectangle { 
+                                Layout.fillWidth: true; height: 1; color: Colors.surfaceSunken
+                                visible: index < 3
+                            }
+                        }
+                    }
+                }
+
+                DashboardCard {
+                    title: vehicleData.communicationFault ? "Fault History • OFFLINE" : "Fault History • " + telemetryLogger.recentWarnings.length
+
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 8
+
+                        Item {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+
+                            ListView {
+                                id: historyView
+
+                                anchors.fill: parent
+
+                                clip: true
+                                spacing: 4
+
+                                model: telemetryLogger.recentWarnings
+                                visible: telemetryLogger.recentWarnings.length > 0 && !vehicleData.communicationFault
+
+                                delegate: Rectangle {
+                                    property var parts:  
+                                        modelData ? modelData.split(",") : []
+
+                                    property string timestamp:
+                                        parts.length > 0 ? parts[0] : ""
+
+                                    property var tsParts:
+                                        timestamp ? timestamp.split(" ") : []
+
+                                    property string datePart:
+                                        tsParts.length > 0 ? tsParts[0] : ""
+
+                                    property string timePart:
+                                        tsParts.length > 1 ? tsParts[1] : ""
+
+                                    property string warningText:
+                                        parts.length > 1 ? parts[1] : ""
+                                    
+                                    width: historyView.width
+                                    height: 42
+
+                                    radius: Theme.controlRadius
+
+                                    color: Qt.rgba(1, 1, 1, 0.02)
+                                    border.color: Colors.borderSubtle
+                                    border.width: 1
+
+                                    RowLayout {
+                                        anchors.fill: parent
+                                        anchors.leftMargin: 10
+                                        anchors.rightMargin: 10
+
+                                        spacing: 8
+
+                                        Text {
+                                            text: "⚠"
+                                            color: Colors.warning
+                                            font.pixelSize: Typography.bodyMedium
+                                        }
+
+                                        ColumnLayout {
+                                            spacing: 1
+                                            Layout.fillWidth: true
+
+                                            Text {
+                                                text: warningText
+
+                                                color: Colors.textPrimary
+                                                font.family: Typography.family
+                                                font.pixelSize: Typography.bodySmall
+                                                font.weight: Font.Medium
+                                            }
+
+                                            Row {
+                                                spacing: 8
+
+                                                Text {
+                                                    text: datePart
+                                                    color: Colors.textMuted
+                                                    font.pixelSize: Typography.label
+                                                }
+
+                                                Text {
+                                                    text: "•"
+
+                                                    color: Colors.borderSubtle
+                                                    font.family: Typography.family
+                                                    font.pixelSize: Typography.label
+                                                }
+
+                                                Text {
+                                                    text: timePart
+                                                    color: Colors.textMuted
+                                                    font.pixelSize: Typography.label
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                ScrollBar.vertical: ScrollBar {
+                                    policy: ScrollBar.AsNeeded
+                                    contentItem: Rectangle { radius: 3; color: Colors.borderSubtle }
+                                    width: 6
+                                    background: Rectangle { color: "transparent" }
+                                }
+                            }
+
+                            Column {
+                                anchors.centerIn: parent
+
+                                visible: vehicleData.communicationFault
+
+                                spacing: 4
+
+                                Rectangle {
+                                    width: 32
+                                    height: 32
+                                    radius: 16
+
+                                    color: Qt.rgba(
+                                        Colors.critical.r,
+                                        Colors.critical.g,
+                                        Colors.critical.b,
+                                        0.10
+                                    )
+
+                                    border.color: Colors.critical
+                                    border.width: 1
+
+                                    anchors.horizontalCenter: parent.horizontalCenter
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "X"
+                                        color: Colors.critical
+                                        font.pixelSize: 20
+                                        font.bold: true
+                                    }
+                                }
+
+                                Text {
+                                    text: "Communication Fault"
+
+                                    color: Colors.critical
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.bodyMedium
+                                    font.bold: true
+
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                Text {
+                                    text: "Telemetry stream unavailable"
+
+                                    color: Colors.textSecondary
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.label
+
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                Text {
+                                    text: "History updates paused"
+
+                                    color: Colors.textMuted
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.label
+
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+                            }
+
+                            Column {
+                                anchors.centerIn: parent
+
+                                visible: telemetryLogger.recentWarnings.length === 0 && !vehicleData.communicationFault
+
+                                spacing: 6
+                                width: parent.width
+
+                                Rectangle {
+                                    width: 42
+                                    height: 42
+                                    radius: 21
+
+                                    color: Qt.rgba(
+                                        Colors.accentEco.r,
+                                        Colors.accentEco.g,
+                                        Colors.accentEco.b,
+                                        0.10
+                                    )
+
+                                    border.color: Colors.accentEco
+                                    border.width: 1
+
+                                    anchors.horizontalCenter: parent.horizontalCenter
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "✓"
+                                        color: Colors.accentEco
+                                        font.pixelSize: 22
+                                        font.bold: true
+                                    }
+                                }
+
+                                Text {
+                                    text: "No Recent Faults"
+
+                                    color: Colors.textPrimary
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.bodyMedium
+
+                                    Layout.alignment: Qt.AlignHCenter
+                                }
+
+                                Text {
+                                    text: "System operating normally"
+
+                                    color: Colors.textMuted
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.label
+
+                                    Layout.alignment: Qt.AlignHCenter
+                                }
+                            }    
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 1
+                            color: Colors.borderSubtle
+                        }
+
+                        Rectangle {
+                            id: clearButton
+
+                            Layout.alignment: Qt.AlignRight
+
+                            width: 110
+                            height: 34
+
+                            radius: Theme.controlRadius
+
+                            opacity: vehicleData.communicationFault ? 0.5 : 1.0
+
+                            color: Qt.rgba(
+                                Colors.accentCity.r,
+                                Colors.accentCity.g,
+                                Colors.accentCity.b,
+                                0.10
+                            )
+
+                            border.color: Colors.borderSubtle
+                            border.width: 1
+
+                            Text {
+                                anchors.centerIn: parent
+
+                                text: "ACKNOWLEDGE"
+
+                                color: Colors.textPrimary
+                                font.family: Typography.family
+                                font.pixelSize: Typography.label
+                                font.bold: true
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+
+                                enabled: !vehicleData.communicationFault
+
+                                onClicked: telemetryLogger.clearWarnings()
+                            }
                         }
                     }
                 }

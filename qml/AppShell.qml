@@ -75,7 +75,7 @@ Item {
             }
 
             Text {
-                text: Math.round(vehicleData.batteryPercent) + "%"
+                text: vehicleData.communicationFault ? "?" : Math.round(vehicleData.batteryPercent) + "%"
                 color: Colors.textSecondary
                 font.family: Typography.family
                 font.pixelSize: Typography.label
@@ -121,7 +121,7 @@ Item {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 width: parent.width - Math.round(42 * Theme.scale)
-                text: vehicleData.communicationFault ? "COMMUNICATION FAULT, CONTACT SERVICE IMMEDIATELY" : vehicleData.warningMessage.length > 0 ? vehicleData.warningMessage.toUpperCase() : "SYSTEM NOMINAL"
+                text: vehicleData.communicationFault ? "COMMUNICATION FAULT, CONTACT SERVICE IMMEDIATELY" : vehicleData.hasWarning ? vehicleData.warningMessage.toUpperCase() : "SYSTEM NOMINAL"
                 color: Colors.textPrimary
                 elide: Text.ElideRight
                 font.family: Typography.family

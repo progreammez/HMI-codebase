@@ -113,4 +113,52 @@ void TelemetryLogger::logWarning(const QString& warning)
 
     // Optional: flush is handled safely when the file closes out of scope
     out.flush();
+    m_displayWarnings.prepend(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "," + warning);
+
+    while (m_displayWarnings.size() > 10)
+    {
+        m_displayWarnings.removeLast();
+    }
+
+    emit recentWarningsChanged();
+}
+
+QStringList TelemetryLogger::readRecentWarnings(int maxEntries) const
+{
+    QStringList warnings;
+
+    QFile file("logs/warnings.csv");
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return warnings;
+
+    QTextStream in(&file);
+
+    in.readLine(); // Skip header
+
+    while (!in.atEnd())
+    {
+        warnings.append(in.readLine());
+    }
+
+    while (warnings.size() > maxEntries)
+    {
+        warnings.removeFirst();
+    }
+
+    std::reverse(warnings.begin(), warnings.end());
+
+    return warnings;
+}
+
+QStringList TelemetryLogger::recentWarnings() const
+{
+    return m_displayWarnings;
+}
+
+void TelemetryLogger::clearWarnings()
+{
+    m_displayWarnings.clear();
+
+    emit recentWarningsChanged();
 }
