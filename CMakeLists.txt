@@ -47,7 +47,9 @@ qt_add_qml_module(EV_HMI
         qml/components/EnergyBar.qml
         qml/components/MetricTile.qml
         qml/components/ModeButton.qml
-        qml/components/BatteryGraphic.qml  
+        qml/components/BatteryGraphic.qml
+        qml/components/PowertrainIcon.qml
+        qml/components/ThermalIcon.qml
 
 
         qml/components/home-panels/DistancePanel.qml
