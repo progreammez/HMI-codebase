@@ -194,13 +194,9 @@ QtObject {
         isSakura ? "#FFB7D5" :
         "#72D7FF"
 
-    readonly property color warning:
-        isLightMode ? "#B45309" :
-        isSakura ? "#FFC86B" :
-        isLavender ? "#FFD166" :
-        "#F59E0B"
+    readonly property color warning: "#ffd900"
 
-    readonly property color critical: "#FF5C8A"
+    readonly property color critical: "#ff2f2f"
 
     // =====================================================
     // PANELS

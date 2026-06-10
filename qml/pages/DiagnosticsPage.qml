@@ -12,10 +12,10 @@ Item {
             return "UNKNOWN"
 
         if (vehicleData.batteryOverTempWarning)
-            return "FAULT"
+            return "OVERHEATING"
 
         if (vehicleData.lowBatteryWarning)
-            return "WARNING"
+            return "LOW BATTERY"
 
         return "OK"
     }
@@ -24,9 +24,10 @@ Item {
         if (vehicleData.communicationFault)
             return "UNKNOWN"
 
-        return vehicleData.motorOverTempWarning
-               ? "FAULT"
-               : "OK"
+        if (vehicleData.motorOverTempWarning)
+            return "OVERHEATING"
+
+        return "OK"
     }
 
     property string controllerHealthStatus: {
@@ -37,21 +38,46 @@ Item {
 
     property string commsHealthStatus: {
         return vehicleData.communicationFault
-               ? "FAULT"
-               : "OK"
+            ? "COMMUNICATION FAULT"
+            : "OK"
+    }
+
+    property string overallHealthStatus: {
+        if (vehicleData.communicationFault)
+            return "CRITICAL"
+
+        if (vehicleData.batteryOverTempWarning)
+            return "CRITICAL"
+
+        if (vehicleData.motorOverTempWarning)
+            return "WARNING"
+
+        if (vehicleData.lowBatteryWarning)
+            return "WARNING"
+
+        if (vehicleData.lowRangeWarning)
+            return "WARNING"
+
+        return "HEALTHY"
     }
 
     property int healthScore: {
         var score = 100
 
+        if (vehicleData.lowBatteryWarning)
+            score -= 10
+
+        if (vehicleData.lowRangeWarning)
+            score -= 10
+
         if (vehicleData.motorOverTempWarning)
             score -= 20
 
         if (vehicleData.batteryOverTempWarning)
-            score -= 20
+            score -= 30
 
         if (vehicleData.communicationFault)
-            score -= 40
+            score -= 50
 
         return Math.max(0, score)
     }
@@ -343,25 +369,114 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
-                    RowLayout {
-                        anchors.fill: parent
-                        spacing: Theme.cardGap
-                
                         ColumnLayout {
-                            spacing: 3
-                            Layout.fillWidth: true
+                            anchors.fill: parent
+                            spacing: 6
+
+                            RowLayout {
+                                Layout.fillWidth: true
+
+                                Text {
+                                    text: "Overall Score"
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.bodyLarge
+                                    color: Colors.textPrimary
+                                    font.weight: Font.DemiBold
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                Text {
+                                    text: vehicleData.communicationFault
+                                        ? "--"
+                                        : healthScore + "%"
+
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.titleMedium
+                                    font.weight: Font.Bold
+
+                                    color: vehicleData.communicationFault ? Colors.textMuted :
+                                        overallHealthStatus === "HEALTHY" ? Colors.accentCity :
+                                        overallHealthStatus === "WARNING" ? Colors.warning :
+                                        Colors.critical
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 1
+                                color: Colors.borderSubtle
+                            }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+
+                                Text {
+                                    text: "Status"
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.bodyLarge
+                                    color: Colors.textPrimary
+                                    font.weight: Font.DemiBold
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                Text {
+                                    text: vehicleData.communicationFault ? "OFFLINE" : overallHealthStatus
+
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.bodyLarge
+                                    font.weight: Font.Bold
+
+                                    color: vehicleData.communicationFault ? Colors.textMuted :
+                                        overallHealthStatus === "HEALTHY" ? Colors.accentCity :
+                                        overallHealthStatus === "WARNING" ? Colors.warning :
+                                        Colors.critical
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 1
+                                color: Colors.borderSubtle
+                            }
                             
                             component DiagnosticLineItem : RowLayout {
                                 property string itemLabel: ""
                                 property string itemStatus: "OK"
-                                Text { text: itemLabel; font.family: Typography.family; font.pixelSize: Typography.bodySmall; color: Colors.textSecondary }
+                                Rectangle {
+                                    width: 8
+                                    height: 8
+                                    radius: 4
+
+                                    color:
+                                        itemStatus === "OK" ? Colors.accentEco :
+                                        itemStatus === "LOW BATTERY" ? Colors.warning :
+                                        itemStatus === "OVERHEATING" ? Colors.critical :
+                                        itemStatus === "COMMUNICATION FAULT" ? Colors.critical :
+                                        itemStatus === "LOW BATTERY" ? Colors.warning :
+                                        itemStatus === "FAULT" ? Colors.critical :
+                                        itemStatus === "CRITICAL" ? Colors.critical :
+                                        itemStatus === "UNKNOWN" ? Colors.textMuted :
+                                        Colors.textMuted
+                                }
+                                Text { text: itemLabel; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; color: Colors.textPrimary }
                                 Item { Layout.fillWidth: true }
                                 Text {
                                     text: itemStatus
                                     font.family: Typography.family
-                                    font.pixelSize: Typography.bodySmall
+                                    font.pixelSize: Typography.titleSmall
                                     font.weight: Font.Bold
-                                    color: itemStatus === "FAULT" ? Colors.critical : itemStatus === "WARNING" ? Colors.warning : itemStatus === "UNKNOWN" ? Colors.textMuted : Colors.accentEco
+                                    color:
+                                        itemStatus === "OK" ? Colors.accentEco :
+                                        itemStatus === "WARNING" ? Colors.warning :
+                                        itemStatus === "FAULT" ? Colors.critical :
+                                        itemStatus === "OVERHEATING" ? Colors.critical :
+                                        itemStatus === "LOW BATTERY" ? Colors.warning :
+                                        itemStatus === "COMMUNICATION FAULT" ? Colors.critical :
+                                        itemStatus === "CRITICAL" ? Colors.critical :
+                                        itemStatus === "UNKNOWN" ? Colors.textMuted :
+                                        Colors.textMuted
                                 }
                             }
                             
@@ -383,48 +498,7 @@ Item {
                             DiagnosticLineItem {
                                 itemLabel: "Comms"
                                 itemStatus: commsHealthStatus
-                            }
-                            
-                            Text { text: "Last Check: 12:42:31"; font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textMuted; Layout.topMargin: 4 }
-                        }
-                        
-                        ColumnLayout {
-                            Layout.preferredWidth: Math.round(95 * Theme.scale)
-                            spacing: 2
-                            Layout.alignment: Qt.AlignVCenter
-
-                            Text {
-                                text: vehicleData.communicationFault
-                                    ? "OFFLINE"
-                                    : healthScore + "%"
-
-                                font.family: Typography.family
-                                font.pixelSize: Typography.titleMedium
-                                font.weight: Font.Bold
-                                color: vehicleData.communicationFault
-                                    ? Colors.critical
-                                    : Colors.accentCity
-
-                                Layout.alignment: Qt.AlignHCenter
-                            }
-
-                            Text {
-                                text: vehicleData.communicationFault
-                                    ? "DATA UNAVAILABLE"
-                                    : (healthScore >= 80 ? "HEALTHY"
-                                                        : healthScore >= 60 ? "DEGRADED"
-                                                                            : "CRITICAL")
-
-                                font.family: Typography.family
-                                font.pixelSize: Typography.label
-                                font.weight: Font.Bold
-                                color: vehicleData.communicationFault
-                                    ? Colors.critical
-                                    : Colors.accentCity
-
-                                Layout.alignment: Qt.AlignHCenter
-                            }
-                        }
+                            }                        
                     }
                 }
 
@@ -437,7 +511,7 @@ Item {
                         (vehicleData.lowRangeWarning ? 1 : 0) +
                         (vehicleData.motorOverTempWarning ? 1 : 0) +
                         (vehicleData.batteryOverTempWarning ? 1 : 0)
-                    title: vehicleData.communicationFault ? "Inacitve Warnings" : "ACTIVE WARNINGS"
+                    title: vehicleData.communicationFault ? "Inactive Warnings" : "ACTIVE WARNINGS"
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
