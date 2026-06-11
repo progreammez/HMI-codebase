@@ -21,6 +21,8 @@ VehicleData::VehicleData(QObject *parent)
       m_regenLevel(0),
       m_odometer(0.0f),
       m_tripDistance(0.0f),
+      m_tripA(0.0f),
+      m_tripB(0.0f),
       m_lowBatteryWarning(false),
       m_motorOverTempWarning(false),
       m_batteryOverTempWarning(false),
@@ -117,6 +119,16 @@ float VehicleData::odometer() const
 float VehicleData::tripDistance() const
 {
     return m_tripDistance;
+}
+
+float VehicleData::tripA() const
+{
+    return m_tripA;
+}
+
+float VehicleData::tripB() const
+{
+    return m_tripB;
 }
 
 bool VehicleData::lowBatteryWarning() const
@@ -320,6 +332,24 @@ void VehicleData::setTripDistance(float tripDistance)
     m_tripDistance = tripDistance;
     emit tripDistanceChanged();
 }
+
+void VehicleData::settripA(float tripA)
+{
+    if (qFuzzyCompare(m_tripA, tripA))
+        return;
+
+    m_tripA = tripA;
+    emit tripAChanged();
+}
+
+void VehicleData::settripB(float tripB)
+{
+    if (qFuzzyCompare(m_tripB, tripB))
+        return;
+
+    m_tripB = tripB;
+    emit tripBChanged();
+}   
 
 void VehicleData::setLowBatteryWarning(bool lowBatteryWarning)
 {

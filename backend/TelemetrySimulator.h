@@ -40,6 +40,8 @@ struct SimulationState
     
     float odometer = 0.0f;
     float tripDistance = 0.0f;
+    float tripA = 0.0f;
+    float tripB = 0.0f;
     
     bool lowBatteryWarning = false;
     bool motorOverTempWarning = false;

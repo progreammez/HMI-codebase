@@ -8,8 +8,8 @@ Item {
     property color activeColor: vehicleData.communicationFault ? Colors.textMuted : Colors.accentCity
     property color inactiveColor: Qt.rgba(1,1,1,0.08)
 
-    width: 78
-    height: 26
+    //width: 78
+    //height: 26
 
     readonly property int filledSegments: Math.max(0, Math.min(8, Math.ceil(percentage / 12.5)))
 

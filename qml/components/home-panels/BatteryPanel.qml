@@ -6,15 +6,25 @@ BaseCard {
 
     title: "BATTERY"
 
+    // FIXED: Dynamically switches asset directory strings based on system Day/Night mode state
+    readonly property string iconSetPath: "qrc:/assets/icons/" + (Colors.dayNightMode === "day" ? "Light" : "Dark") + "/HomePage/"
+
     Column {
         anchors.fill: parent
-        spacing: 18 * Theme.scale
+        anchors.margins: 20 * Theme.scale
+        spacing: 14 * Theme.scale
 
+        // =====================================================
+        // TOP SECTION: LARGE BATTERY GRAPHIC & PERCENTAGE
+        // =====================================================
         Item {
             width: parent.width
-            height: 90 * Theme.scale
+            height: 70 * Theme.scale
 
             BatteryGraphic {
+
+                width: 100
+                height: 32
                 id: batteryGraphic
 
                 anchors.left: parent.left
@@ -22,7 +32,7 @@ BaseCard {
 
                 percentage: vehicleData.batteryPercent
 
-                scale: 2.6
+                scale: 2.4
                 transformOrigin: Item.Left
             }
 
@@ -30,136 +40,201 @@ BaseCard {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
 
-                text: vehicleData.batteryPercent + "%"
-
+                text: Math.round(vehicleData.batteryPercent) + "%"
                 color: Colors.textPrimary
 
                 font.family: Typography.family
-                font.pixelSize: Typography.displayMedium
-                font.weight: Font.Bold
+                font.pixelSize: Typography.displayMedium - 4
+                font.bold: true
             }
         }
 
+        // Sleek subtle divider line
         Rectangle {
             width: parent.width
             height: 1
             color: Colors.borderSubtle
-            opacity: 0.5
+            opacity: 0.15
         }
 
+        // =====================================================
+        // BOTTOM SECTION: TELEMETRY LIST WITH PREMIUM ICONS
+        // =====================================================
         Column {
             width: parent.width
-            spacing: 10 * Theme.scale
+            spacing: 8 * Theme.scale
 
-            Item {
+            // ROW 1: Capacity
+            Rectangle {
                 width: parent.width
-                height: 28 * Theme.scale
+                height: 34 * Theme.scale
+                radius: 6 * Theme.scale
+                color: Qt.rgba(1, 1, 1, 0.03) 
 
-                Text {
+                Row {
                     anchors.left: parent.left
+                    anchors.leftMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
+                    spacing: 10 * Theme.scale
 
-                    text: "Total Range"
+                    Image {
+                        width: 25 * Theme.scale
+                        height: 25 * Theme.scale
+                        source: root.iconSetPath + "battery.png"
+                        fillMode: Image.PreserveAspectFit
+                        antialiasing: true
+                    }
 
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodyMedium
+                    Text {
+                        text: "Capacity"
+                        color: Colors.textSecondary
+                        font.family: Typography.family
+                        font.pixelSize: Typography.bodyMedium
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
 
                 Text {
                     anchors.right: parent.right
+                    anchors.rightMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
 
-                    text: vehicleData.totalRangeKm + " km"
-
-                    color: Colors.textPrimary
+                    text: Math.round(vehicleData.batteryPercent) + "%"
+                    color: Colors.borderActive
                     font.family: Typography.family
-                    font.pixelSize: Typography.bodyLarge
-                    font.weight: Font.DemiBold
+                    font.pixelSize: Typography.bodyMedium
+                    font.weight: Font.Bold
                 }
             }
 
-            Item {
+            // ROW 2: Total Range
+            Rectangle {
                 width: parent.width
-                height: 28 * Theme.scale
+                height: 34 * Theme.scale
+                radius: 6 * Theme.scale
+                color: Qt.rgba(1, 1, 1, 0.03)
 
-                Text {
+                Row {
                     anchors.left: parent.left
+                    anchors.leftMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
+                    spacing: 10 * Theme.scale
 
-                    text: "Est. Range"
+                    Image {
+                        width: 25 * Theme.scale
+                        height: 25 * Theme.scale
+                        source: root.iconSetPath + "range.png"
+                        fillMode: Image.PreserveAspectFit
+                        antialiasing: true
+                    }
 
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodyMedium
+                    Text {
+                        text: "Total Range"
+                        color: Colors.textSecondary
+                        font.family: Typography.family
+                        font.pixelSize: Typography.bodyMedium
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
 
                 Text {
                     anchors.right: parent.right
+                    anchors.rightMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
 
-                    text: vehicleData.rangeKm + " km"
-
-                    color: Colors.accentCity
+                    text: (typeof vehicleData.totalRangeKm !== 'undefined' && vehicleData.totalRangeKm !== null) 
+                          ? vehicleData.totalRangeKm + " km" 
+                          : "180 km"
+                    color: Colors.borderActive
                     font.family: Typography.family
-                    font.pixelSize: Typography.bodyLarge
-                    font.weight: Font.DemiBold
+                    font.pixelSize: Typography.bodyMedium
+                    font.weight: Font.Bold
                 }
             }
 
-            Item {
+            // ROW 3: Estimated Range
+            Rectangle {
                 width: parent.width
-                height: 28 * Theme.scale
+                height: 34 * Theme.scale
+                radius: 6 * Theme.scale
+                color: Qt.rgba(1, 1, 1, 0.03)
 
-                Text {
+                Row {
                     anchors.left: parent.left
+                    anchors.leftMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
+                    spacing: 10 * Theme.scale
 
-                    text: "Battery Temp"
+                    Image {
+                        width: 25 * Theme.scale
+                        height: 25 * Theme.scale
+                        source: root.iconSetPath + "range.png"
+                        fillMode: Image.PreserveAspectFit
+                        antialiasing: true
+                    }
 
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodyMedium
+                    Text {
+                        text: "Estimated Range"
+                        color: Colors.textSecondary
+                        font.family: Typography.family
+                        font.pixelSize: Typography.bodyMedium
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
 
                 Text {
                     anchors.right: parent.right
+                    anchors.rightMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
 
-                    text: vehicleData.batteryTemp + "°C"
-
-                    color: Colors.textPrimary
+                    text: Math.round(vehicleData.rangeKm) + " km"
+                    color: Colors.borderActive
                     font.family: Typography.family
-                    font.pixelSize: Typography.bodyLarge
-                    font.weight: Font.DemiBold
+                    font.pixelSize: Typography.bodyMedium
+                    font.weight: Font.Bold
                 }
             }
 
-            Item {
+            // ROW 4: Battery Temp
+            Rectangle {
                 width: parent.width
-                height: 28 * Theme.scale
+                height: 34 * Theme.scale
+                radius: 6 * Theme.scale
+                color: Qt.rgba(1, 1, 1, 0.03)
 
-                Text {
+                Row {
                     anchors.left: parent.left
+                    anchors.leftMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
+                    spacing: 10 * Theme.scale
 
-                    text: "Capacity"
+                    Image {
+                        width: 25 * Theme.scale
+                        height: 25 * Theme.scale
+                        source: root.iconSetPath + "batterytemp.png"
+                        fillMode: Image.PreserveAspectFit
+                        antialiasing: true
+                    }
 
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodyMedium
+                    Text {
+                        text: "Battery Temp"
+                        color: Colors.textSecondary
+                        font.family: Typography.family
+                        font.pixelSize: Typography.bodyMedium
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
 
                 Text {
                     anchors.right: parent.right
+                    anchors.rightMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
 
-                    text: vehicleData.batteryPercent + "%"
-
-                    color: Colors.textPrimary
+                    text: Math.round(vehicleData.batteryTemp) + "°C"
+                    color: Colors.borderActive
                     font.family: Typography.family
-                    font.pixelSize: Typography.bodyLarge
-                    font.weight: Font.DemiBold
+                    font.pixelSize: Typography.bodyMedium
+                    font.weight: Font.Bold
                 }
             }
         }

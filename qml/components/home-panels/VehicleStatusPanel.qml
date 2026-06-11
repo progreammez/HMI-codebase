@@ -1,5 +1,3 @@
-// IndicatorPanel.qml
-
 import QtQuick
 import EvHmi
 
@@ -8,245 +6,254 @@ BaseCard {
 
     title: "VEHICLE STATUS"
 
-    // Prevent array reallocation during UI layout updates
     readonly property var gearsModel: ["P", "R", "N", "D"]
+    readonly property string iconSetPath: "qrc:/assets/icons/" + (Colors.dayNightMode === "day" ? "Light" : "Dark") + "/HomePage/"
 
-    Row {
-    anchors.fill: parent
-    anchors.topMargin: 42 * Theme.scale
-
-    spacing: 24 * Theme.scale
-
-    // =====================================================
-    // PRND
-    // =====================================================
-
-    Row {
-        id: prndRow
-
-        spacing: 4 * Theme.scale
-
-        Repeater {
-            model: root.gearsModel
-
-            Rectangle {
-                width: 42 * Theme.scale
-                height: 42 * Theme.scale
-                radius: Theme.controlRadius
-
-                readonly property bool isSelected:
-                    vehicleData.gearState === modelData
-
-                color: isSelected
-                       ? Colors.surfacePressed
-                       : Colors.surfaceSunken
-
-                border.width: 1.5
-                border.color: isSelected
-                              ? Colors.borderActive
-                              : Colors.borderWarm
-
-                Text {
-                    anchors.centerIn: parent
-
-                    text: modelData
-
-                    color: isSelected
-                           ? Colors.borderActive
-                           : Colors.textSecondary
-
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodyMedium
-                    font.bold: true
-                }
-            }
-        }
-    }
-
-    Rectangle {
-        id: divider
-
-        width: 1
-        height: 48 * Theme.scale
-
-        anchors.verticalCenter: parent.verticalCenter
-
-        color: Colors.borderSubtle
-    }
-
-    // =====================================================
-    // INDICATORS AREA
-    // =====================================================
-
+    // Master container switched to Item for absolute anchor positioning control
     Item {
-        width: parent.width
-               - prndRow.width
-               - divider.width
-               - (48 * Theme.scale)
+        anchors.fill: parent
+        anchors.margins: 20 * Theme.scale
 
-        height: parent.height
+        // =====================================================
+        // 1. PRND UNIFIED SLIDER TRACK
+        // =====================================================
+        Rectangle {
+            id: prndSliderContainer
+            
+            width: Math.round(180 * Theme.scale)
+            height: Math.round(44 * Theme.scale)
+            radius: Theme.controlRadius
+            
+            // Anchored strictly to the left wall
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            
+            color: Colors.surfaceSunken
+            border.width: 1
+            border.color: Qt.rgba(Colors.borderSubtle.r, Colors.borderSubtle.g, Colors.borderSubtle.b, 0.3)
 
-        Row {
-            anchors.centerIn: parent
-
-            spacing: 20 * Theme.scale
-
-            // =====================================================
-            // PASTE ALL YOUR INDICATOR COLUMNS HERE
-            // =====================================================
-
-            // Left
-            Column {
+            Row {
+                anchors.fill: parent
+                padding: 4 * Theme.scale
                 spacing: 4 * Theme.scale
 
-                Image {
-                    source: vehicleData.leftIndicator
-                        ? "qrc:/assets/icons/Light/HomePage/left-indicator-on.png"
-                        : "qrc:/assets/icons/Light/HomePage/left-indicator-off.png"
+                Repeater {
+                    model: root.gearsModel
 
-                    width: 28 * Theme.scale
-                    height: 28 * Theme.scale
-                    fillMode: Image.PreserveAspectFit
+                    Rectangle {
+                        width: (parent.width - (parent.padding * 2) - (parent.spacing * 3)) / 4
+                        height: parent.height - (parent.padding * 2) 
+                        anchors.verticalCenter: parent.verticalCenter
+                        radius: Theme.controlRadius - 2
 
-                    onStatusChanged: {
-                        if (status === Image.Error)
-                            console.log("FAILED:", source)
+                        readonly property bool isSelected: vehicleData.gearState === modelData
+
+                        color: isSelected
+                               ? Qt.rgba(Colors.borderActive.r, Colors.borderActive.g, Colors.borderActive.b, 0.15)
+                               : "transparent"
+
+                        border.width: isSelected ? 1.5 : 0
+                        border.color: isSelected ? Colors.borderActive : "transparent"
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData
+                            color: isSelected ? Colors.borderActive : Colors.textMuted
+                            font.family: Typography.family
+                            font.pixelSize: Typography.bodyMedium
+                            font.bold: true
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                vehicleData.gearState = modelData
+                            }
+                        }
                     }
-
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-
-                Text {
-                    text: "Left"
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodySmall
-                    anchors.horizontalCenter: parent.horizontalCenter
                 }
             }
+        }
 
-            // Beam
-            Column {
-                spacing: 4 * Theme.scale
+        // =====================================================
+        // 2. VISUAL VERTICAL DIVIDER LINE
+        // =====================================================
+        Rectangle {
+            id: verticalVisualDivider
 
-                Image {
-                    source: vehicleData.highBeam
-                        ? "qrc:/assets/icons/Light/HomePage/high-beam.png"
-                        : "qrc:/assets/icons/Light/HomePage/low-beam.png"
+            width: 2 
+            height: Math.round(54 * Theme.scale)
+            
+            anchors.left: prndSliderContainer.right
+            anchors.leftMargin: 26 * Theme.scale 
+            anchors.verticalCenter: parent.verticalCenter
+            
+            color: Colors.borderSubtle
+            opacity: 0.85
+        }
 
-                    width: 28 * Theme.scale
-                    height: 28 * Theme.scale
-                    fillMode: Image.PreserveAspectFit
+        // =====================================================
+        // 3. THEME-REFLECTIVE INDICATORS CONTAINER
+        // =====================================================
+        Item {
+            id: iconsContainer
+            
+            anchors.left: verticalVisualDivider.right
+            // FIXED: Explicitly pushes the icons away from the divider so it doesn't crowd the "Left" sign
+            anchors.leftMargin: 20 * Theme.scale 
+            anchors.right: parent.right
+            
+            anchors.verticalCenter: parent.verticalCenter
+            // FIXED: Drops the entire icon block down by 6px to correct the Y-Axis misalignment against the PRND text
+            anchors.verticalCenterOffset: 6 * Theme.scale 
+            
+            height: parent.height
 
-                    onStatusChanged: {
-                        if (status === Image.Error)
-                            console.log("FAILED:", source)
+            Row {
+                anchors.fill: parent
+
+                // 1. LEFT TURN SIGNAL
+                Item {
+                    // FIXED: Claims exactly 20% of the remaining area to guarantee perfect spacing
+                    width: parent.width / 5
+                    height: parent.height
+                    
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 6 * Theme.scale
+
+                        Image {
+                            source: root.iconSetPath + (vehicleData.leftIndicator ? "left-indicator-on.png" : "left-indicator-off.png")
+                            width: 30 * Theme.scale
+                            height: 30 * Theme.scale
+                            fillMode: Image.PreserveAspectFit
+                            antialiasing: true
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+
+                        Text {
+                            text: "Left"
+                            color: Colors.textSecondary
+                            font.family: Typography.family
+                            font.pixelSize: Typography.bodySmall - 1
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
                     }
-
-                    opacity: vehicleData.headlights ? 1.0 : 0.35
-
-                    anchors.horizontalCenter: parent.horizontalCenter
                 }
 
-                Text {
-                    text: "Beam"
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodySmall
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-            }
+                // 2. HEADLIGHT BEAM
+                Item {
+                    width: parent.width / 5
+                    height: parent.height
+                    
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 6 * Theme.scale
 
-            // Hazard
-            Column {
-                spacing: 4 * Theme.scale
+                        Image {
+                            source: root.iconSetPath + (vehicleData.highBeam ? "high-beam.png" : "low-beam.png")
+                            width: 30 * Theme.scale
+                            height: 30 * Theme.scale
+                            fillMode: Image.PreserveAspectFit
+                            antialiasing: true
+                            opacity: vehicleData.headlights ? 1.0 : 0.3
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
 
-                Image {
-                    source: vehicleData.hazardLights
-                        ? "qrc:/assets/icons/Light/HomePage/caution-lights-on.png"
-                        : "qrc:/assets/icons/Light/HomePage/caution-lights-off.png"
-
-                    width: 28 * Theme.scale
-                    height: 28 * Theme.scale
-                    fillMode: Image.PreserveAspectFit
-
-                    onStatusChanged: {
-                        if (status === Image.Error)
-                            console.log("FAILED:", source)
+                        Text {
+                            text: "Beam"
+                            color: Colors.textSecondary
+                            font.family: Typography.family
+                            font.pixelSize: Typography.bodySmall - 1
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
                     }
-
-                    anchors.horizontalCenter: parent.horizontalCenter
                 }
 
-                Text {
-                    text: "Hazard"
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodySmall
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-            }
+                // 3. HAZARD WARNING TRIANGLE
+                Item {
+                    width: parent.width / 5
+                    height: parent.height
+                    
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 6 * Theme.scale
 
-            // Handbrake
-            Column {
-                spacing: 4 * Theme.scale
+                        Image {
+                            source: root.iconSetPath + (vehicleData.hazardLights ? "caution-lights-on.png" : "caution-lights-off.png")
+                            width: 30 * Theme.scale
+                            height: 30 * Theme.scale
+                            fillMode: Image.PreserveAspectFit
+                            antialiasing: true
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
 
-                Image {
-                    source: vehicleData.handbrakeEngaged
-                        ? "qrc:/assets/icons/Light/HomePage/handbrake-light-on.png"
-                        : "qrc:/assets/icons/Light/HomePage/handbrake-light-off.png"
-
-                    width: 28 * Theme.scale
-                    height: 28 * Theme.scale
-                    fillMode: Image.PreserveAspectFit
-
-                    onStatusChanged: {
-                        if (status === Image.Error)
-                            console.log("FAILED:", source)
+                        Text {
+                            text: "Hazard"
+                            color: Colors.textSecondary
+                            font.family: Typography.family
+                            font.pixelSize: Typography.bodySmall - 1
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
                     }
-
-                    anchors.horizontalCenter: parent.horizontalCenter
                 }
 
-                Text {
-                    text: "Brake"
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodySmall
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-            }
+                // 4. HANDBRAKE / BRAKE STATUS
+                Item {
+                    width: parent.width / 5
+                    height: parent.height
+                    
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 6 * Theme.scale
 
-            // Right
-            Column {
-                spacing: 4 * Theme.scale
+                        Image {
+                            source: root.iconSetPath + (vehicleData.handbrakeEngaged ? "handbrake-light-on.png" : "handbrake-light-off.png")
+                            width: 30 * Theme.scale
+                            height: 30 * Theme.scale
+                            fillMode: Image.PreserveAspectFit
+                            antialiasing: true
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
 
-                Image {
-                    source: vehicleData.rightIndicator
-                        ? "qrc:/assets/icons/Light/HomePage/right-indicator-on.png"
-                        : "qrc:/assets/icons/Light/HomePage/right-indicator-off.png"
-
-                    width: 28 * Theme.scale
-                    height: 28 * Theme.scale
-                    fillMode: Image.PreserveAspectFit
-
-                    onStatusChanged: {
-                        if (status === Image.Error)
-                            console.log("FAILED:", source)
+                        Text {
+                            text: "Brake"
+                            color: Colors.textSecondary
+                            font.family: Typography.family
+                            font.pixelSize: Typography.bodySmall - 1
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
                     }
-
-                    anchors.horizontalCenter: parent.horizontalCenter
                 }
 
-                Text {
-                    text: "Right"
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodySmall
-                    anchors.horizontalCenter: parent.horizontalCenter
+                // 5. RIGHT TURN SIGNAL
+                Item {
+                    width: parent.width / 5
+                    height: parent.height
+                    
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 6 * Theme.scale
+
+                        Image {
+                            source: root.iconSetPath + (vehicleData.rightIndicator ? "right-indicator-on.png" : "right-indicator-off.png")
+                            width: 30 * Theme.scale
+                            height: 30 * Theme.scale
+                            fillMode: Image.PreserveAspectFit
+                            antialiasing: true
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+
+                        Text {
+                            text: "Right"
+                            color: Colors.textSecondary
+                            font.family: Typography.family
+                            font.pixelSize: Typography.bodySmall - 1
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                    }
                 }
             }
         }
     }
-}
 }
