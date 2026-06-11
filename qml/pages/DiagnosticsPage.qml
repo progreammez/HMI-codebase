@@ -714,7 +714,7 @@ Item {
                     property string secondaryValue: ""
                     property string statusText: "NORMAL"
                     property color statusColor: Colors.accentCity
-                    property color accentEco: Colors.accentEco
+                    property color statusColor2: Colors.accentEco
                     property string symbolChar: ""
                     property bool isBattery: false
                     property string cardType: ""
@@ -730,38 +730,76 @@ Item {
                     Component {
                         id: batteryLayout
                         ColumnLayout {
-                            anchors.fill: parent; spacing: 4
+                            anchors.fill: parent
+                            spacing: 4
+
                             RowLayout {
-                                spacing: 2; Layout.alignment: Qt.AlignTop; Layout.fillWidth: true
+                                spacing: 2 
+                                Layout.alignment: Qt.AlignTop
+                                Layout.fillWidth: true
+
                                 Item {
-                                    width: 78; height: 26
                                     BatteryGraphic {
+                                        width: 78; height: 26
                                         anchors.verticalCenter: parent.verticalCenter
                                         percentage: vehicleData.communicationFault ? 0 : vehicleData.batteryPercent
                                     }
                                 }
+
                                 Item { Layout.fillWidth: true }
+
                                 Text {
-                                    text: mainValue; Layout.alignment: Qt.AlignTop; color: Colors.textPrimary
-                                    font.family: Typography.family; font.pixelSize: Typography.titleLarge; font.bold: true
+                                    text: mainValue
+                                    Layout.alignment: Qt.AlignTop
+                                    color: Colors.textPrimary
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.titleLarge
+                                    font.bold: true
                                 }
+
                                 Text {
-                                    text: mainLabel; font.family: Typography.family; font.pixelSize: Typography.titleSmall; color: Colors.textSecondary
+                                    text: mainLabel
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.titleSmall
+                                    color: Colors.textSecondary
                                 }
                             }
 
                             RowLayout {
                                 Layout.fillWidth: true
-                                Text { text: "Range"; width: 50; color: Colors.textSecondary; font.pixelSize: Typography.bodySmall }
+                                
+                                Text { 
+                                    text: "Range"
+                                    width: 50
+                                    color: Colors.textSecondary
+                                    font.pixelSize: Typography.bodySmall 
+                                }
+
                                 Item { Layout.fillWidth: true }
-                                Text { text: vehicleData.communicationFault ? "--" : vehicleData.rangeKm + " km"; color: Colors.textPrimary; font.pixelSize: Typography.bodySmall }
+
+                                Text { 
+                                    text: vehicleData.communicationFault ? "--" : vehicleData.rangeKm + " km"
+                                    color: Colors.textPrimary
+                                    font.pixelSize: Typography.bodySmall 
+                                }
                             }
 
                             RowLayout {
                                 Layout.fillWidth: true
-                                Text { text: "SOH"; color: Colors.textSecondary; font.pixelSize: Typography.bodySmall }
+
+                                Text { 
+                                    text: "SOH"
+                                    color: Colors.textSecondary
+                                    font.pixelSize: Typography.bodySmall
+                                }
+
                                 Item { Layout.fillWidth: true }
-                                Text { text: vehicleData.communicationFault ? "--" : "96%"; color: Colors.textPrimary; font.pixelSize: Typography.bodySmall }
+
+                                Text { 
+                                    text: vehicleData.communicationFault ? "--" : "96%"
+                                    color: Colors.textPrimary
+                                    font.pixelSize: Typography.bodySmall 
+                                }
                             }
 
                             Item { Layout.fillHeight: true }
@@ -904,23 +942,11 @@ Item {
                                     width: Math.round(6 * Theme.scale)
                                     height: Math.round(6 * Theme.scale)
                                     radius: width / 2
-                                    color: vehicleData.communicationFault
-                                        ? Colors.textMuted
-                                        : vehicleData.lowBatteryWarning
-                                            ? Colors.warning
-                                            : Colors.accentEco
+                                    color: statusColor2
                                 }
                                 Text {
-                                    text: vehicleData.communicationFault
-                                        ? "DATA UNAVAILABLE"
-                                        : vehicleData.lowBatteryWarning
-                                            ? "Low Battery"
-                                            : statusText
-                                    color: vehicleData.communicationFault
-                                        ? Colors.textMuted
-                                        : vehicleData.lowBatteryWarning
-                                            ? Colors.warning
-                                            : Colors.accentCity
+                                    text: statusText
+                                    color: statusColor
                                     font.family: Typography.family
                                     font.bold: true
                                     font.pixelSize: Typography.label
@@ -945,8 +971,9 @@ Item {
                     mainValue: vehicleData.communicationFault ? "--" : vehicleData.motorPower.toFixed(1)
                     mainLabel: vehicleData.communicationFault ? "" : "kW"
                     subLabel: "Motor Power"
-                    statusText: "NORMAL"
-                    statusColor: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco
+                    statusText: vehicleData.communicationFault ? "UNAVAILABLE" : vehicleData.motorOverTempWarning ? "MOTOR OVERHEATING" : "NORMAL"
+                    statusColor: vehicleData.communicationFault ? Colors.textMuted : vehicleData.motorOverTempWarning ? Colors.warning : Colors.accentCity
+                    statusColor2: vehicleData.communicationFault ? Colors.textMuted : vehicleData.motorOverTempWarning ? Colors.warning : Colors.accentEco
                 }
 
                 // 3. Thermal Configuration Heat Registry Badge
@@ -956,8 +983,9 @@ Item {
                     mainValue: vehicleData.communicationFault ? "--" : vehicleData.motorTemp
                     mainLabel: vehicleData.communicationFault ? "" : "°C"
                     subLabel: "Max Temp"
-                    statusText: "NORMAL"
-                    statusColor: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco
+                    statusText: vehicleData.communicationFault ? "UNAVAILABLE" : vehicleData.batteryOverTempWarning ? "BATTERY OVERHEATING" : vehicleData.motorOverTempWarning ? "MOTOR OVERHEATING" : "NORMAL"
+                    statusColor: vehicleData.communicationFault ? Colors.textMuted : vehicleData.batteryOverTempWarning ? Colors.warning : vehicleData.motorOverTempWarning ? Colors.warning : Colors.accentCity
+                    statusColor2: vehicleData.communicationFault ? Colors.textMuted : vehicleData.motorOverTempWarning ? Colors.warning : vehicleData.motorOverTempWarning ? Colors.warning : Colors.accentEco
                 }
 
                 // 4. Telemetry Signal Connectivity Badge
@@ -967,8 +995,9 @@ Item {
                     mainValue: vehicleData.communicationFault ? "OFFLINE" : "CONNECTED"
                     mainLabel: ""
                     subLabel: ""
-                    statusText: vehicleData.communicationFault ? "FAULT" : "STABLE"
-                    statusColor: vehicleData.communicationFault ? Colors.critical : Colors.accentEco
+                    statusText: vehicleData.communicationFault ? "OFFLINE" : "STABLE"
+                    statusColor: vehicleData.communicationFault ? Colors.critical : Colors.accentCity
+                    statusColor2: vehicleData.communicationFault ? Colors.critical : Colors.accentEco
                 }
             }
 
