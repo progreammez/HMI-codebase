@@ -71,6 +71,8 @@ void TelemetrySimulator::generateFakeData()
     // Simulate odometer and trip distance
     m_state.odometer += m_state.speed / 36000.0f;
     m_state.tripDistance += m_state.speed / 36000.0f;
+    m_state.tripA += m_state.speed / 36000.0f;
+    m_state.tripB += m_state.speed / 36000.0f;
 
     // Simulate indicator behavior
     static int indicatorCounter = 0;
@@ -114,5 +116,6 @@ void TelemetrySimulator::generateFakeData()
     m_vehicleData->setRegenLevel(m_state.regenLevel);
     m_vehicleData->setOdometer(m_state.odometer);
     m_vehicleData->setTripDistance(m_state.tripDistance);
-
+    m_vehicleData->settripA(m_state.tripA);
+    m_vehicleData->settripB(m_state.tripB);
 }

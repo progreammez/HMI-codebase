@@ -15,7 +15,7 @@ struct SimulationState
     int rpm = 0;
     int speed = 0;
 
-    int batteryPercent = 40;
+    int batteryPercent = 100;
 
     int motorTemp = 35;
     int batteryTemp = 60;
@@ -40,6 +40,8 @@ struct SimulationState
     
     float odometer = 0.0f;
     float tripDistance = 0.0f;
+    float tripA = 0.0f;
+    float tripB = 0.0f;
     
     bool lowBatteryWarning = false;
     bool motorOverTempWarning = false;

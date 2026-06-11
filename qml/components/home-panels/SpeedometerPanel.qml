@@ -4,7 +4,7 @@ import EvHmi
 BaseCard {
     id: root
 
-    title: ""
+    title: "SPEEDOMETER"
 
     property real displayedSpeed: vehicleData.speed
     property real displayedRpm: vehicleData.rpm
@@ -30,7 +30,7 @@ BaseCard {
         id: gaugeCanvas
 
         anchors.fill: parent
-        anchors.margins: 24 * Theme.scale
+        anchors.margins: 12 * Theme.scale 
 
         antialiasing: true
 
@@ -42,120 +42,94 @@ BaseCard {
             var h = height
 
             var cx = w / 2
-            var cy = h * 0.68
-
-            var radius = Math.min(w, h) * 0.42
+            var cy = h * 0.65
+            var radius = h * 0.56
 
             var startAngle = Math.PI * 0.80
             var endAngleMax = Math.PI * 2.20
+            var totalAngleRange = endAngleMax - startAngle
 
-            var progress = Math.min(root.displayedSpeed, 200) / 200
+            var speedProgress = Math.min(root.displayedSpeed, 200) / 200
+            var activeEnd = startAngle + (totalAngleRange * speedProgress)
 
-            var activeEnd = startAngle + ((endAngleMax - startAngle) * progress)
-
-            // Background Arc
+            // =====================================================
+            // 1. MAIN OUTER TRACK ARC (SPEED PROGRESS)
+            // =====================================================
             ctx.beginPath()
             ctx.arc(cx, cy, radius, startAngle, endAngleMax)
-            ctx.lineWidth = 8 * Theme.scale
-            ctx.strokeStyle = Colors.surfaceSunken
+            ctx.lineWidth = 9 * Theme.scale
+            ctx.strokeStyle = Qt.rgba(Colors.surfaceSunken.r, Colors.surfaceSunken.g, Colors.surfaceSunken.b, 0.3)
             ctx.stroke()
 
-            // Active Arc
             ctx.beginPath()
             ctx.arc(cx, cy, radius, startAngle, activeEnd)
-            ctx.lineWidth = 10 * Theme.scale
+            ctx.lineWidth = 11 * Theme.scale
             ctx.shadowColor = Colors.borderActive
-            ctx.shadowBlur = 18 * Theme.scale
+            ctx.shadowBlur = 16 * Theme.scale 
             ctx.strokeStyle = Colors.borderActive
             ctx.stroke()
-            ctx.shadowBlur = 0
+            ctx.shadowBlur = 0 
 
-            // Tick Marks
-            ctx.strokeStyle = Colors.textMuted
-            ctx.lineWidth = 2 * Theme.scale
+            // =====================================================
+            // 2. INNER TICK MARKS & SPEED STEPS (0 - 200)
+            // =====================================================
+            ctx.strokeStyle = Qt.rgba(Colors.textMuted.r, Colors.textMuted.g, Colors.textMuted.b, 0.4)
+            ctx.lineWidth = 1.5 * Theme.scale
+            
+            ctx.font = "bold " + Math.round(13 * Theme.scale) + "px " + Typography.family
+            ctx.fillStyle = Colors.textSecondary
+            ctx.textAlign = "center"
+            ctx.textBaseline = "middle"
 
-            var totalAngleRange = endAngleMax - startAngle
+            var outerTickRadius = radius - (12 * Theme.scale)
+            var labelRadius = radius - (32 * Theme.scale)
 
             for (var i = 0; i <= 20; i++) {
                 var angle = startAngle + (totalAngleRange * (i / 20))
-                
-                // Cache trig results to optimize performance loop
                 var cosA = Math.cos(angle)
                 var sinA = Math.sin(angle)
 
-                var outer = radius
-                var inner = (i % 5 === 0) 
-                    ? radius - (18 * Theme.scale) 
-                    : radius - (10 * Theme.scale)
+                var isMajor = (i % 2 === 0)
+                var tStart = outerTickRadius - (isMajor ? (12 * Theme.scale) : (7 * Theme.scale))
+                var tEnd = outerTickRadius
 
                 ctx.beginPath()
-                ctx.moveTo(cx + cosA * inner, cy + sinA * inner)
-                ctx.lineTo(cx + cosA * outer, cy + sinA * outer)
+                ctx.moveTo(cx + cosA * tStart, cy + sinA * tStart)
+                ctx.lineTo(cx + cosA * tEnd, cy + sinA * tEnd)
                 ctx.stroke()
+
+                if (isMajor) {
+                    var speedLabel = Math.round(i * 10).toString()
+                    var tx = cx + cosA * labelRadius
+                    var ty = cy + sinA * labelRadius
+                    ctx.fillText(speedLabel, tx, ty)
+                }
             }
-
-            // Needle
-            ctx.beginPath()
-            ctx.moveTo(cx, cy)
-
-            var needleLength = radius - (26 * Theme.scale)
-            ctx.lineTo(
-                cx + Math.cos(activeEnd) * needleLength,
-                cy + Math.sin(activeEnd) * needleLength
-            )
-
-            ctx.lineWidth = 4 * Theme.scale
-            ctx.strokeStyle = Colors.borderActive
-            ctx.stroke()
-
-            // Hub
-            ctx.beginPath()
-            ctx.arc(cx, cy, 8 * Theme.scale, 0, Math.PI * 2)
-            ctx.shadowColor = Colors.borderActive
-            ctx.shadowBlur = 12 * Theme.scale
-            ctx.fillStyle = Colors.borderActive
-            ctx.fill()
-            ctx.shadowBlur = 0
         }
     }
 
+    // =====================================================
+    // CENTER DATA READOUTS (MATCHES REFERENCE DESIGN)
+    // =====================================================
     Column {
         anchors.centerIn: parent
-        anchors.verticalCenterOffset: -20 * Theme.scale
-
-        spacing: 4 * Theme.scale
+        // FIXED: Increased vertical offset from 6 to 38 to cleanly drop the text 
+        // down away from the upper ticks and align it beautifully inside the new arc center.
+        anchors.verticalCenterOffset: 30 * Theme.scale
+        spacing: 1 * Theme.scale
 
         Text {
             id: speedText
-
             text: Math.round(root.displayedSpeed)
             anchors.horizontalCenter: parent.horizontalCenter
             color: Colors.textPrimary
 
             font.family: Typography.family
-            font.pixelSize: Typography.displayLarge
+            font.pixelSize: Typography.displayLarge * 1.35
             font.bold: true
 
-            scale: 1.0 + (root.displayedSpeed / 200) * 0.06
-
-            Behavior on scale {
-                NumberAnimation {
-                    duration: 250
-                    easing.type: Easing.OutCubic
-                }
-            }
-
-            Rectangle {
-                anchors.centerIn: parent
-
-                width: speedText.width + 40
-                height: speedText.height + 20
-                radius: height / 2
-
-                color: Colors.borderActive
-                opacity: 0.08
-                z: -1
-            }
+            scale: 1.0 + (root.displayedSpeed / 200) * 0.03
+            Behavior on scale { NumberAnimation { duration: 200 } }
         }
 
         Text {
@@ -165,21 +139,31 @@ BaseCard {
 
             font.family: Typography.family
             font.pixelSize: Typography.bodyLarge
+            font.weight: Font.Medium
         }
 
         Item {
-            width: 1
-            height: 16 * Theme.scale
+            width: Math.round(110 * Theme.scale)
+            height: Math.round(14 * Theme.scale)
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Rectangle {
+                width: parent.width
+                height: 1
+                color: Qt.rgba(Colors.borderSubtle.r, Colors.borderSubtle.g, Colors.borderSubtle.b, 0.2)
+                anchors.centerIn: parent
+            }
         }
 
         Text {
             text: "RPM"
             anchors.horizontalCenter: parent.horizontalCenter
-            color: Colors.textMuted
+            color: Colors.borderActive 
 
             font.family: Typography.family
-            font.pixelSize: Typography.bodySmall
+            font.pixelSize: Typography.label 
             font.bold: true
+            font.letterSpacing: 1.5
         }
 
         Text {
@@ -188,7 +172,7 @@ BaseCard {
             color: Colors.textPrimary
 
             font.family: Typography.family
-            font.pixelSize: Typography.titleLarge
+            font.pixelSize: Typography.displaySmall * 0.8
             font.weight: Font.DemiBold
         }
     }

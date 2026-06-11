@@ -7,6 +7,11 @@ Item {
     property int currentPageIndex: 0
     
     // =====================================================
+    // GLOBAL APPLICATION-WIDE STATE
+    // =====================================================
+    property int globalBrightness: 70
+    property string globalFont: "Rajdhani"
+    // =====================================================
     // GLOBAL APP TRANSLATION DICTIONARY
     // =====================================================
     readonly property var translations: {
@@ -317,4 +322,18 @@ Item {
     Component { id: musicPage; MusicPage {} }
     Component { id: settingsPage; SettingsPage {} }
     Component { id: diagnosticsPage; DiagnosticsPage {} }
+
+    // =====================================================
+    // GLOBAL HARDWARE BRIGHTNESS DIMMER OVERLAY
+    // =====================================================
+    Rectangle {
+        id: globalHardwareDimmer
+        anchors.fill: parent
+        color: "black"
+        // Reads from the global state property to dim the absolute entire viewport display smoothly
+        opacity: (100 - root.globalBrightness) / 100 * 0.75
+        visible: opacity > 0.01
+        z: 999999 // Keeps it resting cleanly above everything including status bars
+        enabled: false // Touch events pass straight through to actions underneath seamlessly
+    }
 }

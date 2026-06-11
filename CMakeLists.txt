@@ -47,7 +47,9 @@ qt_add_qml_module(EV_HMI
         qml/components/EnergyBar.qml
         qml/components/MetricTile.qml
         qml/components/ModeButton.qml
-        qml/components/BatteryGraphic.qml  
+        qml/components/BatteryGraphic.qml
+        qml/components/PowertrainIcon.qml
+        qml/components/ThermalIcon.qml
 
 
         qml/components/home-panels/DistancePanel.qml
@@ -105,6 +107,10 @@ qt_add_resources(EV_HMI "assets"
         assets/icons/Dark/MusicPage/repeat.png 
         assets/icons/Dark/MusicPage/volume-loud.png
         assets/icons/Dark/MusicPage/volume-mute.png
+        assets/icons/Dark/MusicPage/search.png
+        assets/icons/Dark/MusicPage/queue.png
+        assets/icons/Dark/MusicPage/lyrics.png
+        assets/icons/Dark/MusicPage/playback.png
 
         #Settings Page
         assets/icons/Dark/SettingsPage/Tabs/display-tab.png
@@ -159,6 +165,10 @@ qt_add_resources(EV_HMI "assets"
         assets/icons/Light/MusicPage/repeat.png 
         assets/icons/Light/MusicPage/volume-loud.png
         assets/icons/Light/MusicPage/volume-mute.png
+        assets/icons/Light/MusicPage/search.png
+        assets/icons/Light/MusicPage/queue.png
+        assets/icons/Light/MusicPage/lyrics.png
+        assets/icons/Light/MusicPage/playback.png
 
         #Settings Page
         assets/icons/Light/SettingsPage/Tabs/display-tab.png

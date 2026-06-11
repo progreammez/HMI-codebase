@@ -51,12 +51,12 @@ Item {
             }
 
             DriveModePanel {
-                width: parent.width * 0.28
+                width: parent.width * 0.25
                 height: parent.height
             }
 
             SystemStatusPanel {
-                width: parent.width * 0.26 - gap
+                width: parent.width * 0.29 - (gap * 2)
                 height: parent.height
             }
         }

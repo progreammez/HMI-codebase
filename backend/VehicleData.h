@@ -40,6 +40,9 @@ class VehicleData : public QObject
 
     Q_PROPERTY(float odometer READ odometer WRITE setOdometer NOTIFY odometerChanged)
     Q_PROPERTY(float tripDistance READ tripDistance WRITE setTripDistance NOTIFY tripDistanceChanged)
+    
+    Q_PROPERTY(float tripA READ tripA WRITE settripA NOTIFY tripAChanged)
+    Q_PROPERTY(float tripB READ tripB WRITE settripB NOTIFY tripBChanged)
 
     Q_PROPERTY(bool lowBatteryWarning READ lowBatteryWarning WRITE setLowBatteryWarning NOTIFY lowBatteryWarningChanged)
     Q_PROPERTY(bool motorOverTempWarning READ motorOverTempWarning WRITE setMotorOverTempWarning NOTIFY motorOverTempWarningChanged)
@@ -80,6 +83,8 @@ public:
 
     float odometer() const;
     float tripDistance() const;
+    float tripA() const;
+    float tripB() const;
 
     bool lowBatteryWarning() const;
     bool motorOverTempWarning() const;
@@ -134,6 +139,10 @@ public:
 
     void setOdometer(float odometer);
     void setTripDistance(float tripDistance);
+       
+    void settripA(float tripA);
+    void settripB(float tripB);
+
 
     void setLowBatteryWarning(bool lowBatteryWarning);
     void setMotorOverTempWarning(bool motorOverTempWarning);
@@ -196,6 +205,9 @@ signals:
 
     void odometerChanged();
     void tripDistanceChanged();
+    void tripAChanged();
+    void tripBChanged();
+    
 
     void lowBatteryWarningChanged();
     void motorOverTempWarningChanged();
@@ -236,6 +248,9 @@ private:
 
     float m_odometer;
     float m_tripDistance;
+    float m_tripA;
+    float m_tripB;
+
 
     bool m_lowBatteryWarning;
     bool m_motorOverTempWarning;
