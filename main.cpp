@@ -25,6 +25,14 @@ int main(int argc, char *argv[])
     TelemetryLogger telemetryLogger(&vehicleData);
     WarningManager warningManager(&vehicleData, &telemetryLogger);
     TelemetryParser parser(&vehicleData);
+    if (!serialManager.connectPort("/dev/ttyACM0"))
+        {
+            qDebug() << "Failed to open STM serial port";
+        }
+    else
+        {
+            qDebug() << "STM serial port connected";
+        }
 
     // Low battery warning test
     // QTimer::singleShot(
@@ -102,23 +110,23 @@ int main(int argc, char *argv[])
         &WarningManager::evaluateWarnings
     );
 
-    // QObject::connect(
-    //     &serialManager,
-    //     &SerialManager::packetReceived,
-    //     &parser,
-    //     &TelemetryParser::parsePacket
-    // );
-
+    QObject::connect(
+        &serialManager,
+        &SerialManager::packetReceived,
+        &parser,
+        &TelemetryParser::parsePacket
+    );
+    
     QObject::connect(
         &serialManager,
         &SerialManager::packetReceived,
         [](const QString &packet)
         {
-            qDebug() << packet;
+            qDebug() << "STM:" << packet;
         }
     );
 
-    simulator.start();
+    //simulator.start();
     //musicPlayer.play();
 
     QQmlApplicationEngine engine;
