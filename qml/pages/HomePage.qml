@@ -24,9 +24,20 @@ Item {
 
             spacing: gap
 
-            SpeedometerPanel {
+            Loader {
                 width: parent.width * 0.55 - (gap / 2)
                 height: parent.height
+                
+                // Adapts automatically to whatever state naming configuration you choose!
+                source: (Typography.unitSystem === "metric")
+                        ? "../components/home-panels/SpeedometerPanel200.qml" 
+                        : "../components/home-panels/SpeedometerPanel120.qml"
+
+                onSourceChanged: console.log("Loading:", source)
+                onStatusChanged: {
+                    if (status === Loader.Error)
+                        console.log("Loader error:", sourceComponent, source)
+                }
             }
 
             BatteryPanel {

@@ -4,10 +4,25 @@ import EvHmi
 BaseCard {
     id: root
 
-    title: "BATTERY"
+    title: root.translations["title"][Typography.currentLanguage]
 
-    // FIXED: Dynamically switches asset directory strings based on system Day/Night mode state
     readonly property string iconSetPath: "qrc:/assets/icons/" + (Colors.dayNightMode === "day" ? "Light" : "Dark") + "/HomePage/"
+    
+    // Global unit mapping hooks
+    readonly property bool isMetric: Typography.unitSystem === "metric"
+    readonly property real unitFactor: isMetric ? 1.0 : 0.621371
+    readonly property string unitLabel: isMetric ? " km" : " mi"
+
+    // =====================================================
+    // LOCALIZATION DICTIONARY
+    // =====================================================
+    readonly property var translations: {
+        "title":           { "en": "Battery",         "de": "Batterie",            "es": "Batería" },
+        "capacity":        { "en": "Capacity",        "de": "Kapazität",           "es": "Capacidad" },
+        "total_range":     { "en": "Total Range",     "de": "Gesamtreichweite",    "es": "Autonomía Total" },
+        "estimated_range": { "en": "Estimated Range", "de": "Schätzreichweite",    "es": "Autonomía Estimada" },
+        "battery_temp":    { "en": "Battery Temp",    "de": "Batterietemp.",       "es": "Temp. de Batería" }
+    }
 
     Column {
         anchors.fill: parent
@@ -22,7 +37,6 @@ BaseCard {
             height: 70 * Theme.scale
 
             BatteryGraphic {
-
                 width: 100
                 height: 32
                 id: batteryGraphic
@@ -49,7 +63,6 @@ BaseCard {
             }
         }
 
-        // Sleek subtle divider line
         Rectangle {
             width: parent.width
             height: 1
@@ -86,7 +99,7 @@ BaseCard {
                     }
 
                     Text {
-                        text: "Capacity"
+                        text: root.translations["capacity"][Typography.currentLanguage]
                         color: Colors.textSecondary
                         font.family: Typography.family
                         font.pixelSize: Typography.bodyMedium
@@ -107,7 +120,7 @@ BaseCard {
                 }
             }
 
-            // ROW 2: Total Range
+            // ROW 2: Total Range (Adaptive Metrics!)
             Rectangle {
                 width: parent.width
                 height: 34 * Theme.scale
@@ -129,7 +142,7 @@ BaseCard {
                     }
 
                     Text {
-                        text: "Total Range"
+                        text: root.translations["total_range"][Typography.currentLanguage]
                         color: Colors.textSecondary
                         font.family: Typography.family
                         font.pixelSize: Typography.bodyMedium
@@ -143,8 +156,8 @@ BaseCard {
                     anchors.verticalCenter: parent.verticalCenter
 
                     text: (typeof vehicleData.totalRangeKm !== 'undefined' && vehicleData.totalRangeKm !== null) 
-                          ? vehicleData.totalRangeKm + " km" 
-                          : "180 km"
+                          ? Math.round (vehicleData.totalRangeKm * root.unitFactor) + root.unitLabel
+                          : (root.isMetric ? "180 km" : "112 mi")
                     color: Colors.borderActive
                     font.family: Typography.family
                     font.pixelSize: Typography.bodyMedium
@@ -152,7 +165,7 @@ BaseCard {
                 }
             }
 
-            // ROW 3: Estimated Range
+            // ROW 3: Estimated Range (Adaptive Metrics!)
             Rectangle {
                 width: parent.width
                 height: 34 * Theme.scale
@@ -174,7 +187,7 @@ BaseCard {
                     }
 
                     Text {
-                        text: "Estimated Range"
+                        text: root.translations["estimated_range"][Typography.currentLanguage]
                         color: Colors.textSecondary
                         font.family: Typography.family
                         font.pixelSize: Typography.bodyMedium
@@ -187,7 +200,7 @@ BaseCard {
                     anchors.rightMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
 
-                    text: Math.round(vehicleData.rangeKm) + " km"
+                    text: Math.round(vehicleData.rangeKm * root.unitFactor) + root.unitLabel
                     color: Colors.borderActive
                     font.family: Typography.family
                     font.pixelSize: Typography.bodyMedium
@@ -217,7 +230,7 @@ BaseCard {
                     }
 
                     Text {
-                        text: "Battery Temp"
+                        text: root.translations["battery_temp"][Typography.currentLanguage]
                         color: Colors.textSecondary
                         font.family: Typography.family
                         font.pixelSize: Typography.bodyMedium
@@ -230,7 +243,7 @@ BaseCard {
                     anchors.rightMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
 
-                    text: Math.round(vehicleData.batteryTemp) + "°C"
+                    text: Math.round(isMetric ? vehicleData.batteryTemp : (vehicleData.batteryTemp * 9/5 + 32)) + "°" + (isMetric ? "C" : "F")
                     color: Colors.borderActive
                     font.family: Typography.family
                     font.pixelSize: Typography.bodyMedium

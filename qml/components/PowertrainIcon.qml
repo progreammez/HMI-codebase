@@ -4,7 +4,7 @@ import EvHmi
 Item {
     id: root
 
-    property color strokeColor: "#00d2ff"
+    property color strokeColor: Colors.borderActive
     property real lineWidth: Math.max(1.2, 1.5 * Theme.scale)
 
     implicitWidth: Math.round(44 * Theme.scale)

@@ -4,7 +4,18 @@ import EvHmi
 BaseCard {
     id: root
 
-    title: "DRIVE MODE"
+    // FIXED: Dynamically switches card title layout configurations
+    title: root.translations["title"][Typography.currentLanguage]
+
+    // =====================================================
+    // LOCALIZATION DICTIONARY
+    // =====================================================
+    readonly property var translations: {
+        "title": { "en": "Drive Mode", "de": "Fahrmodus", "es": "Modo de Manejo" },
+        "ECO":   { "en": "ECO",        "de": "ÖKO",       "es": "ECO" },
+        "CITY":  { "en": "CITY",       "de": "STADT",     "es": "CIUDAD" },
+        "SPORT": { "en": "SPORT",      "de": "SPORT",     "es": "SPORT" }
+    }
 
     // =====================================================
     // UNIFIED DRIVE MODE SLIDER TRACK
@@ -12,7 +23,6 @@ BaseCard {
     Rectangle {
         id: sliderContainer
         
-        // Sized to balance perfectly within the center card layout dimensions
         width: Math.round(250 * Theme.scale)
         height: Math.round(44 * Theme.scale)
         radius: Theme.controlRadius
@@ -31,7 +41,6 @@ BaseCard {
                 model: ["ECO", "CITY", "SPORT"]
 
                 Rectangle {
-                    // Dynamically splits the track container evenly into thirds
                     width: (parent.width - (parent.padding * 2) - (parent.spacing * 2)) / 3
                     height: parent.height - (parent.padding * 2)
                     anchors.verticalCenter: parent.verticalCenter
@@ -39,7 +48,6 @@ BaseCard {
 
                     readonly property bool active: vehicleData.driveMode === modelData
 
-                    // MATCHED: Premium slider background highlight opacity blend
                     color: active
                            ? Qt.rgba(Colors.borderActive.r, Colors.borderActive.g, Colors.borderActive.b, 0.12)
                            : "transparent"
@@ -47,14 +55,13 @@ BaseCard {
                     border.width: active ? 1.5 : 0
                     border.color: active ? Colors.borderActive : "transparent"
 
-                    // Smooth transitions when jumping modes
                     Behavior on color { ColorAnimation { duration: Theme.motionFast } }
 
                     Text {
                         anchors.centerIn: parent
 
-                        text: modelData
-                        // MATCHED: Selected items pop with theme accent, unselected items sit clean in the background
+                        // FIXED: Uses the static modelData as a key lookup to print translated button tags!
+                        text: root.translations[modelData][Typography.currentLanguage]
                         color: parent.active ? Colors.borderActive : Colors.textMuted
 
                         font.family: Typography.family

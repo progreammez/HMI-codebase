@@ -4,10 +4,23 @@ import EvHmi
 BaseCard {
     id: root
 
-    title: "VEHICLE STATUS"
+    // FIXED: Dynamically switches card title based on global language selection
+    title: root.translations["title"][Typography.currentLanguage]
 
     readonly property var gearsModel: ["P", "R", "N", "D"]
     readonly property string iconSetPath: "qrc:/assets/icons/" + (Colors.dayNightMode === "day" ? "Light" : "Dark") + "/HomePage/"
+
+    // =====================================================
+    // LOCALIZATION DICTIONARY
+    // =====================================================
+    readonly property var translations: {
+        "title":  { "en": "Vehicle Status", "de": "Fahrzeugstatus", "es": "Estado del Vehículo" },
+        "left":   { "en": "Left",           "de": "Links",          "es": "Izquierda" },
+        "beam":   { "en": "Beam",           "de": "Licht",          "es": "Luz" },
+        "hazard": { "en": "Hazard",         "de": "Warnblink",      "es": "Emergencia" },
+        "brake":  { "en": "Brake",          "de": "Bremse",         "es": "Freno" },
+        "right":  { "en": "Right",          "de": "Rechts",         "es": "Derecha" }
+    }
 
     // Master container switched to Item for absolute anchor positioning control
     Item {
@@ -99,12 +112,10 @@ BaseCard {
             id: iconsContainer
             
             anchors.left: verticalVisualDivider.right
-            // FIXED: Explicitly pushes the icons away from the divider so it doesn't crowd the "Left" sign
             anchors.leftMargin: 20 * Theme.scale 
             anchors.right: parent.right
             
             anchors.verticalCenter: parent.verticalCenter
-            // FIXED: Drops the entire icon block down by 6px to correct the Y-Axis misalignment against the PRND text
             anchors.verticalCenterOffset: 6 * Theme.scale 
             
             height: parent.height
@@ -114,7 +125,6 @@ BaseCard {
 
                 // 1. LEFT TURN SIGNAL
                 Item {
-                    // FIXED: Claims exactly 20% of the remaining area to guarantee perfect spacing
                     width: parent.width / 5
                     height: parent.height
                     
@@ -132,7 +142,7 @@ BaseCard {
                         }
 
                         Text {
-                            text: "Left"
+                            text: root.translations["left"][Typography.currentLanguage]
                             color: Colors.textSecondary
                             font.family: Typography.family
                             font.pixelSize: Typography.bodySmall - 1
@@ -161,7 +171,7 @@ BaseCard {
                         }
 
                         Text {
-                            text: "Beam"
+                            text: root.translations["beam"][Typography.currentLanguage]
                             color: Colors.textSecondary
                             font.family: Typography.family
                             font.pixelSize: Typography.bodySmall - 1
@@ -189,7 +199,7 @@ BaseCard {
                         }
 
                         Text {
-                            text: "Hazard"
+                            text: root.translations["hazard"][Typography.currentLanguage]
                             color: Colors.textSecondary
                             font.family: Typography.family
                             font.pixelSize: Typography.bodySmall - 1
@@ -217,7 +227,7 @@ BaseCard {
                         }
 
                         Text {
-                            text: "Brake"
+                            text: root.translations["brake"][Typography.currentLanguage]
                             color: Colors.textSecondary
                             font.family: Typography.family
                             font.pixelSize: Typography.bodySmall - 1
@@ -245,7 +255,7 @@ BaseCard {
                         }
 
                         Text {
-                            text: "Right"
+                            text: root.translations["right"][Typography.currentLanguage]
                             color: Colors.textSecondary
                             font.family: Typography.family
                             font.pixelSize: Typography.bodySmall - 1

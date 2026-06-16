@@ -4,10 +4,20 @@ import EvHmi
 BaseCard {
     id: root
 
-    title: "SPEEDOMETER"
+    // FIXED: Dynamically switches card title based on global language selection
+    title: root.translations["title"][Typography.currentLanguage]
 
     property real displayedSpeed: vehicleData.speed
     property real displayedRpm: vehicleData.rpm
+
+    // =====================================================
+    // LOCALIZATION DICTIONARY
+    // =====================================================
+    readonly property var translations: {
+        "title": { "en": "Speedometer", "de": "Tachometer", "es": "Velocímetro" },
+        "kmh":   { "en": "km/h",        "de": "km/h",        "es": "km/h" },
+        "rpm":   { "en": "RPM",         "de": "U/min",       "es": "RPM" }
+    }
 
     // Automatically repaint canvas only when the animated speed value changes
     onDisplayedSpeedChanged: gaugeCanvas.requestPaint()
@@ -29,8 +39,15 @@ BaseCard {
     Canvas {
         id: gaugeCanvas
 
-        anchors.fill: parent
-        anchors.margins: 12 * Theme.scale 
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.top: parent.top
+
+        anchors.topMargin: -32 * Theme.scale 
+        anchors.leftMargin: 12 * Theme.scale
+        anchors.rightMargin: 12 * Theme.scale
+        anchors.bottomMargin: 12 * Theme.scale
 
         antialiasing: true
 
@@ -43,7 +60,7 @@ BaseCard {
 
             var cx = w / 2
             var cy = h * 0.65
-            var radius = h * 0.56
+            var radius = h * 0.50
 
             var startAngle = Math.PI * 0.80
             var endAngleMax = Math.PI * 2.20
@@ -113,8 +130,6 @@ BaseCard {
     // =====================================================
     Column {
         anchors.centerIn: parent
-        // FIXED: Increased vertical offset from 6 to 38 to cleanly drop the text 
-        // down away from the upper ticks and align it beautifully inside the new arc center.
         anchors.verticalCenterOffset: 30 * Theme.scale
         spacing: 1 * Theme.scale
 
@@ -133,7 +148,7 @@ BaseCard {
         }
 
         Text {
-            text: "km/h"
+            text: root.translations["kmh"][Typography.currentLanguage]
             anchors.horizontalCenter: parent.horizontalCenter
             color: Colors.textSecondary
 
@@ -156,7 +171,7 @@ BaseCard {
         }
 
         Text {
-            text: "RPM"
+            text: root.translations["rpm"][Typography.currentLanguage]
             anchors.horizontalCenter: parent.horizontalCenter
             color: Colors.borderActive 
 

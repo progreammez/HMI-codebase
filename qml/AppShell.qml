@@ -11,6 +11,7 @@ Item {
     // =====================================================
     property int globalBrightness: 70
     property string globalFont: "Rajdhani"
+    property string globalUnits: "metric"
     // =====================================================
     // GLOBAL APP TRANSLATION DICTIONARY
     // =====================================================

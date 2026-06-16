@@ -53,7 +53,8 @@ qt_add_qml_module(EV_HMI
 
 
         qml/components/home-panels/DistancePanel.qml
-        qml/components/home-panels/SpeedometerPanel.qml
+        qml/components/home-panels/SpeedometerPanel120.qml
+        qml/components/home-panels/SpeedometerPanel200.qml
         qml/components/home-panels/DriveModePanel.qml
         qml/components/home-panels/VehicleStatusPanel.qml
         qml/components/home-panels/SystemStatusPanel.qml

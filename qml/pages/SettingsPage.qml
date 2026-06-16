@@ -12,17 +12,20 @@ Item {
 
     QtObject {
         id: settingsState
-        property int brightness: typeof root !== 'undefined' ? root.globalBrightness : 70
+        property int brightness: typeof root !== 'undefined' ? root.globalBrightness : 100
         property int contrast: 55
         property int alertVolume: 66
         property int indicatorVolume: 40
         property int masterVolume: Math.round((alertVolume + indicatorVolume) / 2)
 
         property string fontStyle: typeof root !== 'undefined' ? root.globalFont : "Rajdhani"
-        property string language: Typography.currentLanguage         
+        property string language: Typography.currentLanguage  
+        property string theme: Colors.themeName
         property string dayNightMode: Colors.dayNightMode
 
-        property string units: "metric"     
+        property string units: Typography.unitSystem
+
+         // Time & Date Formatters    
         property int clockFormat: Typography.timeFormat === "HH:mm" ? 24 : 12           
         property string dateFormat: "dd"        
     }
@@ -90,14 +93,16 @@ Item {
                         color: settingsState.units === "metric" ? Colors.surfacePressed : Colors.surfaceRaised
                         border.width: 1; border.color: settingsState.units === "metric" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Metric\nkm/h, °C"; color: settingsState.units === "metric" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignCenter }
-                        MouseArea { anchors.fill: parent; onClicked: settingsState.units = "metric" }
+                        MouseArea { anchors.fill: parent; onClicked: {settingsState.units = "metric" 
+                        Typography.unitSystem = "metric"} }
                     }
                     Rectangle {
                         width: (parent.width - 8) / 2; height: 54; radius: Theme.controlRadius*1.67
                         color: settingsState.units === "imperial" ? Colors.surfacePressed : Colors.surfaceRaised
                         border.width: 1; border.color: settingsState.units === "imperial" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Imperial\nmph, °F"; color: settingsState.units === "imperial" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignCenter }
-                        MouseArea { anchors.fill: parent; onClicked: settingsState.units = "imperial" }
+                        MouseArea { anchors.fill: parent; onClicked:{ settingsState.units = "imperial"
+                        Typography.unitSystem = "imperial" } }
                     }
                 }
 
@@ -258,67 +263,147 @@ Item {
                 }
 
                 // Grid layout to wrap the 6 theme nodes nicely
+                                
                 GridLayout {
                     Layout.alignment: Qt.AlignHCenter; Layout.topMargin: 8
                     columns: 3; columnSpacing: 34; rowSpacing: 12
                     
+                    // 1. AURORA THEME
                     Column {
                         spacing: 4
                         Rectangle { 
                             width: 48; height: 48; radius: 24; color: "transparent"
-                            border.width: Colors.themeName === "ICE" ? 2 : 1; border.color: Colors.themeName === "ICE" ? Colors.borderActive : "transparent"
-                            Rectangle { anchors.fill: parent; anchors.margins: 3; radius: 24; gradient: Gradient { GradientStop { position: 0.0; color: "#72D7FF" } GradientStop { position: 1.0; color: "#0088cc" } } }
-                            MouseArea { anchors.fill: parent; onClicked: Colors.themeName = "ICE" }
+                            border.width: Colors.themeName === "AURORA" ? 2 : 1; border.color: Colors.themeName === "AURORA" ? Colors.borderActive : "transparent"
+                            antialiasing: true
+                            Behavior on border.color { ColorAnimation { duration: 150 } }
+                            
+                            Rectangle { 
+                                anchors.fill: parent
+                                // Concentric gap animation: color dot pulls inward subtly when active
+                                anchors.margins: Colors.themeName === "AURORA" ? 4 : 0
+                                radius: width / 2; antialiasing: true
+                                gradient: Gradient { GradientStop { position: 0.0; color: "#72D7FF" } GradientStop { position: 1.0; color: "#0088cc" } }
+                                Behavior on anchors.margins { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                            }
+                            MouseArea { anchors.fill: parent; onClicked: Colors.themeName = "AURORA" }
                         }
-                        Text { text: "Ice"; color: Colors.themeName === "ICE" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "ICE" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
+                        Text { text: "Aurora"; color: Colors.themeName === "AURORA" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "AURORA" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
                     }
+                        
+                    // 2. LILAC THEME
                     Column {
                         spacing: 4
                         Rectangle { 
                             width: 48; height: 48; radius: 24; color: "transparent"
-                            border.width: Colors.themeName === "LAVENDER" ? 2 : 1; border.color: Colors.themeName === "LAVENDER" ? Colors.borderActive : "transparent"
-                            Rectangle { anchors.fill: parent; anchors.margins: 3; radius: 24; gradient: Gradient { GradientStop { position: 0.0; color: "#C4B5FD" } GradientStop { position: 1.0; color: "#A78BFA" } } }
-                            MouseArea { anchors.fill: parent; onClicked: Colors.themeName = "LAVENDER" }
+                            border.width: Colors.themeName === "LILAC" ? 2 : 1; border.color: Colors.themeName === "LILAC" ? Colors.borderActive : "transparent"
+                            antialiasing: true
+                            Behavior on border.color { ColorAnimation { duration: 150 } }
+                            
+                            Rectangle { 
+                                anchors.fill: parent
+                                anchors.margins: Colors.themeName === "LILAC" ? 4 : 0
+                                radius: width / 2; antialiasing: true
+                                gradient: Gradient { GradientStop { position: 0.0; color: "#C4B5FD" } GradientStop { position: 1.0; color: "#8669c4" } }
+                                Behavior on anchors.margins { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                            }
+                            MouseArea { anchors.fill: parent; onClicked: Colors.themeName = "LILAC" }
                         }
-                        Text { text: "Lilac"; color: Colors.themeName === "LAVENDER" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "LAVENDER" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
+                        Text { text: "Lilac"; color: Colors.themeName === "LILAC" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "LILAC" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
                     }
+
+                    // 3. SAKURA THEME
                     Column {
                         spacing: 4
                         Rectangle { 
                             width: 48; height: 48; radius: 24; color: "transparent"
                             border.width: Colors.themeName === "SAKURA" ? 2 : 1; border.color: Colors.themeName === "SAKURA" ? Colors.borderActive : "transparent"
-                            Rectangle { anchors.fill: parent; anchors.margins: 3; radius: 24; gradient: Gradient { GradientStop { position: 0.0; color: "#FFB7D5" } GradientStop { position: 1.0; color: "#FF85C2" } } }
+                            antialiasing: true
+                            Behavior on border.color { ColorAnimation { duration: 150 } }
+                            
+                            Rectangle { 
+                                anchors.fill: parent
+                                anchors.margins: Colors.themeName === "SAKURA" ? 4 : 0
+                                radius: width / 2; antialiasing: true
+                                gradient: Gradient { GradientStop { position: 0.0; color: "#FFB7D5" } GradientStop { position: 1.0; color: "#FF85C2" } }
+                                Behavior on anchors.margins { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                            }
                             MouseArea { anchors.fill: parent; onClicked: Colors.themeName = "SAKURA" }
                         }
                         Text { text: "Sakura"; color: Colors.themeName === "SAKURA" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "SAKURA" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
                     }
-                    // Placeholders for 3 additional themes
+
+                    // 4. NOIR THEME
                     Column {
                         spacing: 4
                         Rectangle { 
-                            width: 48; height: 48; radius: 24; color: "transparent"; border.width: 1; border.color: Colors.borderSubtle
-                            Rectangle { anchors.fill: parent; anchors.margins: 3; radius: 24; color: "#222630" }
+                            width: 48; height: 48; radius: 24; color: "transparent"
+                            border.width: Colors.themeName === "NOIR" ? 2 : 1; border.color: Colors.themeName === "NOIR" ? Colors.borderActive : "transparent"
+                            antialiasing: true
+                            Behavior on border.color { ColorAnimation { duration: 150 } }
+                            
+                            Rectangle { 
+                                anchors.fill: parent
+                                anchors.margins: Colors.themeName === "NOIR" ? 4 : 0
+                                radius: width / 2; antialiasing: true
+                                gradient: Gradient { 
+                                    GradientStop { position: 0.0; color: "#9197a3" } 
+                                    GradientStop { position: 1.0; color: "#3A3F47" } 
+                                }
+                                Behavior on anchors.margins { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                            }
+                            MouseArea { anchors.fill: parent; onClicked: Colors.themeName = "NOIR" }
                         }
-                        Text { text: "Carbon"; color: Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; anchors.horizontalCenter: parent.horizontalCenter }
+                        Text { text: "Noir"; color: Colors.themeName === "NOIR" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "NOIR" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
                     }
+
+                    // 5. EMBER THEME
                     Column {
                         spacing: 4
                         Rectangle { 
-                            width: 48; height: 48; radius: 24; color: "transparent"; border.width: 1; border.color: Colors.borderSubtle
-                            Rectangle { anchors.fill: parent; anchors.margins: 3; radius: 24; color: "#1a3322" }
+                            width: 48; height: 48; radius: 24; color: "transparent"
+                            border.width: Colors.themeName === "EMBER" ? 2 : 1; border.color: Colors.themeName === "EMBER" ? Colors.borderActive : "transparent"
+                            antialiasing: true
+                            Behavior on border.color { ColorAnimation { duration: 150 } }
+                            
+                            Rectangle { 
+                                anchors.fill: parent
+                                anchors.margins: Colors.themeName === "EMBER" ? 4 : 0
+                                radius: width / 2; antialiasing: true
+                                gradient: Gradient { 
+                                    GradientStop { position: 0.0; color: "#b8551c" } 
+                                    GradientStop { position: 1.0; color: "#c68632" } 
+                                }
+                                Behavior on anchors.margins { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                            }
+                            MouseArea { anchors.fill: parent; onClicked: Colors.themeName = "EMBER" }
                         }
-                        Text { text: "Neon"; color: Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; anchors.horizontalCenter: parent.horizontalCenter }
+                        Text { text: "Ember"; color: Colors.themeName === "EMBER" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "EMBER" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
                     }
+
+                    // 6. VERDANT THEME
                     Column {
                         spacing: 4
                         Rectangle { 
-                            width: 48; height: 48; radius: 24; color: "transparent"; border.width: 1; border.color: Colors.borderSubtle
-                            Rectangle { anchors.fill: parent; anchors.margins: 3; radius: 24; color: "#3d142d" }
+                            width: 48; height: 48; radius: 24; color: "transparent"
+                            border.width: Colors.themeName === "VERDANT" ? 2 : 1; border.color: Colors.themeName === "VERDANT" ? Colors.borderActive : "transparent"
+                            antialiasing: true
+                            Behavior on border.color { ColorAnimation { duration: 150 } }
+                            
+                            Rectangle { 
+                                anchors.fill: parent
+                                anchors.margins: Colors.themeName === "VERDANT" ? 4 : 0
+                                radius: width / 2; antialiasing: true
+                                gradient: Gradient { 
+                                    GradientStop { position: 0.0; color: "#fdb32a" } 
+                                    GradientStop { position: 1.0; color: "#146e64" } 
+                                }
+                                Behavior on anchors.margins { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                            }
+                            MouseArea { anchors.fill: parent; onClicked: Colors.themeName = "VERDANT" }
                         }
-                        Text { text: "Cyber"; color: Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; anchors.horizontalCenter: parent.horizontalCenter }
+                        Text { text: "Verdant"; color: Colors.themeName === "VERDANT" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "VERDANT" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
                     }
                 }
-
                 Item { Layout.fillHeight: true } 
                 Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Colors.borderSubtle }
                 Item { Layout.fillHeight: true } 
@@ -786,13 +871,12 @@ Item {
         }
 
         onAccepted: {
-            settingsState.brightness = 70
+            settingsState.brightness = 100
             settingsState.contrast = 55
             settingsState.alertVolume = 66
             settingsState.indicatorVolume = 40
             settingsState.masterVolume = 66
 
-            settingsState.units = "metric"
             settingsState.language = "en"
             settingsState.fontStyle = "Rajdhani"
             settingsState.dayNightMode = "auto"
@@ -800,9 +884,10 @@ Item {
             settingsState.clockFormat = 24
             settingsState.dateFormat = "dd"
 
-            Colors.themeName = "ICE"
+            Colors.themeName = "AURORA"
             Colors.dayNightMode = "auto"
             Typography.currentLanguage = "en"
+            Typography.unitSystem = "metric"
 
             if (typeof root !== "undefined")
                 root.globalFont = "Rajdhani"
