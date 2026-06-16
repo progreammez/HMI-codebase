@@ -8,8 +8,35 @@ Item {
     property int mediaSourceTab: 0 // 0 = Local, 1 = Spotify
     property string localSearchQuery: ""
 
+    // Virtual Keyboard Target Configuration State Variables
+    property bool showKeyboard: false
+    property var activeInputTarget: null
+
     // Helper property to fetch dynamic theme paths cleanly across all components
     readonly property string iconPathPrefix: "qrc:/assets/icons/" + (Colors.dayNightMode === "day" ? "Light" : "Dark") + "/MusicPage/"
+
+    // =====================================================
+    // KEYBOARD MECHANICAL INPUT PROCESSING LOOP
+    // =====================================================
+    function handleKeyboardInput(keyKey) {
+        if (!activeInputTarget) return;
+        
+        if (keyKey === "⌫") {
+            if (activeInputTarget.text.length > 0) {
+                activeInputTarget.text = activeInputTarget.text.substring(0, activeInputTarget.text.length - 1);
+            }
+        } else if (keyKey === "Space") {
+            activeInputTarget.text += " ";
+        } else if (keyKey === "Clear") {
+            activeInputTarget.text = "";
+        } else if (keyKey === "Search" || keyKey === "Enter") {
+            activeInputTarget.accepted(); 
+            showKeyboard = false;
+            activeInputTarget.focus = false;
+        } else {
+            activeInputTarget.text += keyKey;
+        }
+    }
 
     // =====================================================
     // HARDCODED TRANSLATION DICTIONARY
@@ -41,7 +68,7 @@ Item {
         spacing: Theme.cardGap
 
         // =====================================================
-        // COLUMN 1 – NOW PLAYING (FLUID MULTI-LAYER ARCHITECTURE)
+        // COLUMN 1 – NOW PLAYING
         // =====================================================
         BaseCard {
             width: parent.width * 0.45
@@ -51,7 +78,6 @@ Item {
             Item {
                 anchors.fill: parent
 
-                // Top Media Source Switcher Row Bar
                 Row {
                     id: sourceTabsRow
                     width: parent.width
@@ -90,7 +116,6 @@ Item {
                     }
                 }
 
-                // Main Art Stage Canvas Layout
                 Item {
                     anchors.top: sourceTabsRow.bottom
                     anchors.bottom: parent.bottom
@@ -98,7 +123,6 @@ Item {
                     anchors.right: parent.right
                     clip: true
 
-                    // Ambient Background Blur Glow Layer
                     Image {
                         id: ambientBackgroundArt
                         anchors.fill: parent
@@ -108,7 +132,6 @@ Item {
                         visible: status === Image.Ready
                     }
 
-                    // 1. Day Mode Light Protective Gradient Mask
                     Rectangle {
                         anchors.left: parent.left
                         anchors.right: parent.right
@@ -123,7 +146,6 @@ Item {
                         }
                     }
 
-                    // 2. Night Mode Dark Protective Gradient Mask
                     Rectangle {
                         anchors.left: parent.left
                         anchors.right: parent.right
@@ -138,7 +160,6 @@ Item {
                         }
                     }
 
-                    // Pure Bottom-Anchored Interactive Content Group
                     Column {
                         id: bottomControlsColumn
                         anchors.bottom: parent.bottom
@@ -148,7 +169,6 @@ Item {
                         spacing: 16 
                         z: 2
 
-                        // Metadata Overlay
                         Column {
                             id: metadataColumn
                             width: parent.width
@@ -192,7 +212,6 @@ Item {
                             }
                         }
 
-                        // Progress Stream Interface
                         Item {
                             id: progressSectionContainer
                             width: parent.width
@@ -228,7 +247,7 @@ Item {
                                 handle: Rectangle {
                                     x: progressSlider.leftPadding + progressSlider.visualPosition * (progressSlider.availableWidth - width)
                                     y: progressSlider.topPadding + (progressSlider.availableHeight - height) / 2
-                                    implicitWidth: 200 / 10
+                                    implicitWidth: 20
                                     implicitHeight: 20
                                     radius: 10
                                     color: "#ffffff"
@@ -250,7 +269,6 @@ Item {
                             }
                         }
 
-                        // Premium Borderless Audio Action Controls
                         Row {
                             id: controlsRow
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -296,7 +314,6 @@ Item {
                             }
                         }
 
-                        // Subtle Theme-Adaptive Pill Mode Shifters
                         Row {
                             id: shuffleRepeatRow
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -332,7 +349,6 @@ Item {
                         }
                     }
 
-                    // Floating Card Area
                     Item {
                         anchors.top: parent.top
                         anchors.bottom: bottomControlsColumn.top
@@ -388,9 +404,6 @@ Item {
             width: parent.width * 0.25
             height: parent.height
             title: musicPageRoot.translations["lyrics"][Typography.currentLanguage]
-            
-            
-            
 
             Column {
                 width: parent.width - 32 
@@ -408,7 +421,6 @@ Item {
                         wrapMode: Text.WordWrap
                         font.family: Typography.family
 
-                        // Preserved index 3 mechanical middle node tracking for 7-line model configurations
                         font.pixelSize: index === 3 ? 25 : 20
                         font.bold: index === 3
 
@@ -423,20 +435,17 @@ Item {
         }
 
         // =====================================================
-        // COLUMN 3 – MEDIA HUB (PLAYBACK, SEARCH, QUEUE, WIDGET)
+        // COLUMN 3 – MEDIA HUB
         // =====================================================
         BaseCard {
             width: parent.width * 0.30 - (Theme.cardGap * 2)
             height: parent.height
             title: musicPageRoot.translations["media_hub"][Typography.currentLanguage]
-            
-            
 
             Item {
                 anchors.fill: parent
                 anchors.margins: 10
 
-                // Icon-Only Minimalism Switching Row Bar
                 Row {
                     id: hubTabsRow
                     width: parent.width
@@ -467,7 +476,6 @@ Item {
                     }
                 }
 
-                // Dynamic Loader Port
                 Loader {
                     id: hubLoader
                     width: parent.width
@@ -478,7 +486,6 @@ Item {
                     sourceComponent: activeTab === 0 ? playbackTab : activeTab === 1 ? searchTab : queueTab
                 }
 
-                // Premium Connection Manager Widget
                 Rectangle {
                     id: deviceManagerWidget
                     width: parent.width
@@ -525,7 +532,7 @@ Item {
     }
 
     // =====================================================
-    // ATTACHED EXTENSION MODULE COMPONENT TABS
+    // EXTENSION MODULE LAZY-COMPILER TABS
     // =====================================================
     Component {
         id: playbackTab
@@ -533,7 +540,6 @@ Item {
         Item {
             anchors.fill: parent
 
-            // 1. Top Section: Track & Playback Status Info
             Column {
                 id: topPlaybackDetails
                 width: parent.width
@@ -551,7 +557,6 @@ Item {
                 Rectangle { width: parent.width; height: 1; color: Colors.borderSubtle }
             }
 
-            // 2. Center Section: Volume Layout Grid
             Item {
                 id: centerPlaybackDetails
                 width: parent.width
@@ -560,7 +565,6 @@ Item {
                 anchors.topMargin: 4
                 anchors.bottomMargin: 4
 
-                // Left: Icon + Percentage Metrics Block
                 Row {
                     id: volumeIndicatorGroup
                     anchors.left: parent.left
@@ -582,7 +586,6 @@ Item {
                     }
                 }
 
-                // Center: Text-Driven Mute Action Button Box
                 Rectangle {
                     id: textMuteButton
                     width: 76
@@ -605,7 +608,6 @@ Item {
                     MouseArea { anchors.fill: parent; onClicked: musicPlayer.toggleMute() }
                 }
 
-                // Right: Premium Vertical Slider + Scale Indicators
                 Row {
                     id: trackSliderGroup
                     anchors.right: parent.right
@@ -654,13 +656,11 @@ Item {
                         }
                     }
 
-                    // Scale Ticks Indicators
                     Item {
                         width: 32
                         height: volumeSlider.height
                         anchors.verticalCenter: parent.verticalCenter
 
-                        // 100% Mark Node
                         Row {
                             anchors.top: parent.top
                             anchors.left: parent.left
@@ -669,7 +669,6 @@ Item {
                             Text { text: "100%"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: 9 }
                         }
 
-                        // 50% Mark Node
                         Row {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
@@ -678,7 +677,6 @@ Item {
                             Text { text: "50%"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: 9 }
                         }
 
-                        // 0% Mark Node
                         Row {
                             anchors.bottom: parent.bottom
                             anchors.left: parent.left
@@ -690,7 +688,6 @@ Item {
                 }
             }
 
-            // 3. Bottom Section: Shuffle & Repeat Properties Flag
             Column {
                 id: bottomPlaybackDetails
                 width: parent.width
@@ -751,7 +748,7 @@ Item {
             }
 
             readonly property var localResults: getFilteredLocalTracks()
-            readonly property bool showSpotifyFallback: mediaSourceTab === 0 && localSearchQuery !== "" && localResults.length === 0
+            readonly property bool showSpotifyFallback: musicPageRoot.mediaSourceTab === 0 && localSearchQuery !== "" && localResults.length === 0
 
             Row {
                 width: parent.width
@@ -760,14 +757,25 @@ Item {
                 TextField {
                     id: searchField
                     width: parent.width - 46
-                    placeholderText: mediaSourceTab === 0 ? musicPageRoot.translations["search_local"][Typography.currentLanguage] : musicPageRoot.translations["search_spotify"][Typography.currentLanguage]
+                    placeholderText: musicPageRoot.mediaSourceTab === 0 ? musicPageRoot.translations["search_local"][Typography.currentLanguage] : musicPageRoot.translations["search_spotify"][Typography.currentLanguage]
+                    focus: musicPageRoot.activeInputTarget === searchField && musicPageRoot.showKeyboard
+
                     onAccepted: {
                         if (text.length > 0) {
-                            if (mediaSourceTab === 1) {
+                            if (musicPageRoot.mediaSourceTab === 1) {
                                 spotifyApi.searchTracks(text)
                             } else {
                                 localSearchQuery = text
                             }
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            musicPageRoot.activeInputTarget = searchField;
+                            musicPageRoot.showKeyboard = true;
+                            searchField.forceActiveFocus();
                         }
                     }
                 }
@@ -785,7 +793,7 @@ Item {
                         id: searchMouse; anchors.fill: parent
                         onClicked: {
                             if (searchField.text.length > 0) {
-                                if (mediaSourceTab === 1) {
+                                if (musicPageRoot.mediaSourceTab === 1) {
                                     spotifyApi.searchTracks(searchField.text)
                                 } else {
                                     localSearchQuery = searchField.text
@@ -811,7 +819,7 @@ Item {
                 MouseArea {
                     id: fallbackMouse; anchors.fill: parent
                     onClicked: {
-                        mediaSourceTab = 1; 
+                        musicPageRoot.mediaSourceTab = 1; 
                         spotifyApi.searchTracks(searchField.text);
                     }
                 }
@@ -822,7 +830,7 @@ Item {
                 height: searchRoot.showSpotifyFallback ? 196 : 250
                 clip: true
                 visible: !searchRoot.showSpotifyFallback
-                model: mediaSourceTab === 0 ? searchRoot.localResults : spotifyApi.tracks
+                model: musicPageRoot.mediaSourceTab === 0 ? searchRoot.localResults : spotifyApi.tracks
 
                 delegate: Rectangle {
                     width: ListView.view.width; height: 64; radius: 6
@@ -834,14 +842,14 @@ Item {
 
                         Rectangle {
                             width: 48; height: 48; radius: 4; color: Colors.surfacePressed
-                            visible: mediaSourceTab === 0 || modelData.imageUrl === ""
+                            visible: musicPageRoot.mediaSourceTab === 0 || modelData.imageUrl === ""
                             Text { anchors.centerIn: parent; text: "♪"; color: Colors.textSecondary; font.pixelSize: 20 }
                         }
 
                         Image {
                             width: 48; height: 48; fillMode: Image.PreserveAspectFit
-                            source: mediaSourceTab === 1 ? modelData.imageUrl : ""
-                            visible: mediaSourceTab === 1 && modelData.imageUrl !== ""
+                            source: musicPageRoot.mediaSourceTab === 1 ? modelData.imageUrl : ""
+                            visible: musicPageRoot.mediaSourceTab === 1 && modelData.imageUrl !== ""
                         }
 
                         Column {
@@ -853,12 +861,30 @@ Item {
 
                     MouseArea {
                         anchors.fill: parent
+                        pressAndHoldInterval: 3000 
+                        preventStealing: true
+                        property bool gestureHandled: false
+
+                        onPressed: {
+                            gestureHandled = false
+                        }
+
                         onClicked: {
-                            searchRoot.selectedIndex = index
-                            if (mediaSourceTab === 1) {
-                                spotifyApi.selectTrack(index)
-                            } else {
-                                musicPlayer.playTrack(modelData.localIndex)
+                            if (!gestureHandled) {
+                                searchRoot.selectedIndex = index
+                                if (musicPageRoot.mediaSourceTab === 1) {
+                                    spotifyApi.selectTrack(index)
+                                } else {
+                                    musicPlayer.playTrack(modelData.localIndex)
+                                }
+                            }
+                        }
+
+                        onPressAndHold: {
+                            if (musicPageRoot.mediaSourceTab === 1) {
+                                gestureHandled = true
+                                console.log("HMI long press: adding track to Spotify queue -> " + modelData.title)
+                                spotifyApi.addToQueue(index) 
                             }
                         }
                     }
@@ -879,28 +905,165 @@ Item {
 
             ListView {
                 id: queueList; anchors.top: queueDivider.bottom; anchors.topMargin: 8; anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; clip: true; spacing: 4
-                model: musicPlayer.playlistTitles
+                model: musicPageRoot.mediaSourceTab === 0 ? musicPlayer.playlistTitles : (spotifyApi.queueTitles || [])
 
                 delegate: Rectangle {
-                    width: ListView.view.width; height: 56
-                    color: index === musicPlayer.currentTrackIndex - 1 ? Colors.surfacePressed : Colors.surfaceRaised
+                    width: queueList.width 
+                    height: 56
+                    
+                    readonly property bool isCurrentActive: musicPageRoot.mediaSourceTab === 0 
+                        ? (index === musicPlayer.currentTrackIndex - 1)
+                        : (index === spotifyApi.currentTrackIndex)
+
+                    color: isCurrentActive ? Colors.surfacePressed : Colors.surfaceRaised
                     border.width: 0.5; border.color: Colors.borderWarm
 
                     Row {
                         anchors.fill: parent; anchors.margins: 8; spacing: 10
                         Rectangle {
                             width: 32; height: 32; radius: 4; color: Colors.surfacePressed
-                            Text { anchors.centerIn: parent; text: index === musicPlayer.currentTrackIndex - 1 ? "▶" : "♪"; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyMedium }
+                            Text { anchors.centerIn: parent; text: isCurrentActive ? "▶" : "♪"; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyMedium }
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter; width: parent.width - 60; text: modelData; color: Colors.textPrimary; font.family: Typography.family
-                            font.pixelSize: index === musicPlayer.currentTrackIndex - 1 ? Typography.bodyMedium : Typography.bodySmall
-                            font.bold: index === musicPlayer.currentTrackIndex - 1; elide: Text.ElideRight
+                            font.pixelSize: isCurrentActive ? Typography.bodyMedium : Typography.bodySmall
+                            font.bold: isCurrentActive; elide: Text.ElideRight
                         }
                     }
-                    MouseArea { anchors.fill: parent; onClicked: musicPlayer.playTrack(index) }
+                    MouseArea { 
+                        anchors.fill: parent 
+                        onClicked: {
+                            if (musicPageRoot.mediaSourceTab === 0) {
+                                musicPlayer.playTrack(index)
+                            } else {
+                                spotifyApi.playQueueTrack(index)
+                            }
+                        }
+                    }
                 }
                 ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+            }
+        }
+    }
+
+    // =====================================================
+    // VIRTUAL KEYBOARD PANEL LAYOUT OVERLAY
+    // =====================================================
+    Rectangle {
+        id: keyboardOverlayPanel
+        width: parent.width
+        height: parent.height * 0.40 
+        y: musicPageRoot.showKeyboard ? (parent.height - height) : parent.height
+        Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutQuad } }
+        z: 100 
+        color: Colors.surfacePressed
+        border.width: 1
+        border.color: Colors.borderActive
+
+        MouseArea { anchors.fill: parent; propagateComposedEvents: false }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 8
+
+            Row {
+                width: parent.width
+                height: 24
+                
+                Text {
+                    text: "Keyboard Entry Input Target Mode"
+                    color: Colors.textMuted
+                    font.family: Typography.family
+                    font.pixelSize: 12
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                
+                Rectangle {
+                    width: 70; height: 24; radius: 6; color: Colors.surfaceRaised
+                    anchors.right: parent.right
+                    border.width: 0.5; border.color: Colors.borderWarm
+                    Text { anchors.centerIn: parent; text: "Close ✕"; color: Colors.textPrimary; font.pixelSize: 11; font.bold: true }
+                    MouseArea { anchors.fill: parent; onClicked: musicPageRoot.showKeyboard = false }
+                }
+            }
+
+            Column {
+                width: parent.width
+                height: parent.height - 36
+                spacing: 6
+
+                readonly property var row1: ["Q","W","E","R","T","Y","U","I","O","P"]
+                readonly property var row2: ["A","S","D","F","G","H","J","K","L"]
+                readonly property var row3: ["Clear","Z","X","C","V","B","N","M","⌫"]
+                readonly property var row4: ["Space", "Search"]
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter; spacing: 6; width: parent.width
+                    Repeater {
+                        model: parent.parent.row1
+                        delegate: buttonDelegate
+                    }
+                }
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter; spacing: 6
+                    Repeater {
+                        model: parent.parent.row2
+                        delegate: buttonDelegate
+                    }
+                }
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter; spacing: 6
+                    Repeater {
+                        model: parent.parent.row3
+                        delegate: buttonDelegate
+                    }
+                }
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter; spacing: 6; width: parent.width * 0.8
+                    
+                    Rectangle {
+                        width: parent.width * 0.70; height: 42; radius: 6
+                        color: spaceM.pressed ? Colors.surfacePressed : Colors.surfaceRaised
+                        border.width: 1; border.color: Colors.borderWarm
+                        Text { anchors.centerIn: parent; text: "Space"; color: Colors.textPrimary; font.family: Typography.family }
+                        MouseArea { id: spaceM; anchors.fill: parent; onClicked: musicPageRoot.handleKeyboardInput("Space") }
+                    }
+                    Rectangle {
+                        width: parent.width * 0.30 - 6; height: 42; radius: 6
+                        color: searchM.pressed ? Colors.surfacePressed : Colors.borderActive
+                        border.width: 1; border.color: Colors.borderActive
+                        Text { anchors.centerIn: parent; text: "Search ↵"; color: searchM.pressed ? Colors.textPrimary : "#ffffff"; font.family: Typography.family; font.bold: true }
+                        MouseArea { id: searchM; anchors.fill: parent; onClicked: musicPageRoot.handleKeyboardInput("Search") }
+                    }
+                }
+            }
+        }
+
+        Component {
+            id: buttonDelegate
+            Rectangle {
+                width: (keyboardOverlayPanel.width - 80) / 10
+                height: 42
+                radius: 6
+                color: keyMouse.pressed ? Colors.surfacePressed : (modelData === "⌫" || modelData === "Clear" ? Colors.surfacePressed : Colors.surfaceRaised)
+                border.width: 0.5
+                border.color: Colors.borderWarm
+
+                Text {
+                    anchors.centerIn: parent
+                    text: modelData
+                    color: (modelData === "⌫" || modelData === "Clear") ? Colors.accentCity : Colors.textPrimary
+                    font.family: Typography.family
+                    font.pixelSize: 16
+                    font.bold: true
+                }
+
+                MouseArea {
+                    id: keyMouse
+                    anchors.fill: parent
+                    onClicked: musicPageRoot.handleKeyboardInput(modelData)
+                }
             }
         }
     }
