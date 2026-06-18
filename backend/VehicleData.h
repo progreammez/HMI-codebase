@@ -55,6 +55,8 @@ class VehicleData : public QObject
     Q_PROPERTY(QString warningTimestamp READ warningTimestamp WRITE setWarningTimestamp NOTIFY warningTimestampChanged)
     Q_PROPERTY(int historicalWarnings READ historicalWarnings WRITE setHistoricalWarnings NOTIFY historicalWarningsChanged)
 
+    Q_PROPERTY(bool simulationActive READ simulationActive WRITE setSimulationActive NOTIFY simulationActiveChanged)
+
 public:
     explicit VehicleData(QObject *parent = nullptr);
     // Getter functions
@@ -92,6 +94,7 @@ public:
     bool communicationFault() const;
     bool lowRangeWarning() const;
     QString warningMessage() const;
+    bool simulationActive() const; // Backing getter for simulation configuration states
 
     bool hasWarning() const
     {
@@ -143,13 +146,13 @@ public:
     void settripA(float tripA);
     void settripB(float tripB);
 
-
     void setLowBatteryWarning(bool lowBatteryWarning);
     void setMotorOverTempWarning(bool motorOverTempWarning);
     void setBatteryOverTempWarning(bool batteryOverTempWarning);
     void setCommunicationFault(bool communicationFault);
     void setLowRangeWarning(bool lowRangeWarning);
     void setWarningMessage(const QString &warningMessage);
+    void setSimulationActive(bool active);
 
     void setHasWarning(bool value)
     {
@@ -208,7 +211,6 @@ signals:
     void tripAChanged();
     void tripBChanged();
     
-
     void lowBatteryWarningChanged();
     void motorOverTempWarningChanged();
     void batteryOverTempWarningChanged();
@@ -220,6 +222,7 @@ signals:
     void hasWarningChanged();
     void warningTimestampChanged();
     void historicalWarningsChanged();
+    void simulationActiveChanged();
 
 private:
     // Member variables to store the current state of the vehicle
@@ -251,7 +254,6 @@ private:
     float m_tripA;
     float m_tripB;
 
-
     bool m_lowBatteryWarning;
     bool m_motorOverTempWarning;
     bool m_batteryOverTempWarning;
@@ -262,6 +264,7 @@ private:
     bool m_hasWarning = false;
     QString m_warningTimestamp;
     int m_historicalWarnings = 0;
+    bool m_simulationActive = true;
 };
 
 #endif

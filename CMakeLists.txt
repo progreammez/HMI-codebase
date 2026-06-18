@@ -65,6 +65,14 @@ qt_add_qml_module(EV_HMI
         qml/pages/SettingsPage.qml
         qml/pages/DiagnosticsPage.qml
 
+        qml/pages/engineer/OverviewPage.qml
+        qml/pages/engineer/TelemetryPage.qml
+        qml/pages/engineer/ThermalPage.qml
+        qml/pages/engineer/PowertrainPage.qml
+        qml/pages/engineer/CommsPage.qml
+        qml/pages/engineer/FaultsPage.qml
+    
+
         qml/themes/Colors.qml
         qml/themes/Typography.qml
         qml/themes/Theme.qml

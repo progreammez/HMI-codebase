@@ -7,11 +7,16 @@ Item {
     property int currentPageIndex: 0
     
     // =====================================================
-    // GLOBAL APPLICATION-WIDE STATE
+    // GLOBAL APPLICATION-WIDE STATE & MODES
     // =====================================================
+    property bool isEngineerMode: false
     property int globalBrightness: 70
     property string globalFont: "Rajdhani"
     property string globalUnits: "metric"
+
+    // Automatically safeguard bounds when toggling between standard (4) and engineer (7) arrays
+    onIsEngineerModeChanged: root.currentPageIndex = 0
+
     // =====================================================
     // GLOBAL APP TRANSLATION DICTIONARY
     // =====================================================
@@ -23,18 +28,39 @@ Item {
         "tab_home":         { "en": "Home",              "de": "Start",             "es": "Inicio" },
         "tab_music":        { "en": "Music",             "de": "Musik",             "es": "Música" },
         "tab_settings":     { "en": "Settings",          "de": "Einstellungen",     "es": "Ajustes" },
-        "tab_diagnostics":  { "en": "Diagnostics",       "de": "Diagnose",          "es": "Diagnóstico" }
+        "tab_diagnostics":  { "en": "Diagnostics",       "de": "Diagnose",          "es": "Diagnóstico" },
+        
+        // Engineer Mode Localized Text Strings
+        "tab_eng_overview":  { "en": "Overview" },
+        "tab_eng_telemetry": { "en": "Telemetry" },
+        "tab_eng_thermal":   { "en": "Thermal" },
+        "tab_eng_powertrain":{ "en": "Powertrain" },
+        "tab_eng_comms":     { "en": "Comms" },
+        "tab_eng_faults":    { "en": "Faults" },
+        "tab_eng_exit":      { "en": "✕ EXIT ENG" }
     }
 
-    // Dynamic keys mapping back directly to the translation dictionary above
-    readonly property var pages: [
-        { "key": "tab_home" },
-        { "key": "tab_music" },
-        { "key": "tab_settings" },
-        { "key": "tab_diagnostics" }
+    // =====================================================
+    // DYNAMIC NAVIGATION SCHEMAS
+    // =====================================================
+    readonly property var normalPages: [
+        { "key": "tab_home",        "isDiag": false, "isExit": false },
+        { "key": "tab_music",       "isDiag": false, "isExit": false },
+        { "key": "tab_settings",    "isDiag": false, "isExit": false },
+        { "key": "tab_diagnostics", "isDiag": true,  "isExit": false }
     ]
 
-    // Internal state helper to see if we should show warnings or dashboard info
+    readonly property var engineerPages: [
+        { "key": "tab_eng_overview",   "isDiag": false, "isExit": false },
+        { "key": "tab_eng_telemetry",  "isDiag": false, "isExit": false },
+        { "key": "tab_eng_thermal",    "isDiag": false, "isExit": false },
+        { "key": "tab_eng_powertrain", "isDiag": false, "isExit": false },
+        { "key": "tab_eng_comms",      "isDiag": false, "isExit": false },
+        { "key": "tab_eng_faults",     "isDiag": true,  "isExit": false },
+        { "key": "tab_eng_exit",       "isDiag": false, "isExit": true } // 7th Tab Entry
+    ]
+
+    readonly property var activePages: root.isEngineerMode ? engineerPages : normalPages
     readonly property bool hasWarning: vehicleData.communicationFault || vehicleData.warningMessage.length > 0
 
     // Background Canvas
@@ -68,8 +94,9 @@ Item {
             spacing: Math.round(12 * Theme.scale)
 
             Text {
-                text: "EV HMI"
-                color: Colors.textPrimary
+                // Displays elevated hierarchy header if configured in Engineer Mode (image_0a2d6c.png reference)
+                text: root.isEngineerMode ? "ENGINEER MODE • LEVEL 2 • READ / MONITOR" : "EV HMI"
+                color: root.isEngineerMode ? Colors.accentSport : Colors.textPrimary
                 font.family: Typography.family
                 font.pixelSize: Typography.bodyMedium
                 font.weight: Font.DemiBold
@@ -85,6 +112,7 @@ Item {
                 font.pixelSize: Typography.label
                 font.weight: Font.DemiBold
                 anchors.verticalCenter: parent.verticalCenter
+                visible: !root.isEngineerMode
             }
         }
 
@@ -136,7 +164,6 @@ Item {
             : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Colors.warning : Colors.borderSubtle
         border.width: 1
 
-        // --- SECTION A: ACTIVE WARNING LAYOUT ---
         Row {
             anchors.fill: parent
             anchors.leftMargin: Math.round(14 * Theme.scale)
@@ -168,43 +195,30 @@ Item {
             }
         }
 
-        // --- SECTION B: TIME & WEATHER DASHBOARD LAYOUT ---
         Item {
             anchors.fill: parent
             visible: !root.hasWarning
 
-            // Left Side: Live Clock
             Text {
                 id: clockDisplay
                 anchors.left: parent.left
                 anchors.leftMargin: Math.round(14 * Theme.scale)
                 anchors.verticalCenter: parent.verticalCenter
-                
-                // Initial load calculation
                 text: getOffsetTime()
-                
                 color: Colors.textPrimary
                 font.family: Typography.family
                 font.pixelSize: Typography.bodySmall
                 font.weight: Font.DemiBold
 
-                // JavaScript helper function to calculate GMT + 5:30 safely
                 function getOffsetTime() {
                     let date = new Date();
-                    
-                    // 1. Get current UTC values
                     let utcHours = date.getUTCHours();
                     let utcMinutes = date.getUTCMinutes();
-                    
-                    // 2. Apply the +5 hours and +30 minutes offset
                     date.setUTCHours(utcHours + 5);
                     date.setUTCMinutes(utcMinutes + 30);
-                    
-                    // 3. Format the adjusted time based on your Settings page selection
                     return Qt.formatTime(date, Typography.timeFormat);
                 }
 
-                // Updates the clock rendering every second
                 Timer {
                     interval: 1000
                     running: true
@@ -213,7 +227,6 @@ Item {
                 }
             }
 
-            // Right Side: Weather Status Info
             Row {
                 anchors.right: parent.right
                 anchors.rightMargin: Math.round(14 * Theme.scale)
@@ -221,7 +234,6 @@ Item {
                 spacing: Math.round(8 * Theme.scale)
 
                 Text {
-                    // Check if weatherData backend is available, or use placeholder strings
                     text: typeof weatherData !== 'undefined' ? weatherData.conditionText : "Sunny"
                     color: Colors.textSecondary
                     font.family: Typography.family
@@ -253,10 +265,22 @@ Item {
         anchors.rightMargin: Theme.pageMargin
         anchors.topMargin: Math.round(10 * Theme.scale)
         anchors.bottomMargin: Math.round(8 * Theme.scale)
-        sourceComponent: root.currentPageIndex === 0 ? homePage
-            : root.currentPageIndex === 1 ? musicPage
-            : root.currentPageIndex === 2 ? settingsPage
-            : diagnosticsPage
+        
+        sourceComponent: {
+            if (!root.isEngineerMode) {
+                return root.currentPageIndex === 0 ? homePage
+                     : root.currentPageIndex === 1 ? musicPage
+                     : root.currentPageIndex === 2 ? settingsPage
+                     : diagnosticsPage;
+            } else {
+                return root.currentPageIndex === 0 ? engOverviewPage
+                     : root.currentPageIndex === 1 ? engTelemetryPage
+                     : root.currentPageIndex === 2 ? engThermalPage
+                     : root.currentPageIndex === 3 ? engPowertrainPage
+                     : root.currentPageIndex === 4 ? engCommsPage
+                     : engFaultsPage; // Note: The 7th (Exit) button handles context state switching, not layout content loading.
+            }
+        }
     }
 
     // =====================================================
@@ -273,21 +297,24 @@ Item {
 
         Row {
             anchors.centerIn: parent
-            spacing: Math.round(8 * Theme.scale)
+            spacing: Math.round(6 * Theme.scale) // Snugger spacing to fit 7 elements easily
 
             Repeater {
-                model: root.pages.length
+                model: root.activePages.length
 
                 Rectangle {
-                    width: Math.round(132 * Theme.scale)
+                    // Dynamically adjusts width to fit 7 tabs comfortably side-by-side in Engineer Mode
+                    width: root.isEngineerMode ? Math.round(102 * Theme.scale) : Math.round(132 * Theme.scale)
                     height: Math.round(46 * Theme.scale)
                     radius: Math.round(8 * Theme.scale)
-                    color: root.currentPageIndex === index 
-                             ? Colors.surfaceBase 
-                             : "transparent"
-                    border.color: root.currentPageIndex === index
-                             ? Colors.borderWarm 
-                             : Colors.borderSubtle
+                    
+                    color: root.activePages[index].isExit 
+                           ? "transparent"
+                           : (root.currentPageIndex === index ? Colors.surfaceBase : "transparent")
+                           
+                    border.color: root.activePages[index].isExit 
+                                  ? Colors.critical 
+                                  : (root.currentPageIndex === index ? Colors.borderWarm : Colors.borderSubtle)
                     border.width: 1
 
                     Behavior on color {
@@ -299,30 +326,56 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: root.translations[root.pages[index].key][Typography.currentLanguage]
-                        color: root.currentPageIndex === index
-                                 ? Colors.textPrimary
-                                 : Colors.textMuted
+                        text: {
+                            var keyLookup = root.activePages[index].key;
+                            var dict = root.translations[keyLookup];
+                            return (dict && dict[Typography.currentLanguage] !== undefined) ? dict[Typography.currentLanguage] : (dict ? dict["en"] : "");
+                        }
+                        color: root.activePages[index].isExit 
+                               ? Colors.critical 
+                               : (root.currentPageIndex === index ? Colors.textPrimary : Colors.textMuted)
                         font.family: Typography.family
-                        font.pixelSize: Typography.bodySmall
-                        font.weight: root.currentPageIndex === index 
-                                 ? Font.DemiBold 
-                                 : Font.Medium
+                        font.pixelSize: root.isEngineerMode ? Typography.label : Typography.bodySmall
+                        font.weight: (root.currentPageIndex === index || root.activePages[index].isExit) ? Font.DemiBold : Font.Medium
                     }
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: root.currentPageIndex = index
+                        
+                        onClicked: {
+                            if (root.activePages[index].isExit) {
+                                root.isEngineerMode = false; // Graceful state reversal back to user mode
+                            } else {
+                                root.currentPageIndex = index;
+                            }
+                        }
+                        
+                        pressAndHoldInterval: 800
+                        onPressAndHold: {
+                            // Diagnostics tab (and Faults tab in engineer view) accepts long press state flips
+                            if (root.activePages[index].isDiag) {
+                                root.isEngineerMode = !root.isEngineerMode;
+                            }
+                        }
                     }
                 }
             }
         }
     }
     
+    // Core User Mode Components
     Component { id: homePage; HomePage {} }
     Component { id: musicPage; MusicPage {} }
     Component { id: settingsPage; SettingsPage {} }
     Component { id: diagnosticsPage; DiagnosticsPage {} }
+
+    // Specialized Engineer Components
+    Component { id: engOverviewPage;  OverviewPage {} }
+    Component { id: engTelemetryPage;  TelemetryPage {} }
+    Component { id: engThermalPage;   ThermalPage {} }
+    Component { id: engPowertrainPage; PowertrainPage {} }
+    Component { id: engCommsPage;     CommsPage {} }
+    Component { id: engFaultsPage;     FaultsPage {} }
 
     // =====================================================
     // GLOBAL HARDWARE BRIGHTNESS DIMMER OVERLAY
@@ -331,10 +384,9 @@ Item {
         id: globalHardwareDimmer
         anchors.fill: parent
         color: "black"
-        // Reads from the global state property to dim the absolute entire viewport display smoothly
         opacity: (100 - root.globalBrightness) / 100 * 0.75
         visible: opacity > 0.01
-        z: 999999 // Keeps it resting cleanly above everything including status bars
-        enabled: false // Touch events pass straight through to actions underneath seamlessly
+        z: 999999 
+        enabled: false 
     }
 }
