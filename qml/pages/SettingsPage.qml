@@ -35,21 +35,25 @@ Item {
     // =====================================================
     readonly property var translations: {
         "modes_title":  { "en": "Modes",       "de": "Modi",               "es": "Modos" },
-        "display_title":{ "en": "Display",     "de": "Anzeige",            "es": "Pantalla" },
+        "display_title":{ "en": "Display",     "de": "Anzeige",            "es": "Mostrar" },
         "volume_title": { "en": "Volume",      "de": "Lautstärke",         "es": "Volumen" },
         "system_title": { "en": "System",      "de": "System",             "es": "Sistema" },
         "units":        { "en": " Units",      "de": " Einheiten",         "es": " Unidades" },
         "language":     { "en": " Language",   "de": " Sprache",           "es": " Idioma" },
         "day_night":    { "en": " Day / Night Mode", "de": " Tag / Nacht Modus", "es": " Modo Día / Noche" },
-        "theme":        { "en": " Theme",      "de": " Design",            "es": " Tema" },
+        "theme":        { "en": " Theme",      "de": " Thema",            "es": " Tema" },
         "brightness":   { "en": " Brightness", "de": " Helligkeit",        "es": " Brillo" },
         "contrast":     { "en": " Contrast",   "de": " Kontrast",          "es": " Contraste" },
-        "alert":        { "en": " Alert",      "de": " Warnung",           "es": " Alerta" },
-        "indicator":    { "en": " Indicator",  "de": " Blinker",           "es": " Indicador" },
-        "clock_format": { "en": " Clock Format", "de": " Uhrzeitformat",    "es": " Formato de Reloj" },
+        "alert":        { "en": " Alert",      "de": " Wachsam",           "es": " Alerta" },
+        "indicator":    { "en": " Indicator",  "de": " Indikator",           "es": " Indicador" },
+        "clock_format": { "en": " Clock Format", "de": " Zeitformat",    "es": " Formato de Reloj" },
         "date_format":  { "en": " Date Format",  "de": " Datumsformat",     "es": " Formato de Fecha" },
         "about":        { "en": " About",      "de": " Über",              "es": " Acerca de" },
-        "factory_reset":{ "en": "Factory Reset", "de": "Werkseinstellung", "es": "Reiniciar Fábrica" }
+        "factory_reset":{ "en": "Factory Reset", "de": "Werkseinstellung", "es": "Reiniciar Fábrica" },
+        "reset_warning":{ "en": "Confirm Settings Reset", "de": "Zurücksetzen der Einstellungen bestätigen", "es": "Confirmar el restablecimiento de la configuración" },
+        "reset_confirm":{ "en": "Are you sure you want to reset all settings to default?", "de": "Sind Sie sicher, dass Sie alle Einstellungen auf die Standardeinstellungen zurücksetzen möchten?", "es": "¿Está seguro de que desea restablecer todas las configuraciones a los valores predeterminados?" },
+        "ok":           { "en": "OK",           "de": "Akzeptieren",                 "es": "Aceptar" },
+        "cancel":       { "en": "Cancel",       "de": "Stornieren",           "es": "Cancelar" }
     }
 
     RowLayout {
@@ -356,28 +360,28 @@ Item {
                         Text { text: "Noir"; color: Colors.themeName === "NOIR" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "NOIR" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
                     }
 
-                    // 5. EMBER THEME
+                    // 5. NEON THEME
                     Column {
                         spacing: 4
                         Rectangle { 
                             width: 48; height: 48; radius: 24; color: "transparent"
-                            border.width: Colors.themeName === "EMBER" ? 2 : 1; border.color: Colors.themeName === "EMBER" ? Colors.borderActive : "transparent"
+                            border.width: Colors.themeName === "NEON" ? 2 : 1; border.color: Colors.themeName === "NEON" ? Colors.borderActive : "transparent"
                             antialiasing: true
                             Behavior on border.color { ColorAnimation { duration: 150 } }
                             
                             Rectangle { 
                                 anchors.fill: parent
-                                anchors.margins: Colors.themeName === "EMBER" ? 4 : 0
+                                anchors.margins: Colors.themeName === "NEON" ? 4 : 0
                                 radius: width / 2; antialiasing: true
                                 gradient: Gradient { 
-                                    GradientStop { position: 0.0; color: "#b8551c" } 
-                                    GradientStop { position: 1.0; color: "#c68632" } 
+                                    GradientStop { position: 0.0; color: "#1cb86a" } 
+                                    GradientStop { position: 1.0; color: "#32c675" } 
                                 }
                                 Behavior on anchors.margins { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
                             }
-                            MouseArea { anchors.fill: parent; onClicked: Colors.themeName = "EMBER" }
+                            MouseArea { anchors.fill: parent; onClicked: Colors.themeName = "NEON" }
                         }
-                        Text { text: "Ember"; color: Colors.themeName === "EMBER" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "EMBER" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
+                        Text { text: "Neon"; color: Colors.themeName === "NEON" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Colors.themeName === "NEON" ? Font.DemiBold : Font.Normal; anchors.horizontalCenter: parent.horizontalCenter }
                     }
 
                     // 6. VERDANT THEME
@@ -784,7 +788,7 @@ Item {
             padding: 24
 
             Text {
-                text: "Confirm Settings Reset"
+                text: settingsRoot.translations["reset_warning"][settingsState.language]
                 color: "#ff4444"
 
                 font.family: settingsState.fontStyle
@@ -796,7 +800,7 @@ Item {
                 width: 350
                 wrapMode: Text.WordWrap
 
-                text: "Are you sure you want to revert all configurations back to vehicle factory defaults?"
+                text: settingsRoot.translations["reset_confirm"][settingsState.language]
                 color: Colors.textPrimary
 
                 font.family: settingsState.fontStyle
@@ -814,7 +818,7 @@ Item {
             }
 
             Button {
-                text: "Cancel"
+                text: settingsRoot.translations["cancel"][settingsState.language]
                 DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
 
                 implicitWidth: 96
@@ -842,7 +846,7 @@ Item {
             }
 
             Button {
-                text: "OK"
+                text: settingsRoot.translations["ok"][settingsState.language]
                 DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
 
                 implicitWidth: 96
@@ -884,7 +888,7 @@ Item {
             settingsState.clockFormat = 24
             settingsState.dateFormat = "dd"
 
-            Colors.themeName = "AURORA"
+            Colors.themeName = "NEON"
             Colors.dayNightMode = "auto"
             Typography.currentLanguage = "en"
             Typography.unitSystem = "metric"

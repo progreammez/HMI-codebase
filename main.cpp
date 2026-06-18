@@ -11,6 +11,7 @@
 #include "backend/SerialManager.h"
 #include "backend/TelemetryLogger.h"
 #include "backend/SpotifyAPIManager.h"
+#include "backend/BluetoothManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +21,7 @@ int main(int argc, char *argv[])
     LocalMusicPlayer musicPlayer;
     SerialManager serialManager;
     SpotifyApiManager spotifyApi;
+    BluetoothManager bluetoothManager;
 
     TelemetrySimulator simulator(&vehicleData);
     TelemetryLogger telemetryLogger(&vehicleData);
@@ -126,7 +128,7 @@ int main(int argc, char *argv[])
         }
     );
 
-    //simulator.start();
+    simulator.start();
     //musicPlayer.play();
 
     QQmlApplicationEngine engine;
@@ -148,6 +150,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(
         "telemetryLogger",
         &telemetryLogger
+    );
+    engine.rootContext()->setContextProperty(
+        "bluetoothManager",
+        &bluetoothManager
     );
     
     #if QT_VERSION >= QT_VERSION_CHECK(6,5,0)

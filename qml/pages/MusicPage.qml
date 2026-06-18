@@ -7,19 +7,47 @@ Item {
     property int activeTab: 0
     property int mediaSourceTab: 0 // 0 = Local, 1 = Spotify
     property string localSearchQuery: ""
+    property bool showBluetoothPopup: false
+
+    // Virtual Keyboard Target Configuration State Variables
+    property bool showKeyboard: false
+    property var activeInputTarget: null
 
     // Helper property to fetch dynamic theme paths cleanly across all components
     readonly property string iconPathPrefix: "qrc:/assets/icons/" + (Colors.dayNightMode === "day" ? "Light" : "Dark") + "/MusicPage/"
 
     // =====================================================
+    // KEYBOARD MECHANICAL INPUT PROCESSING LOOP
+    // =====================================================
+    function handleKeyboardInput(keyKey) {
+        if (!activeInputTarget) return;
+        
+        if (keyKey === "⌫") {
+            if (activeInputTarget.text.length > 0) {
+                activeInputTarget.text = activeInputTarget.text.substring(0, activeInputTarget.text.length - 1);
+            }
+        } else if (keyKey === "Space") {
+            activeInputTarget.text += " ";
+        } else if (keyKey === "Clear") {
+            activeInputTarget.text = "";
+        } else if (keyKey === "Search" || keyKey === "Enter") {
+            activeInputTarget.accepted(); 
+            showKeyboard = false;
+            activeInputTarget.focus = false;
+        } else {
+            activeInputTarget.text += keyKey;
+        }
+    }
+
+    // =====================================================
     // HARDCODED TRANSLATION DICTIONARY
     // =====================================================
-    readonly property var translations: {
+    readonly property var translations: ({
         "local":            { "en": "Local",            "de": "Lokal",                  "es": "Local" },
         "spotify":          { "en": "Spotify",          "de": "Spotify",                "es": "Spotify" },
-        "lyrics":           { "en": "Lyrics",           "de": "Songtext",               "es": "Letras" },
+        "lyrics":           { "en": "Lyrics",           "de": "Liedtext",               "es": "Lírica" },
         "media_hub":        { "en": "Media Hub",        "de": "Medien-Hub",             "es": "Centro de Medios" },
-        "source_device":    { "en": "Source Device",    "de": "Quellgerät",             "es": "Dispositivo Origen" },
+        "source_device":    { "en": "Bluetooth Device", "de": "Bluetooth-Gerät",        "es": "Dispositivo Bluetooth" },
         "switch":           { "en": "Switch",           "de": "Wechseln",               "es": "Cambiar" },
         "track":            { "en": "Track",            "de": "Titel",                  "es": "Pista" },
         "status":           { "en": "Status",           "de": "Status",                 "es": "Estado" },
@@ -28,20 +56,20 @@ Item {
         "volume":           { "en": "Volume",           "de": "Lautstärke",             "es": "Volumen" },
         "mute":             { "en": "Mute",             "de": "Stumm",                  "es": "Silenciar" },
         "unmute":           { "en": "Unmute",           "de": "Ton an",                 "es": "No silenciar" },
-        "shuffle":          { "en": "Shuffle",          "de": "Zufall",                 "es": "Aleatorio" },
+        "shuffle":          { "en": "Shuffle",          "de": "Zufall",                 "es": "Barajar" },
         "repeat":           { "en": "Repeat",           "de": "Wiederholen",            "es": "Repetir" },
         "search_local":     { "en": "Search Local Storage...", "de": "Lokalen Speicher durchsuchen...", "es": "Buscar en almacenamiento local..." },
         "search_spotify":   { "en": "Search Spotify...",       "de": "Spotify durchsuchen...",          "es": "Buscar en Spotify..." },
-        "spotify_fallback": { "en": "No matches. Search Spotify instead?", "de": "Keine Treffer. Stattdessen Spotify durchsuchen?", "es": "Sin coincidencias. ¿Buscar en Spotify?" },
+        "spotify_fallback": { "en": "No matches. Search Spotify instead?", "de": "Keine Treffer. Stattdessen Spotify durchsuchen?", "es": "Sin coincidencias. ¿Quieres buscar en Spotify?" },
         "queue_title":      { "en": "Playback Queue",   "de": "Wiedergabewarteschlange", "es": "Cola de Reproducción" }
-    }
+    })
 
     Row {
         anchors.fill: parent
         spacing: Theme.cardGap
 
         // =====================================================
-        // COLUMN 1 – NOW PLAYING (FLUID MULTI-LAYER ARCHITECTURE)
+        // COLUMN 1 – NOW PLAYING
         // =====================================================
         BaseCard {
             width: parent.width * 0.45
@@ -51,7 +79,6 @@ Item {
             Item {
                 anchors.fill: parent
 
-                // Top Media Source Switcher Row Bar
                 Row {
                     id: sourceTabsRow
                     width: parent.width
@@ -90,7 +117,6 @@ Item {
                     }
                 }
 
-                // Main Art Stage Canvas Layout
                 Item {
                     anchors.top: sourceTabsRow.bottom
                     anchors.bottom: parent.bottom
@@ -98,7 +124,6 @@ Item {
                     anchors.right: parent.right
                     clip: true
 
-                    // Ambient Background Blur Glow Layer
                     Image {
                         id: ambientBackgroundArt
                         anchors.fill: parent
@@ -108,7 +133,6 @@ Item {
                         visible: status === Image.Ready
                     }
 
-                    // 1. Day Mode Light Protective Gradient Mask
                     Rectangle {
                         anchors.left: parent.left
                         anchors.right: parent.right
@@ -123,7 +147,6 @@ Item {
                         }
                     }
 
-                    // 2. Night Mode Dark Protective Gradient Mask
                     Rectangle {
                         anchors.left: parent.left
                         anchors.right: parent.right
@@ -138,7 +161,6 @@ Item {
                         }
                     }
 
-                    // Pure Bottom-Anchored Interactive Content Group
                     Column {
                         id: bottomControlsColumn
                         anchors.bottom: parent.bottom
@@ -148,7 +170,6 @@ Item {
                         spacing: 16 
                         z: 2
 
-                        // Metadata Overlay
                         Column {
                             id: metadataColumn
                             width: parent.width
@@ -192,7 +213,6 @@ Item {
                             }
                         }
 
-                        // Progress Stream Interface
                         Item {
                             id: progressSectionContainer
                             width: parent.width
@@ -228,7 +248,7 @@ Item {
                                 handle: Rectangle {
                                     x: progressSlider.leftPadding + progressSlider.visualPosition * (progressSlider.availableWidth - width)
                                     y: progressSlider.topPadding + (progressSlider.availableHeight - height) / 2
-                                    implicitWidth: 200 / 10
+                                    implicitWidth: 20
                                     implicitHeight: 20
                                     radius: 10
                                     color: "#ffffff"
@@ -250,7 +270,6 @@ Item {
                             }
                         }
 
-                        // Premium Borderless Audio Action Controls
                         Row {
                             id: controlsRow
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -296,7 +315,6 @@ Item {
                             }
                         }
 
-                        // Subtle Theme-Adaptive Pill Mode Shifters
                         Row {
                             id: shuffleRepeatRow
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -332,7 +350,6 @@ Item {
                         }
                     }
 
-                    // Floating Card Area
                     Item {
                         anchors.top: parent.top
                         anchors.bottom: bottomControlsColumn.top
@@ -388,9 +405,6 @@ Item {
             width: parent.width * 0.25
             height: parent.height
             title: musicPageRoot.translations["lyrics"][Typography.currentLanguage]
-            
-            
-            
 
             Column {
                 width: parent.width - 32 
@@ -408,7 +422,6 @@ Item {
                         wrapMode: Text.WordWrap
                         font.family: Typography.family
 
-                        // Preserved index 3 mechanical middle node tracking for 7-line model configurations
                         font.pixelSize: index === 3 ? 25 : 20
                         font.bold: index === 3
 
@@ -423,20 +436,17 @@ Item {
         }
 
         // =====================================================
-        // COLUMN 3 – MEDIA HUB (PLAYBACK, SEARCH, QUEUE, WIDGET)
+        // COLUMN 3 – MEDIA HUB
         // =====================================================
         BaseCard {
             width: parent.width * 0.30 - (Theme.cardGap * 2)
             height: parent.height
             title: musicPageRoot.translations["media_hub"][Typography.currentLanguage]
-            
-            
 
             Item {
                 anchors.fill: parent
                 anchors.margins: 10
 
-                // Icon-Only Minimalism Switching Row Bar
                 Row {
                     id: hubTabsRow
                     width: parent.width
@@ -467,7 +477,6 @@ Item {
                     }
                 }
 
-                // Dynamic Loader Port
                 Loader {
                     id: hubLoader
                     width: parent.width
@@ -478,7 +487,6 @@ Item {
                     sourceComponent: activeTab === 0 ? playbackTab : activeTab === 1 ? searchTab : queueTab
                 }
 
-                // Premium Connection Manager Widget
                 Rectangle {
                     id: deviceManagerWidget
                     width: parent.width
@@ -506,8 +514,93 @@ Item {
                             width: parent.width - 52 - 90 
                             spacing: 2
 
-                            Text { text: musicPageRoot.translations["source_device"][Typography.currentLanguage]; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.bodySmall }
-                            Text { text: "Pixel 8 Pro"; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.bold: true; elide: Text.ElideRight; width: parent.width }
+                            Text { text: musicPageRoot.translations["source_device"][Typography.currentLanguage]; color: Colors.textSecondary; font.family: Typography.family; font.pixelSize: Typography.bodySmall }
+                            Text { text: bluetoothManager.activeAudioDevice !== "" ? bluetoothManager.activeAudioDevice : "No Device"; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.bold: true; elide: Text.ElideRight; width: parent.width }
+                            Column {
+                                spacing: 2
+
+                                Row {
+                                    spacing: 6
+
+                                    Rectangle {
+                                        width: 6
+                                        height: 6
+                                        radius: 3
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        color: bluetoothManager.connected
+                                            ? Colors.accentEco
+                                            : Colors.warning
+                                    }
+
+                                    Text {
+                                        text: bluetoothManager.connected
+                                            ? "Connected"
+                                            : "Disconnected"
+
+                                        color: bluetoothManager.connected
+                                            ? Colors.accentEco
+                                            : Colors.warning
+
+                                        font.family: Typography.family
+                                        font.pixelSize: Typography.bodySmall
+                                    }
+                                }
+
+                                Text {
+                                    visible:
+                                        bluetoothManager.deviceName === bluetoothManager.activeAudioDevice
+
+                                    text: "🔊 Active Audio"
+
+                                    color: Colors.accentCity
+
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.bodySmall
+                                }
+                            }
+
+                            Row {
+                                spacing: 6
+
+                                Text {
+                                    text: "Battery"
+                                    color: Colors.textSecondary
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.bodySmall
+                                }
+
+                                Rectangle {
+                                    width: 60
+                                    height: 4
+                                    radius: 2
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    color: Colors.surfaceRaised
+
+                                    Rectangle {
+                                        width: parent.width * (bluetoothManager.battery / 100.0)
+                                        height: parent.height
+                                        radius: 2
+
+                                        color: bluetoothManager.battery > 60
+                                            ? Colors.accentCity
+                                            : bluetoothManager.battery > 20 
+                                            ? Colors.warning
+                                            : Colors.critical
+                                    }
+                                }
+
+                                Text {
+                                    text: bluetoothManager.battery >= 0
+                                        ? bluetoothManager.battery + "%"
+                                        : "--"
+
+                                    color: Colors.textSecondary
+                                    font.family: Typography.family
+                                    font.pixelSize: Typography.bodySmall
+                                }
+                            }
                         }
 
                         Rectangle {
@@ -516,7 +609,7 @@ Item {
                             color: swapMouse.pressed ? Colors.surfacePressed : Colors.surfaceRaised
                             border.width: 1; border.color: Colors.borderWarm
                             Text { anchors.centerIn: parent; text: musicPageRoot.translations["switch"][Typography.currentLanguage]; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.bold: true }
-                            MouseArea { id: swapMouse; anchors.fill: parent; onClicked: console.log("Device profile change overlay requested") }
+                            MouseArea { id: swapMouse; anchors.fill: parent; onClicked: { bluetoothManager.scanDevices(); musicPageRoot.showBluetoothPopup = true } }
                         }
                     }
                 }
@@ -525,7 +618,7 @@ Item {
     }
 
     // =====================================================
-    // ATTACHED EXTENSION MODULE COMPONENT TABS
+    // EXTENSION MODULE LAZY-COMPILER TABS
     // =====================================================
     Component {
         id: playbackTab
@@ -533,7 +626,6 @@ Item {
         Item {
             anchors.fill: parent
 
-            // 1. Top Section: Track & Playback Status Info
             Column {
                 id: topPlaybackDetails
                 width: parent.width
@@ -551,7 +643,6 @@ Item {
                 Rectangle { width: parent.width; height: 1; color: Colors.borderSubtle }
             }
 
-            // 2. Center Section: Volume Layout Grid
             Item {
                 id: centerPlaybackDetails
                 width: parent.width
@@ -560,7 +651,6 @@ Item {
                 anchors.topMargin: 4
                 anchors.bottomMargin: 4
 
-                // Left: Icon + Percentage Metrics Block
                 Row {
                     id: volumeIndicatorGroup
                     anchors.left: parent.left
@@ -582,7 +672,6 @@ Item {
                     }
                 }
 
-                // Center: Text-Driven Mute Action Button Box
                 Rectangle {
                     id: textMuteButton
                     width: 76
@@ -605,7 +694,6 @@ Item {
                     MouseArea { anchors.fill: parent; onClicked: musicPlayer.toggleMute() }
                 }
 
-                // Right: Premium Vertical Slider + Scale Indicators
                 Row {
                     id: trackSliderGroup
                     anchors.right: parent.right
@@ -654,13 +742,11 @@ Item {
                         }
                     }
 
-                    // Scale Ticks Indicators
                     Item {
                         width: 32
                         height: volumeSlider.height
                         anchors.verticalCenter: parent.verticalCenter
 
-                        // 100% Mark Node
                         Row {
                             anchors.top: parent.top
                             anchors.left: parent.left
@@ -669,7 +755,6 @@ Item {
                             Text { text: "100%"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: 9 }
                         }
 
-                        // 50% Mark Node
                         Row {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
@@ -678,7 +763,6 @@ Item {
                             Text { text: "50%"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: 9 }
                         }
 
-                        // 0% Mark Node
                         Row {
                             anchors.bottom: parent.bottom
                             anchors.left: parent.left
@@ -690,7 +774,6 @@ Item {
                 }
             }
 
-            // 3. Bottom Section: Shuffle & Repeat Properties Flag
             Column {
                 id: bottomPlaybackDetails
                 width: parent.width
@@ -751,7 +834,7 @@ Item {
             }
 
             readonly property var localResults: getFilteredLocalTracks()
-            readonly property bool showSpotifyFallback: mediaSourceTab === 0 && localSearchQuery !== "" && localResults.length === 0
+            readonly property bool showSpotifyFallback: musicPageRoot.mediaSourceTab === 0 && localSearchQuery !== "" && localResults.length === 0
 
             Row {
                 width: parent.width
@@ -760,14 +843,25 @@ Item {
                 TextField {
                     id: searchField
                     width: parent.width - 46
-                    placeholderText: mediaSourceTab === 0 ? musicPageRoot.translations["search_local"][Typography.currentLanguage] : musicPageRoot.translations["search_spotify"][Typography.currentLanguage]
+                    placeholderText: musicPageRoot.mediaSourceTab === 0 ? musicPageRoot.translations["search_local"][Typography.currentLanguage] : musicPageRoot.translations["search_spotify"][Typography.currentLanguage]
+                    focus: musicPageRoot.activeInputTarget === searchField && musicPageRoot.showKeyboard
+
                     onAccepted: {
                         if (text.length > 0) {
-                            if (mediaSourceTab === 1) {
+                            if (musicPageRoot.mediaSourceTab === 1) {
                                 spotifyApi.searchTracks(text)
                             } else {
                                 localSearchQuery = text
                             }
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            musicPageRoot.activeInputTarget = searchField;
+                            musicPageRoot.showKeyboard = true;
+                            searchField.forceActiveFocus();
                         }
                     }
                 }
@@ -785,7 +879,7 @@ Item {
                         id: searchMouse; anchors.fill: parent
                         onClicked: {
                             if (searchField.text.length > 0) {
-                                if (mediaSourceTab === 1) {
+                                if (musicPageRoot.mediaSourceTab === 1) {
                                     spotifyApi.searchTracks(searchField.text)
                                 } else {
                                     localSearchQuery = searchField.text
@@ -811,7 +905,7 @@ Item {
                 MouseArea {
                     id: fallbackMouse; anchors.fill: parent
                     onClicked: {
-                        mediaSourceTab = 1; 
+                        musicPageRoot.mediaSourceTab = 1; 
                         spotifyApi.searchTracks(searchField.text);
                     }
                 }
@@ -822,7 +916,7 @@ Item {
                 height: searchRoot.showSpotifyFallback ? 196 : 250
                 clip: true
                 visible: !searchRoot.showSpotifyFallback
-                model: mediaSourceTab === 0 ? searchRoot.localResults : spotifyApi.tracks
+                model: musicPageRoot.mediaSourceTab === 0 ? searchRoot.localResults : spotifyApi.tracks
 
                 delegate: Rectangle {
                     width: ListView.view.width; height: 64; radius: 6
@@ -834,14 +928,14 @@ Item {
 
                         Rectangle {
                             width: 48; height: 48; radius: 4; color: Colors.surfacePressed
-                            visible: mediaSourceTab === 0 || modelData.imageUrl === ""
+                            visible: musicPageRoot.mediaSourceTab === 0 || modelData.imageUrl === ""
                             Text { anchors.centerIn: parent; text: "♪"; color: Colors.textSecondary; font.pixelSize: 20 }
                         }
 
                         Image {
                             width: 48; height: 48; fillMode: Image.PreserveAspectFit
-                            source: mediaSourceTab === 1 ? modelData.imageUrl : ""
-                            visible: mediaSourceTab === 1 && modelData.imageUrl !== ""
+                            source: musicPageRoot.mediaSourceTab === 1 ? modelData.imageUrl : ""
+                            visible: musicPageRoot.mediaSourceTab === 1 && modelData.imageUrl !== ""
                         }
 
                         Column {
@@ -853,12 +947,30 @@ Item {
 
                     MouseArea {
                         anchors.fill: parent
+                        pressAndHoldInterval: 3000 
+                        preventStealing: true
+                        property bool gestureHandled: false
+
+                        onPressed: {
+                            gestureHandled = false
+                        }
+
                         onClicked: {
-                            searchRoot.selectedIndex = index
-                            if (mediaSourceTab === 1) {
-                                spotifyApi.selectTrack(index)
-                            } else {
-                                musicPlayer.playTrack(modelData.localIndex)
+                            if (!gestureHandled) {
+                                searchRoot.selectedIndex = index
+                                if (musicPageRoot.mediaSourceTab === 1) {
+                                    spotifyApi.selectTrack(index)
+                                } else {
+                                    musicPlayer.playTrack(modelData.localIndex)
+                                }
+                            }
+                        }
+
+                        onPressAndHold: {
+                            if (musicPageRoot.mediaSourceTab === 1) {
+                                gestureHandled = true
+                                console.log("HMI long press: adding track to Spotify queue -> " + modelData.title)
+                                spotifyApi.addToQueue(index) 
                             }
                         }
                     }
@@ -879,28 +991,305 @@ Item {
 
             ListView {
                 id: queueList; anchors.top: queueDivider.bottom; anchors.topMargin: 8; anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; clip: true; spacing: 4
-                model: musicPlayer.playlistTitles
+                model: musicPageRoot.mediaSourceTab === 0 ? musicPlayer.playlistTitles : (spotifyApi.queueTitles || [])
 
                 delegate: Rectangle {
-                    width: ListView.view.width; height: 56
-                    color: index === musicPlayer.currentTrackIndex - 1 ? Colors.surfacePressed : Colors.surfaceRaised
+                    width: queueList.width 
+                    height: 56
+                    
+                    readonly property bool isCurrentActive: musicPageRoot.mediaSourceTab === 0 
+                        ? (index === musicPlayer.currentTrackIndex - 1)
+                        : (index === spotifyApi.currentTrackIndex)
+
+                    color: isCurrentActive ? Colors.surfacePressed : Colors.surfaceRaised
                     border.width: 0.5; border.color: Colors.borderWarm
 
                     Row {
                         anchors.fill: parent; anchors.margins: 8; spacing: 10
                         Rectangle {
                             width: 32; height: 32; radius: 4; color: Colors.surfacePressed
-                            Text { anchors.centerIn: parent; text: index === musicPlayer.currentTrackIndex - 1 ? "▶" : "♪"; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyMedium }
+                            Text { anchors.centerIn: parent; text: isCurrentActive ? "▶" : "♪"; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyMedium }
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter; width: parent.width - 60; text: modelData; color: Colors.textPrimary; font.family: Typography.family
-                            font.pixelSize: index === musicPlayer.currentTrackIndex - 1 ? Typography.bodyMedium : Typography.bodySmall
-                            font.bold: index === musicPlayer.currentTrackIndex - 1; elide: Text.ElideRight
+                            font.pixelSize: isCurrentActive ? Typography.bodyMedium : Typography.bodySmall
+                            font.bold: isCurrentActive; elide: Text.ElideRight
                         }
                     }
-                    MouseArea { anchors.fill: parent; onClicked: musicPlayer.playTrack(index) }
+                    MouseArea { 
+                        anchors.fill: parent 
+                        onClicked: {
+                            if (musicPageRoot.mediaSourceTab === 0) {
+                                musicPlayer.playTrack(index)
+                            } else {
+                                spotifyApi.playQueueTrack(index)
+                            }
+                        }
+                    }
                 }
                 ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+            }
+        }
+    }
+
+    // =====================================================
+    // VIRTUAL KEYBOARD PANEL LAYOUT OVERLAY
+    // =====================================================
+    Rectangle {
+        id: keyboardOverlayPanel
+        width: parent.width
+        height: parent.height * 0.40 
+        y: musicPageRoot.showKeyboard ? (parent.height - height) : parent.height
+        Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutQuad } }
+        z: 100 
+        color: Colors.surfacePressed
+        border.width: 1
+        border.color: Colors.borderActive
+
+        MouseArea { anchors.fill: parent; propagateComposedEvents: false }
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 8
+
+            Row {
+                width: parent.width
+                height: 24
+                
+                Text {
+                    text: "Keyboard Entry Input Target Mode"
+                    color: Colors.textMuted
+                    font.family: Typography.family
+                    font.pixelSize: 12
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                
+                Rectangle {
+                    width: 70; height: 24; radius: 6; color: Colors.surfaceRaised
+                    anchors.right: parent.right
+                    border.width: 0.5; border.color: Colors.borderWarm
+                    Text { anchors.centerIn: parent; text: "Close ✕"; color: Colors.textPrimary; font.pixelSize: 11; font.bold: true }
+                    MouseArea { anchors.fill: parent; onClicked: musicPageRoot.showKeyboard = false }
+                }
+            }
+
+            Column {
+                width: parent.width
+                height: parent.height - 36
+                spacing: 6
+
+                readonly property var row1: ["Q","W","E","R","T","Y","U","I","O","P"]
+                readonly property var row2: ["A","S","D","F","G","H","J","K","L"]
+                readonly property var row3: ["Clear","Z","X","C","V","B","N","M","⌫"]
+                readonly property var row4: ["Space", "Search"]
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter; spacing: 6; width: parent.width
+                    Repeater {
+                        model: parent.parent.row1
+                        delegate: buttonDelegate
+                    }
+                }
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter; spacing: 6
+                    Repeater {
+                        model: parent.parent.row2
+                        delegate: buttonDelegate
+                    }
+                }
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter; spacing: 6
+                    Repeater {
+                        model: parent.parent.row3
+                        delegate: buttonDelegate
+                    }
+                }
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter; spacing: 6; width: parent.width * 0.8
+                    
+                    Rectangle {
+                        width: parent.width * 0.70; height: 42; radius: 6
+                        color: spaceM.pressed ? Colors.surfacePressed : Colors.surfaceRaised
+                        border.width: 1; border.color: Colors.borderWarm
+                        Text { anchors.centerIn: parent; text: "Space"; color: Colors.textPrimary; font.family: Typography.family }
+                        MouseArea { id: spaceM; anchors.fill: parent; onClicked: musicPageRoot.handleKeyboardInput("Space") }
+                    }
+                    Rectangle {
+                        width: parent.width * 0.30 - 6; height: 42; radius: 6
+                        color: searchM.pressed ? Colors.surfacePressed : Colors.borderActive
+                        border.width: 1; border.color: Colors.borderActive
+                        Text { anchors.centerIn: parent; text: "Search ↵"; color: searchM.pressed ? Colors.textPrimary : "#ffffff"; font.family: Typography.family; font.bold: true }
+                        MouseArea { id: searchM; anchors.fill: parent; onClicked: musicPageRoot.handleKeyboardInput("Search") }
+                    }
+                }
+            }
+        }
+
+        Component {
+            id: buttonDelegate
+            Rectangle {
+                width: (keyboardOverlayPanel.width - 80) / 10
+                height: 42
+                radius: 6
+                color: keyMouse.pressed ? Colors.surfacePressed : (modelData === "⌫" || modelData === "Clear" ? Colors.surfacePressed : Colors.surfaceRaised)
+                border.width: 0.5
+                border.color: Colors.borderWarm
+
+                Text {
+                    anchors.centerIn: parent
+                    text: modelData
+                    color: (modelData === "⌫" || modelData === "Clear") ? Colors.accentCity : Colors.textPrimary
+                    font.family: Typography.family
+                    font.pixelSize: 16
+                    font.bold: true
+                }
+
+                MouseArea {
+                    id: keyMouse
+                    anchors.fill: parent
+                    onClicked: musicPageRoot.handleKeyboardInput(modelData)
+                }
+            }
+        }
+    }
+    Rectangle {
+        visible: musicPageRoot.showBluetoothPopup
+
+        anchors.fill: parent
+
+        color: "#99000000"
+
+        z: 200
+
+        MouseArea {
+            anchors.fill: parent
+
+            onClicked:
+                musicPageRoot.showBluetoothPopup = false
+        }
+    }
+    BaseCard {
+        visible: musicPageRoot.showBluetoothPopup
+
+        z: 201
+
+        width: 500
+        height: 400
+
+        anchors.centerIn: parent
+
+        title: "Bluetooth Devices"
+
+        Item {
+            anchors.fill: parent
+            anchors.margins: 12
+
+            ListView {
+                anchors.fill: parent
+
+                model: bluetoothManager.availableDeviceNames
+
+                delegate: Rectangle {
+                    width: ListView.view.width
+                    height: 72
+
+                    radius: 10
+
+                    color: Colors.surfaceRaised
+
+                    border.width: 1
+                    border.color: Colors.borderWarm
+
+                    Rectangle {
+                        width: 40
+                        height: 40
+                        radius: 20
+
+                        anchors.left: parent.left
+                        anchors.leftMargin: 14
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        color: Colors.surfacePressed
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "🎧"
+                        }
+                    }
+
+                    Column {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 65
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        spacing: 4
+
+                        Text {
+                            text: modelData
+                            color: Colors.textPrimary
+                            font.pixelSize: 16
+                            font.family: Typography.family
+                            font.bold: true
+                        }
+
+                        Text {
+                            text:
+                                modelData === bluetoothManager.activeAudioDevice
+                                    ? "Connected • Active Audio"
+                                    : bluetoothManager.connectedDeviceNames.includes(modelData)
+                                        ? "Connected"
+                                        : "Available"
+
+                            color:
+                                modelData === bluetoothManager.activeAudioDevice
+                                    ? Colors.accentEco
+                                    : bluetoothManager.connectedDeviceNames.includes(modelData)
+                                        ? Colors.accentCity
+                                        : Colors.textSecondary
+
+                            font.pixelSize: 12
+                            font.family: Typography.family
+                        }
+                    }
+
+                    Rectangle {
+                        visible: modelData === bluetoothManager.deviceName
+
+                        width: 80
+                        height: 24
+
+                        radius: 12
+
+                        anchors.right: parent.right
+                        anchors.rightMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        color: Colors.accentEco
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Connected"
+                            font.pixelSize: 11
+                            color: "white"
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+
+                        onClicked: {
+                            if(modelData === bluetoothManager.deviceName)
+                            {
+                                bluetoothManager.disconnectDevice(index)
+                            }
+                            else
+                            {
+                                bluetoothManager.connectDevice(index)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

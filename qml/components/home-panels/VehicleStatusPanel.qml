@@ -134,8 +134,8 @@ BaseCard {
 
                         Image {
                             source: root.iconSetPath + (vehicleData.leftIndicator ? "left-indicator-on.png" : "left-indicator-off.png")
-                            width: 30 * Theme.scale
-                            height: 30 * Theme.scale
+                            width: 25 * Theme.scale
+                            height: 25 * Theme.scale
                             fillMode: Image.PreserveAspectFit
                             antialiasing: true
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -162,8 +162,8 @@ BaseCard {
 
                         Image {
                             source: root.iconSetPath + (vehicleData.highBeam ? "high-beam.png" : "low-beam.png")
-                            width: 30 * Theme.scale
-                            height: 30 * Theme.scale
+                            width: 32 * Theme.scale
+                            height: 32 * Theme.scale
                             fillMode: Image.PreserveAspectFit
                             antialiasing: true
                             opacity: vehicleData.headlights ? 1.0 : 0.3
@@ -191,8 +191,8 @@ BaseCard {
 
                         Image {
                             source: root.iconSetPath + (vehicleData.hazardLights ? "caution-lights-on.png" : "caution-lights-off.png")
-                            width: 30 * Theme.scale
-                            height: 30 * Theme.scale
+                            width: 32 * Theme.scale
+                            height: 32 * Theme.scale
                             fillMode: Image.PreserveAspectFit
                             antialiasing: true
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -219,8 +219,8 @@ BaseCard {
 
                         Image {
                             source: root.iconSetPath + (vehicleData.handbrakeEngaged ? "handbrake-light-on.png" : "handbrake-light-off.png")
-                            width: 30 * Theme.scale
-                            height: 30 * Theme.scale
+                            width: 32 * Theme.scale
+                            height: 32 * Theme.scale
                             fillMode: Image.PreserveAspectFit
                             antialiasing: true
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -247,8 +247,8 @@ BaseCard {
 
                         Image {
                             source: root.iconSetPath + (vehicleData.rightIndicator ? "right-indicator-on.png" : "right-indicator-off.png")
-                            width: 30 * Theme.scale
-                            height: 30 * Theme.scale
+                            width: 25 * Theme.scale
+                            height: 25 * Theme.scale
                             fillMode: Image.PreserveAspectFit
                             antialiasing: true
                             anchors.horizontalCenter: parent.horizontalCenter

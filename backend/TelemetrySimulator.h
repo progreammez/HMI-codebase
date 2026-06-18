@@ -15,6 +15,8 @@ struct SimulationState
     int rpm = 0;
     int speed = 0;
 
+    bool simulationActive = true;
+
     int batteryPercent = 100;
 
     int motorTemp = 35;

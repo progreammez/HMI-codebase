@@ -27,7 +27,8 @@ VehicleData::VehicleData(QObject *parent)
       m_motorOverTempWarning(false),
       m_batteryOverTempWarning(false),
       m_communicationFault(false),
-      m_warningMessage("")
+      m_warningMessage(""),
+      m_simulationActive(true)
 {
 }
 
@@ -159,6 +160,11 @@ bool VehicleData::lowRangeWarning() const
 QString VehicleData::warningMessage() const
 {
     return m_warningMessage;
+}
+
+bool VehicleData::simulationActive() const
+{
+    return m_simulationActive;
 }
 
 void VehicleData::setRpm(int rpm)
@@ -391,9 +397,7 @@ void VehicleData::setCommunicationFault(bool communicationFault)
     emit telemetryChanged();
 }
 
-void VehicleData::setLowRangeWarning(
-    bool lowRangeWarning
-)
+void VehicleData::setLowRangeWarning(bool lowRangeWarning)
 {
     if (m_lowRangeWarning == lowRangeWarning)
         return;
@@ -412,4 +416,13 @@ void VehicleData::setWarningMessage(const QString &warningMessage)
     m_warningMessage = warningMessage;
     emit warningMessageChanged();
     emit telemetryChanged();
+}
+
+void VehicleData::setSimulationActive(bool active)
+{
+    if (m_simulationActive == active)
+        return;
+
+    m_simulationActive = active;
+    emit simulationActiveChanged();
 }

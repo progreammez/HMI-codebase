@@ -129,25 +129,25 @@ Item {
         
         "active_label":       { "en": "Active",             "de": "Aktiv",                  "es": "Activo" },
         "resolved_label":     { "en": "Resolved",           "de": "Gelöst",                 "es": "Resuelto" },
-        "connection_lost":    { "en": "Connection Lost",    "de": "Verbindung verloren",    "es": "Conexión Perdida" },
+        "connection_lost":    { "en": "Connection Lost",    "de": "Verbindung unterbrochen","es": "Conexión Perdida" },
         "historical_label":   { "en": "Historical",         "de": "Historisch",             "es": "Histórico" },
         
         "metric_voltage":     { "en": "Battery Voltage",    "de": "Batteriespannung",       "es": "Voltaje de la Batería" },
         "metric_current":     { "en": "Battery Current",    "de": "Batteriestrom",          "es": "Corriente de la Batería" },
         "metric_power":       { "en": "Motor Power",        "de": "Motorleistung",          "es": "Potencia del Motor" },
-        "metric_regen":       { "en": "Regen Level",        "de": "Regenerationsstufe",     "es": "Nivel de Regen" },
+        "metric_regen":       { "en": "Regen Level",        "de": "Regenerationsstufe",     "es": "Nivel de lluvia" },
         
         "no_recent_faults":   { "en": "No Recent Faults",   "de": "Keine aktuellen Fehler", "es": "Sin Fallos Recientes" },
-        "stream_unavailable": { "en": "Telemetry stream unavailable", "de": "Telemetriestream nicht verfügbar", "es": "Transmisión de telemetría no disponible" },
-        "history_paused":     { "en": "History updates paused", "de": "Verlaufaktualisierungen pausiert", "es": "Actualizaciones de historial pausadas" },
-        "sys_normal":         { "en": "System operating normally", "de": "System funktioniert normal", "es": "El sistema funciona normalmente" },
+        "stream_unavailable": { "en": "Telemetry stream unavailable", "de": "Telemetriestream nicht verfügbar", "es": "Flujo de telemetría no disponible" },
+        "history_paused":     { "en": "History updates paused", "de": "Verlaufsaktualisierungen angehalten", "es": "Actualizaciones de historial pausadas" },
+        "sys_normal":         { "en": "System operating normally", "de": "System läuft normal", "es": "El sistema funciona con normalidad." },
         
         "badge_battery":      { "en": "Battery",            "de": "Batterie",               "es": "Batería" },
         "badge_powertrain":   { "en": "Powertrain",         "de": "Antriebsstrang",         "es": "Tren Motriz" },
-        "badge_thermal":      { "en": "Thermal",            "de": "Thermik",                "es": "Térmico" },
+        "badge_thermal":      { "en": "Thermal",            "de": "Thermisch",              "es": "Térmico" },
         "badge_communication":{ "en": "Communication",     "de": "Kommunikation",          "es": "Comunicación" },
-        "sub_range":          { "en": "Range",              "de": "Reichweite",             "es": "Autonomía" },
-        "sub_motor_power":    { "en": "Motor Power",        "de": "Motorleistung",          "es": "Potencia Motor" },
+        "sub_range":          { "en": "Range",              "de": "Reichweite",             "es": "Rango" },
+        "sub_motor_power":    { "en": "Motor Power",        "de": "Motorleistung",          "es": "Potencia del Motor" },
         "sub_max_temp":       { "en": "Max Temp",           "de": "Max. Temp.",             "es": "Temp Máx" }
     }
 
