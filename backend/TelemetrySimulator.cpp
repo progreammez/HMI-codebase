@@ -1,15 +1,9 @@
 #include "TelemetrySimulator.h"
 #include "VehicleData.h"
 
-TelemetrySimulator::TelemetrySimulator(VehicleData *vehicleData,
-                                       QObject *parent)
-    : QObject(parent),
-      m_vehicleData(vehicleData)
+TelemetrySimulator::TelemetrySimulator(VehicleData *vehicleData, QObject *parent) : QObject(parent), m_vehicleData(vehicleData)
 {
-    connect(&m_timer,
-            &QTimer::timeout,
-            this,
-            &TelemetrySimulator::generateFakeData);
+    connect(&m_timer, &QTimer::timeout, this, &TelemetrySimulator::generateFakeData);
 }
 
 void TelemetrySimulator::start()
@@ -54,7 +48,8 @@ void TelemetrySimulator::generateFakeData()
     }
     // Simulate temperature changes based on speed
     m_state.motorTemp = 35 + (m_state.speed / 4);
-    m_state.batteryTemp = 30 + (m_state.speed / 8);
+    m_state.batteryTemp = 50 + (m_state.speed / 8);
+    m_state.controllerTemp = 30 + (m_state.speed / 6);
 
     // Simulate motor power based on speed
     m_state.motorPower = m_state.speed * 0.8f;
@@ -76,6 +71,8 @@ void TelemetrySimulator::generateFakeData()
     // Simulate odometer and trip distance
     m_state.odometer += m_state.speed / 36000.0f;
     m_state.tripDistance += m_state.speed / 36000.0f;
+    m_state.tripA += m_state.speed / 36000.0f;
+    m_state.tripB += m_state.speed / 36000.0f;
 
     // Simulate indicator behavior
     static int indicatorCounter = 0;
@@ -102,6 +99,7 @@ void TelemetrySimulator::generateFakeData()
 
     m_vehicleData->setMotorTemp(m_state.motorTemp);
     m_vehicleData->setBatteryTemp(m_state.batteryTemp);
+    m_vehicleData->setControllerTemp(m_state.controllerTemp);
 
     m_vehicleData->setRangeKm(m_state.rangeKm);
 
@@ -113,4 +111,11 @@ void TelemetrySimulator::generateFakeData()
 
     m_vehicleData->setHeadlights(m_state.headlights);
 
+    m_vehicleData->setCommunicationFault(m_state.communicationFault);
+    m_vehicleData->setMotorPower(m_state.motorPower);
+    m_vehicleData->setRegenLevel(m_state.regenLevel);
+    m_vehicleData->setOdometer(m_state.odometer);
+    m_vehicleData->setTripDistance(m_state.tripDistance);
+    m_vehicleData->settripA(m_state.tripA);
+    m_vehicleData->settripB(m_state.tripB);
 }

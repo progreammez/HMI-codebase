@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QUrl>
 
 #include "backend/VehicleData.h"
 #include "backend/TelemetrySimulator.h"
@@ -10,6 +11,7 @@
 #include "backend/SerialManager.h"
 #include "backend/TelemetryLogger.h"
 #include "backend/SpotifyAPIManager.h"
+#include "backend/BluetoothManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -19,11 +21,20 @@ int main(int argc, char *argv[])
     LocalMusicPlayer musicPlayer;
     SerialManager serialManager;
     SpotifyApiManager spotifyApi;
+    BluetoothManager bluetoothManager;
 
     TelemetrySimulator simulator(&vehicleData);
     TelemetryLogger telemetryLogger(&vehicleData);
     WarningManager warningManager(&vehicleData, &telemetryLogger);
     TelemetryParser parser(&vehicleData);
+    if (!serialManager.connectPort("/dev/ttyACM0"))
+        {
+            qDebug() << "Failed to open STM serial port";
+        }
+    else
+        {
+            qDebug() << "STM serial port connected";
+        }
 
     // Low battery warning test
     // QTimer::singleShot(
@@ -101,23 +112,23 @@ int main(int argc, char *argv[])
         &WarningManager::evaluateWarnings
     );
 
-    // QObject::connect(
-    //     &serialManager,
-    //     &SerialManager::packetReceived,
-    //     &parser,
-    //     &TelemetryParser::parsePacket
-    // );
-
+    QObject::connect(
+        &serialManager,
+        &SerialManager::packetReceived,
+        &parser,
+        &TelemetryParser::parsePacket
+    );
+    
     QObject::connect(
         &serialManager,
         &SerialManager::packetReceived,
         [](const QString &packet)
         {
-            qDebug() << packet;
+            qDebug() << "STM:" << packet;
         }
     );
 
-    simulator.start();
+    //simulator.start();
     //musicPlayer.play();
 
     QQmlApplicationEngine engine;
@@ -135,6 +146,15 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(
         "spotifyApi",
         &spotifyApi);
+
+    engine.rootContext()->setContextProperty(
+        "telemetryLogger",
+        &telemetryLogger
+    );
+    engine.rootContext()->setContextProperty(
+        "bluetoothManager",
+        &bluetoothManager
+    );
     
     #if QT_VERSION >= QT_VERSION_CHECK(6,5,0)
         engine.loadFromModule("EvHmi", "Main");

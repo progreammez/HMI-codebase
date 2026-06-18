@@ -8,6 +8,8 @@
 #include <QFile>
 #include <QRegularExpression>
 #include <QVector>
+#include <QVariantList>
+#include <QVariantMap>
 
 struct LyricLine
 {
@@ -43,6 +45,7 @@ class LocalMusicPlayer : public QObject
 
     Q_PROPERTY(QString albumArtUrl READ albumArtUrl NOTIFY albumArtUrlChanged)
 
+    Q_PROPERTY(QStringList visibleLyrics READ visibleLyrics NOTIFY currentLyricChanged)
     Q_PROPERTY(QString previousLyric READ previousLyric NOTIFY currentLyricChanged)
     Q_PROPERTY(QString currentLyric READ currentLyric NOTIFY currentLyricChanged)
     Q_PROPERTY(QString nextLyric READ nextLyric NOTIFY currentLyricChanged)
@@ -101,8 +104,12 @@ public:
     QString nextLyric() const;
     QStringList lyricList() const;
     int currentLyricIndex() const;
+    QStringList visibleLyrics() const;
 
     QStringList playlistTitles() const;
+    
+    // Background Metadata Matrix Accessor
+    Q_INVOKABLE QVariantList getAvailableTracksMatrix() const;
 
 signals:
     void trackTitleChanged();
@@ -159,6 +166,17 @@ private:
     void updateCurrentLyric(qint64 position);
     QStringList m_lyricList;
     int m_currentLyricIndex = -1;
+
+    // Background Metadata Engine Storage Elements
+    struct TrackMetadataCache {
+        QString title;
+        QString artist;
+    };
+
+    QMediaPlayer *m_metaScannerPlayer = nullptr;
+    QVector<TrackMetadataCache> m_metadataCache;
+    QStringList m_scanQueue;
+    void startNextScan();
 };
 
-#endif
+#endif // LOCALMUSICPLAYER_H
