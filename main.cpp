@@ -12,6 +12,7 @@
 #include "backend/TelemetryLogger.h"
 #include "backend/SpotifyAPIManager.h"
 #include "backend/BluetoothManager.h"
+#include "backend/DummyBluetoothManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,7 +22,6 @@ int main(int argc, char *argv[])
     LocalMusicPlayer musicPlayer;
     SerialManager serialManager;
     SpotifyApiManager spotifyApi;
-    BluetoothManager bluetoothManager;
 
     TelemetrySimulator simulator(&vehicleData);
     TelemetryLogger telemetryLogger(&vehicleData);
@@ -35,60 +35,6 @@ int main(int argc, char *argv[])
         {
             qDebug() << "STM serial port connected";
         }
-
-    // Low battery warning test
-    // QTimer::singleShot(
-    //     5000,
-    //     [&]()
-    //     {
-    //         parser.parsePacket(
-    //             "SPD=75,"
-    //             "RPM=3200,"
-    //             "BAT=15,"
-    //             "RNG=160,"
-    //             "MT=45,"
-    //             "BT=35,"
-    //             "MODE=SPORT,"
-    //             "GEAR=D"
-    //         );
-    //     }
-    // );
-
-    // // High motor temp warning test
-    // QTimer::singleShot(
-    //     10000,
-    //     [&]()
-    //     {
-    //         parser.parsePacket(
-    //             "SPD=75,"
-    //             "RPM=3200,"
-    //             "BAT=88,"
-    //             "RNG=160,"
-    //             "MT=70,"
-    //             "BT=35,"
-    //             "MODE=SPORT,"
-    //             "GEAR=D"
-    //         );
-    //     }
-    // );
-
-    // // High battery temp warning test
-    // QTimer::singleShot(
-    //     15000,
-    //     [&]()
-    //     {
-    //         parser.parsePacket(
-    //             "SPD=75,"
-    //             "RPM=3200,"
-    //             "BAT=88,"
-    //             "RNG=160,"
-    //             "MT=45,"
-    //             "BT=70,"
-    //             "MODE=SPORT,"
-    //             "GEAR=D"
-    //         );
-    //     }
-    // );
 
     // CONNECTS GO HERE
     QObject::connect(
@@ -151,10 +97,26 @@ int main(int argc, char *argv[])
         "telemetryLogger",
         &telemetryLogger
     );
+
+    #ifdef __aarch64__
+
+    BluetoothManager bluetoothManager;
+
     engine.rootContext()->setContextProperty(
         "bluetoothManager",
         &bluetoothManager
     );
+
+    #else
+
+    DummyBluetoothManager bluetoothManager;
+
+    engine.rootContext()->setContextProperty(
+        "bluetoothManager",
+        &bluetoothManager
+    );
+
+    #endif
     
     #if QT_VERSION >= QT_VERSION_CHECK(6,5,0)
         engine.loadFromModule("EvHmi", "Main");

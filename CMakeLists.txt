@@ -21,6 +21,7 @@ qt_add_executable(EV_HMI
     backend/TelemetryLogger.cpp
     backend/SpotifyAPIManager.cpp
     backend/BluetoothManager.cpp
+    backend/DummyBluetoothManager.cpp
 )
 
 target_include_directories(EV_HMI PRIVATE
@@ -87,6 +88,7 @@ qt_add_resources(EV_HMI "assets"
 
     #Boot
         assets/Boot/Splash-screen.mp4
+        assets/Boot/RickRoll.mp4
     #Music
         assets/music/placeholder/default_cover.png
     #Dark Theme
@@ -206,11 +208,17 @@ qt_add_resources(EV_HMI "assets"
         assets/icons/Light/SettingsPage/about.png
 
     # Fonts
-        assets/fonts/Rajdhani-Regular.ttf
-        assets/fonts/Rajdhani-Medium.ttf
-        assets/fonts/Rajdhani-Bold.ttf
-        assets/fonts/Rajdhani-Light.ttf
-        assets/fonts/Rajdhani-SemiBold.ttf
+        assets/fonts/Rajdhani/Rajdhani-Regular.ttf
+        assets/fonts/Rajdhani/Rajdhani-Medium.ttf
+        assets/fonts/Rajdhani/Rajdhani-Bold.ttf
+        assets/fonts/Rajdhani/Rajdhani-Light.ttf
+        assets/fonts/Rajdhani/Rajdhani-SemiBold.ttf
+        assets/fonts/Orbitron/Orbitron-Black.ttf
+        assets/fonts/Orbitron/Orbitron-Bold.ttf
+        assets/fonts/Orbitron/Orbitron-ExtraBold.ttf
+        assets/fonts/Orbitron/Orbitron-Medium.ttf
+        assets/fonts/Orbitron/Orbitron-Regular.ttf
+        assets/fonts/Orbitron/Orbitron-SemiBold.ttf
 
 )
 

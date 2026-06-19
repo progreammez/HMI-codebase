@@ -8,6 +8,26 @@ QtObject {
     property string themeName: "NEON"      // Options: "NOIR", "SAKURA", "LILAC", "VERDANT", "NEON", "AURORA"
     property string dayNightMode: "night" // Options: "auto", "day", "night"
     
+    // --- Contrast --- 
+    property int contrastValue: 55
+    readonly property real contrastFactor: Math.max(0.0, Math.min(1.0, contrastValue / 100.0))
+    function darkContrast(r, g, b, strength) {
+        return Qt.rgba(
+            Math.min(1.0, r + contrastFactor * strength),
+            Math.min(1.0, g + contrastFactor * strength),
+            Math.min(1.0, b + contrastFactor * strength),
+            1
+        )
+    }
+
+    function lightContrast(r, g, b, strength) {
+        return Qt.rgba(
+            Math.max(0.0, r - contrastFactor * strength),
+            Math.max(0.0, g - contrastFactor * strength),
+            Math.max(0.0, b - contrastFactor * strength),
+            1
+        )
+    }
 
     // --- State Evaluators ---
     readonly property bool isLightMode: dayNightMode === "day"
@@ -98,13 +118,13 @@ QtObject {
     //  surfaceRaised: hover state, selected card, popover
     readonly property color surfaceRaised:
         isLightMode ? _lightSurfaceRaised :
-        isNoir      ? "#1A1D21" :
-        isSakura    ? "#2C1324" :
-        isLilac     ? "#1B1933" :
-        isNeon      ? "#152109" :   // one step up - still dark, restrained saturation
-        isVerdant   ? "#042317" :
-        isAurora    ? "#0B1E31" :
-                      "#0B1E31"
+        isNoir      ? darkContrast(0.10,0.11,0.13,0.12) :
+        isSakura    ? darkContrast(0.17,0.07,0.14,0.12) :
+        isLilac     ? darkContrast(0.11,0.10,0.20,0.12) :
+        isNeon      ? darkContrast(0.03,0.08,0.02,0.12) :
+        isVerdant   ? darkContrast(0.02,0.14,0.09,0.12) :
+        isAurora    ? darkContrast(0.04,0.12,0.19,0.12) :
+                    darkContrast(0.04,0.12,0.19,0.12)
 
     //  surfaceSunken: recessed inputs, troughs, map underlay
     readonly property color surfaceSunken:
@@ -120,13 +140,13 @@ QtObject {
     //  surfacePressed: active/held state, button depression
     readonly property color surfacePressed:
         isLightMode ? _lightSurfacePressed :
-        isNoir      ? "#2A2E33" :
-        isSakura    ? "#402236" :
-        isLilac     ? "#2C2948" :
-        isNeon      ? "#253317" :   // visible press-state, still controlled - not a neon flash
-        isVerdant   ? "#123626" :
-        isAurora    ? "#192F46" :
-                      "#192F46"
+        isNoir      ? darkContrast(0.16,0.18,0.20,0.15) :
+        isSakura    ? darkContrast(0.25,0.13,0.21,0.15) :
+        isLilac     ? darkContrast(0.17,0.16,0.28,0.15) :
+        isNeon      ? darkContrast(0.15,0.20,0.09,0.15) :
+        isVerdant   ? darkContrast(0.07,0.21,0.15,0.15) :
+        isAurora    ? darkContrast(0.10,0.18,0.27,0.15) :
+                    darkContrast(0.10,0.18,0.27,0.15)
 
     // -------------------------------------------------------------------------
     //  Borders
@@ -135,24 +155,24 @@ QtObject {
     //  borderSubtle: structural dividers, card edges, input outlines at rest
     readonly property color borderSubtle:
         isLightMode ? _lightBorderSubtle :
-        isNoir      ? "#1F2328" :   // cool-graphite hairline
-        isSakura    ? "#35172B" :   // dim rose-plum
-        isLilac     ? "#211E3D" :   // compressed violet
-        isNeon      ? "#1A280B" :   // dim structural hairline - present but quiet
-        isVerdant   ? "#022A1B" :   // dark patina
-        isAurora    ? "#0D243B" :   // deep navy line
-                      "#0D243B"
+        isNoir      ? darkContrast(0.12,0.14,0.16,0.25) :
+        isSakura    ? darkContrast(0.21,0.09,0.17,0.25) :
+        isLilac     ? darkContrast(0.13,0.12,0.24,0.25) :
+        isNeon      ? darkContrast(0.08,0.16,0.04,0.35) :
+        isVerdant   ? darkContrast(0.01,0.16,0.10,0.25) :
+        isAurora    ? darkContrast(0.05,0.14,0.23,0.25) :
+                    darkContrast(0.05,0.14,0.23,0.25)
 
     //  borderWarm: secondary interactive state, focused-but-not-active
     readonly property color borderWarm:
         isLightMode ? _lightBorderWarm :
-        isNoir      ? "#53595F" :   // steel-blue grey
-        isSakura    ? "#7F405D" :   // muted rose
-        isLilac     ? "#594B91" :   // muted violet
-        isNeon      ? "#3E6500" :   // structural mid-green
-        isVerdant   ? "#6F5303" :   // muted brass
-        isAurora    ? "#00665F" :   // muted aurora-teal
-                      "#00665F"
+        isNoir      ? darkContrast(0.32,0.35,0.37,0.25) :
+        isSakura    ? darkContrast(0.50,0.25,0.36,0.25) :
+        isLilac     ? darkContrast(0.35,0.29,0.57,0.25) :
+        isNeon      ? darkContrast(0.20,0.35,0.00,0.45) :
+        isVerdant   ? darkContrast(0.44,0.33,0.01,0.25) :
+        isAurora    ? darkContrast(0.00,0.40,0.37,0.25) :
+                    darkContrast(0.00,0.40,0.37,0.25)
 
     //  borderActive: selection ring, slider fill, active toggle - always vivid.
     //  NOTE: also used as the top GradientStop in AppShell.qml's full-window
@@ -200,24 +220,24 @@ QtObject {
     //  textSecondary: descriptions, secondary values, sub-labels (>=9:1 on bgPrimary)
     readonly property color textSecondary:
         isLightMode ? _lightTextSecondary :
-        isNoir      ? "#ABB2B9" :   // steel grey
-        isSakura    ? "#D1A0BF" :   // muted blush
-        isLilac     ? "#ADABDD" :   // muted amethyst
-        isNeon      ? "#A3BA8F" :   // desaturated sage-grey - legible, not glowing
-        isVerdant   ? "#8BBFA5" :   // muted patina
-        isAurora    ? "#92B5D9" :   // muted aurora-teal
-                      "#92B5D9"
+        isNoir      ? darkContrast(0.67,0.70,0.73,0.18) :
+        isSakura    ? darkContrast(0.82,0.63,0.75,0.18) :
+        isLilac     ? darkContrast(0.68,0.67,0.87,0.18) :
+        isNeon      ? darkContrast(0.55,0.62,0.50,0.25) :
+        isVerdant   ? darkContrast(0.55,0.75,0.65,0.18) :
+        isAurora    ? darkContrast(0.57,0.71,0.85,0.18) :
+                    darkContrast(0.57,0.71,0.85,0.18)
 
     //  textMuted: placeholder text, disabled states, tertiary labels (~3.7:1, intentionally low)
     readonly property color textMuted:
         isLightMode ? _lightTextMuted :
-        isNoir      ? "#636A71" :
-        isSakura    ? "#895678" :
-        isLilac     ? "#656296" :
-        isNeon      ? "#5A7243" :   // low-contrast - genuinely receded
-        isVerdant   ? "#3C775C" :
-        isAurora    ? "#466C93" :
-                      "#466C93"
+        isNoir      ? darkContrast(0.39,0.42,0.44,0.25) :
+        isSakura    ? darkContrast(0.54,0.34,0.47,0.25) :
+        isLilac     ? darkContrast(0.40,0.38,0.59,0.25) :
+        isNeon      ? darkContrast(0.22,0.30,0.18,0.35) :
+        isVerdant   ? darkContrast(0.24,0.47,0.36,0.25) :
+        isAurora    ? darkContrast(0.27,0.42,0.58,0.25) :
+                    darkContrast(0.27,0.42,0.58,0.25)
 
     //  textWarm: active labels, selected option text, accent callouts
     readonly property color textWarm:
@@ -351,13 +371,13 @@ QtObject {
     readonly property color _lightSurfaceBase: "#FFFFFF"
 
     readonly property color _lightSurfaceRaised:
-        isNoir      ? "#F9FAFB" :
-        isSakura    ? "#FFF8FC" :
-        isLilac     ? "#F9F9FF" :
-        isNeon      ? "#F8FCF5" :
-        isVerdant   ? "#F4FCF8" :
-        isAurora    ? "#F6FBFF" :
-                      "#F6FBFF"
+        isNoir      ? lightContrast(0.98,0.98,0.99,0.10) :
+        isSakura    ? lightContrast(1.00,0.97,0.99,0.10) :
+        isLilac     ? lightContrast(0.98,0.98,1.00,0.10) :
+        isNeon      ? lightContrast(0.97,0.99,0.96,0.12) :
+        isVerdant   ? lightContrast(0.96,0.99,0.97,0.10) :
+        isAurora    ? lightContrast(0.96,0.98,1.00,0.10) :
+                    lightContrast(0.96,0.98,1.00,0.10)
 
     readonly property color _lightSurfaceSunken:
         isNoir      ? "#D7DBE0" :
@@ -369,35 +389,35 @@ QtObject {
                       "#C6DEF6"
 
     readonly property color _lightSurfacePressed:
-        isNoir      ? "#BFC5CB" :
-        isSakura    ? "#E0B5D1" :
-        isLilac     ? "#C0BFEA" :
-        isNeon      ? "#B8CCA7" :
-        isVerdant   ? "#A5D0BA" :
-        isAurora    ? "#AAC8E7" :
-                      "#AAC8E7"
+        isNoir      ? lightContrast(0.75,0.77,0.80,0.15) :
+        isSakura    ? lightContrast(0.88,0.71,0.82,0.15) :
+        isLilac     ? lightContrast(0.75,0.75,0.92,0.15) :
+        isNeon      ? lightContrast(0.72,0.80,0.65,0.15) :
+        isVerdant   ? lightContrast(0.65,0.82,0.73,0.15) :
+        isAurora    ? lightContrast(0.67,0.78,0.91,0.15) :
+                    lightContrast(0.67,0.78,0.91,0.15)
 
     // -------------------------------------------------------------------------
     //  Borders - light
     // -------------------------------------------------------------------------
 
     readonly property color _lightBorderSubtle:
-        isNoir      ? "#C9CED4" :
-        isSakura    ? "#E6C1D9" :
-        isLilac     ? "#CAC9EF" :
-        isNeon      ? "#C3D5B5" :
-        isVerdant   ? "#B3D8C5" :
-        isAurora    ? "#B7D1EC" :
-                      "#B7D1EC"
+        isNoir      ? lightContrast(0.79,0.81,0.83,0.25) :
+        isSakura    ? lightContrast(0.90,0.76,0.85,0.25) :
+        isLilac     ? lightContrast(0.79,0.79,0.94,0.25) :
+        isNeon      ? lightContrast(0.76,0.84,0.71,0.35) :
+        isVerdant   ? lightContrast(0.70,0.85,0.77,0.25) :
+        isAurora    ? lightContrast(0.72,0.82,0.93,0.25) :
+                    lightContrast(0.72,0.82,0.93,0.25)
 
     readonly property color _lightBorderWarm:
-        isNoir      ? "#636A71" :
-        isSakura    ? "#974C6F" :
-        isLilac     ? "#6A59AD" :
-        isNeon      ? "#4A7800" :
-        isVerdant   ? "#846300" :
-        isAurora    ? "#007972" :
-                      "#007972"
+        isNoir      ? lightContrast(0.39,0.42,0.44,0.20) :
+        isSakura    ? lightContrast(0.59,0.30,0.44,0.20) :
+        isLilac     ? lightContrast(0.41,0.35,0.68,0.20) :
+        isNeon      ? lightContrast(0.29,0.47,0.00,0.25) :
+        isVerdant   ? lightContrast(0.52,0.39,0.00,0.20) :
+        isAurora    ? lightContrast(0.00,0.47,0.45,0.20) :
+                    lightContrast(0.00,0.47,0.45,0.20)
 
     // -------------------------------------------------------------------------
     //  Typography - light
@@ -413,22 +433,22 @@ QtObject {
                       "#001125"
 
     readonly property color _lightTextSecondary:
-        isNoir      ? "#3A4148" :
-        isSakura    ? "#5D2B4E" :
-        isLilac     ? "#3D376C" :
-        isNeon      ? "#304816" :
-        isVerdant   ? "#004C33" :
-        isAurora    ? "#1A4268" :
-                      "#1A4268"
+        isNoir      ? lightContrast(0.23,0.25,0.28,0.15) :
+        isSakura    ? lightContrast(0.36,0.17,0.31,0.15) :
+        isLilac     ? lightContrast(0.24,0.22,0.42,0.15) :
+        isNeon      ? lightContrast(0.19,0.28,0.09,0.20) :
+        isVerdant   ? lightContrast(0.00,0.30,0.20,0.15) :
+        isAurora    ? lightContrast(0.10,0.26,0.41,0.15) :
+                    lightContrast(0.10,0.26,0.41,0.15)
 
     readonly property color _lightTextMuted:
-        isNoir      ? "#5F6469" :
-        isSakura    ? "#874F68" :
-        isLilac     ? "#645897" :
-        isNeon      ? "#497114" :
-        isVerdant   ? "#786025" :
-        isAurora    ? "#1F716B" :
-                      "#1F716B"
+        isNoir      ? lightContrast(0.37,0.39,0.41,0.20) :
+        isSakura    ? lightContrast(0.53,0.31,0.41,0.20) :
+        isLilac     ? lightContrast(0.39,0.35,0.59,0.20) :
+        isNeon      ? lightContrast(0.29,0.44,0.08,0.25) :
+        isVerdant   ? lightContrast(0.47,0.38,0.15,0.20) :
+        isAurora    ? lightContrast(0.12,0.44,0.42,0.20) :
+                    lightContrast(0.12,0.44,0.42,0.20)
 
     readonly property color _lightTextWarm:
         isNoir      ? "#464E56" :

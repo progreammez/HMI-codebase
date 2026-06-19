@@ -263,12 +263,22 @@ Item {
     // =====================================================
     Rectangle {
         id: warningBanner
-        anchors.left: parent.left; anchors.right: parent.right; anchors.top: topBar.bottom
-        anchors.leftMargin: Theme.pageMargin; anchors.rightMargin: Theme.pageMargin
-        height: Math.round(40 * Theme.scale); radius: Theme.controlRadius
-        color: vehicleData.communicationFault ? Qt.rgba(Colors.critical.r, Colors.critical.g, Colors.critical.b, 0.16) : vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? Qt.rgba(Colors.critical.r, Colors.critical.g, Colors.critical.b, 0.16) : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Qt.rgba(Colors.warning.r, Colors.warning.g, Colors.warning.b, 0.16) : Qt.rgba(Colors.accentCity.r, Colors.accentCity.g, Colors.accentCity.b, 0.11)
-        border.color: vehicleData.communicationFault ? Colors.critical : vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? Colors.critical : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Colors.warning : Colors.borderSubtle
-        border.width: 1
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: topBar.bottom
+        anchors.leftMargin: Theme.pageMargin
+        anchors.rightMargin: Theme.pageMargin
+        height: Math.round(40 * Theme.scale)
+        radius: Theme.controlRadius
+        color: vehicleData.communicationFault ? Qt.rgba(Colors.critical.r, Colors.critical.g, Colors.critical.b, 0.16)
+            : vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning
+            ? Qt.rgba(Colors.critical.r, Colors.critical.g, Colors.critical.b, 0.16)
+            : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Qt.rgba(Colors.warning.r, Colors.warning.g, Colors.warning.b, 0.16) : Qt.rgba(Colors.accentCity.r, Colors.accentCity.g, Colors.accentCity.b, 0.11)
+        border.color: vehicleData.communicationFault ? Colors.critical
+            : vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning
+            ? Colors.critical
+            : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Colors.warning : Colors.borderSubtle
+        border.width: 2
 
         Row {
             anchors.fill: parent; anchors.leftMargin: Math.round(14 * Theme.scale); anchors.rightMargin: Math.round(14 * Theme.scale)
