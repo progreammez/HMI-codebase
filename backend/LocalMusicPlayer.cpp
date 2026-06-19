@@ -19,7 +19,7 @@ LocalMusicPlayer::LocalMusicPlayer(QObject *parent)
     m_volume = 50;
     m_audioOutput->setVolume(0.5);
 
-    QDir musicDir("/home/notbigboi/EV_HMI/assets/music/");
+    QDir musicDir("/home/newburner/Test07/assets/music/");
 
     QStringList filters;
     filters << "*.mp3";
@@ -112,7 +112,7 @@ void LocalMusicPlayer::startNextScan()
     if (m_scanQueue.isEmpty()) return;
 
     QString nextTrackFile = m_scanQueue.first();
-    QString fullPath = "/home/notbigboi/EV_HMI/assets/music/" + nextTrackFile;
+    QString fullPath = "/home/newburner/Test07/assets/music/" + nextTrackFile;
     
     m_metaScannerPlayer->setSource(QUrl::fromLocalFile(fullPath));
     m_metaScannerPlayer->pause(); // Pre-rolls headers cleanly without playing noise
@@ -138,8 +138,8 @@ void LocalMusicPlayer::loadTrack(int index)
 
     m_currentIndex = index;
 
-    QString songPath = "/home/notbigboi/EV_HMI/assets/music/" + m_playlist[index];
-    QString coverPath = "/home/notbigboi/EV_HMI/assets/albumcovers/" + QFileInfo(songPath).baseName() + ".png";
+    QString songPath = "/home/newburner/Test07/assets/music/" + m_playlist[index];
+    QString coverPath = "/home/newburner/Test07/assets/albumcovers/" + QFileInfo(songPath).baseName() + ".png";
 
     if (QFile::exists(coverPath)) {
         m_albumArtUrl = QUrl::fromLocalFile(coverPath).toString();
