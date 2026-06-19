@@ -33,6 +33,13 @@ WarningManager::WarningManager(VehicleData *vehicleData, TelemetryLogger *logger
         &WarningManager::evaluateWarnings
     );
 
+    connect(
+        m_vehicleData,
+        &VehicleData::communicationFaultChanged,
+        this,
+        &WarningManager::evaluateWarnings
+    );
+
     evaluateWarnings();
 }
 
@@ -49,11 +56,11 @@ void WarningManager::evaluateWarnings()
         if (m_vehicleData->batteryTemp() > 60)
         {
             m_vehicleData->setBatteryOverTempWarning(true);
-            QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
-            m_vehicleData->setWarningTimestamp(timestamp);
             
             if (!m_batteryTempLogged)
             {
+                QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
+                m_vehicleData->setWarningTimestamp(timestamp);
                 m_batteryTempLogged = true;
                 m_logger->logWarning("Battery Temperature High");
                 m_vehicleData->setHistoricalWarnings(m_vehicleData->historicalWarnings() + 1);
@@ -61,8 +68,7 @@ void WarningManager::evaluateWarnings()
             hasWarning = true;
         }
         else 
-        {
-            // Temperature went back down! Reset the tracking flag
+        {   
             m_batteryTempLogged = false;
         }
 
@@ -70,11 +76,11 @@ void WarningManager::evaluateWarnings()
         if (m_vehicleData->motorTemp() > 55)
         {
             m_vehicleData->setMotorOverTempWarning(true);
-            QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
-            m_vehicleData->setWarningTimestamp(timestamp);
             
             if (!m_motorTempLogged)
-            {
+            {   
+                QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
+                m_vehicleData->setWarningTimestamp(timestamp);
                 m_motorTempLogged = true;
                 m_logger->logWarning("Motor Temperature High");
                 m_vehicleData->setHistoricalWarnings(m_vehicleData->historicalWarnings() + 1);
@@ -91,11 +97,11 @@ void WarningManager::evaluateWarnings()
         if (m_vehicleData->batteryPercent() < 20)
         {
             m_vehicleData->setLowBatteryWarning(true);
-            QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
-            m_vehicleData->setWarningTimestamp(timestamp);
             
             if (!m_lowBatteryLogged)
-            {
+            {   
+                QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
+                m_vehicleData->setWarningTimestamp(timestamp);
                 m_lowBatteryLogged = true;
                 m_logger->logWarning("Low Battery");
                 m_vehicleData->setHistoricalWarnings(m_vehicleData->historicalWarnings() + 1);
@@ -112,11 +118,11 @@ void WarningManager::evaluateWarnings()
         if (m_vehicleData->rangeKm() < 20)
         {
             m_vehicleData->setLowRangeWarning(true);
-            QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
-            m_vehicleData->setWarningTimestamp(timestamp);
             
             if (!m_lowRangeLogged)
             {
+                QString timestamp = QDateTime::currentDateTime().toString("dd-MMM-yyyy hh:mm:ss");
+                m_vehicleData->setWarningTimestamp(timestamp);
                 m_lowRangeLogged = true;
                 m_logger->logWarning("Low Range");
                 m_vehicleData->setHistoricalWarnings(m_vehicleData->historicalWarnings() + 1);

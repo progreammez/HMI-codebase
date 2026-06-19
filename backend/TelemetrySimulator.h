@@ -15,10 +15,13 @@ struct SimulationState
     int rpm = 0;
     int speed = 0;
 
+    bool simulationActive = true;
+
     int batteryPercent = 100;
 
     int motorTemp = 35;
-    int batteryTemp = 30;
+    int batteryTemp = 60;
+    int controllerTemp = 30;
 
     int rangeKm = 180;
 
@@ -39,6 +42,8 @@ struct SimulationState
     
     float odometer = 0.0f;
     float tripDistance = 0.0f;
+    float tripA = 0.0f;
+    float tripB = 0.0f;
     
     bool lowBatteryWarning = false;
     bool motorOverTempWarning = false;
@@ -52,8 +57,7 @@ class TelemetrySimulator : public QObject, public IDataSource
     Q_OBJECT
 
 public:
-    explicit TelemetrySimulator(VehicleData *vehicleData,
-                                QObject *parent = nullptr);
+    explicit TelemetrySimulator(VehicleData *vehicleData, QObject *parent = nullptr);
 
     void start() override;
 

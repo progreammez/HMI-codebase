@@ -20,6 +20,8 @@ qt_add_executable(EV_HMI
     backend/SerialManager.cpp
     backend/TelemetryLogger.cpp
     backend/SpotifyAPIManager.cpp
+    backend/BluetoothManager.cpp
+    backend/DummyBluetoothManager.cpp
 )
 
 target_include_directories(EV_HMI PRIVATE
@@ -48,11 +50,30 @@ qt_add_qml_module(EV_HMI
         qml/components/MetricTile.qml
         qml/components/ModeButton.qml
         qml/components/BatteryGraphic.qml
+        qml/components/PowertrainIcon.qml
+        qml/components/ThermalIcon.qml
+
+
+        qml/components/home-panels/DistancePanel.qml
+        qml/components/home-panels/SpeedometerPanel120.qml
+        qml/components/home-panels/SpeedometerPanel200.qml
+        qml/components/home-panels/DriveModePanel.qml
+        qml/components/home-panels/VehicleStatusPanel.qml
+        qml/components/home-panels/SystemStatusPanel.qml
+        qml/components/home-panels/BatteryPanel.qml
 
         qml/pages/HomePage.qml
         qml/pages/MusicPage.qml
         qml/pages/SettingsPage.qml
         qml/pages/DiagnosticsPage.qml
+
+        qml/pages/engineer/OverviewPage.qml
+        qml/pages/engineer/TelemetryPage.qml
+        qml/pages/engineer/ThermalPage.qml
+        qml/pages/engineer/PowertrainPage.qml
+        qml/pages/engineer/CommsPage.qml
+        qml/pages/engineer/FaultsPage.qml
+    
 
         qml/themes/Colors.qml
         qml/themes/Typography.qml
@@ -64,6 +85,11 @@ qt_add_resources(EV_HMI "assets"
     PREFIX "/"
 
     FILES
+
+    #Boot
+        assets/Boot/Splash-screen.mp4
+        assets/Boot/RickRoll.mp4
+    #Music
         assets/music/placeholder/default_cover.png
     #Dark Theme
         #Universal
@@ -71,6 +97,22 @@ qt_add_resources(EV_HMI "assets"
         assets/icons/Dark/Universal/music-main.png
         assets/icons/Dark/Universal/diagnostics-main.png
         assets/icons/Dark/Universal/settings-main.png
+
+        #Home Page
+        assets/icons/Dark/HomePage/battery.png
+        assets/icons/Dark/HomePage/batterytemp.png
+        assets/icons/Dark/HomePage/caution-lights-off.png
+        assets/icons/Dark/HomePage/caution-lights-on.png
+        assets/icons/Dark/HomePage/handbrake-light-off.png
+        assets/icons/Dark/HomePage/handbrake-light-on.png
+        assets/icons/Dark/HomePage/high-beam.png
+        assets/icons/Dark/HomePage/low-beam.png
+        assets/icons/Dark/HomePage/left-indicator-off.png
+        assets/icons/Dark/HomePage/left-indicator-on.png
+        assets/icons/Dark/HomePage/range.png
+        assets/icons/Dark/HomePage/right-indicator-off.png
+        assets/icons/Dark/HomePage/right-indicator-on.png
+        assets/icons/Dark/HomePage/speedometer.png
 
         #Music Page
         assets/icons/Dark/MusicPage/play.png
@@ -81,6 +123,10 @@ qt_add_resources(EV_HMI "assets"
         assets/icons/Dark/MusicPage/repeat.png 
         assets/icons/Dark/MusicPage/volume-loud.png
         assets/icons/Dark/MusicPage/volume-mute.png
+        assets/icons/Dark/MusicPage/search.png
+        assets/icons/Dark/MusicPage/queue.png
+        assets/icons/Dark/MusicPage/lyrics.png
+        assets/icons/Dark/MusicPage/playback.png
 
         #Settings Page
         assets/icons/Dark/SettingsPage/Tabs/display-tab.png
@@ -110,6 +156,22 @@ qt_add_resources(EV_HMI "assets"
         assets/icons/Light/Universal/diagnostics-main.png
         assets/icons/Light/Universal/settings-main.png
 
+        #Home Page
+        assets/icons/Light/HomePage/battery.png
+        assets/icons/Light/HomePage/batterytemp.png
+        assets/icons/Light/HomePage/caution-lights-off.png
+        assets/icons/Light/HomePage/caution-lights-on.png
+        assets/icons/Light/HomePage/handbrake-light-off.png
+        assets/icons/Light/HomePage/handbrake-light-on.png
+        assets/icons/Light/HomePage/high-beam.png
+        assets/icons/Light/HomePage/low-beam.png
+        assets/icons/Light/HomePage/left-indicator-off.png
+        assets/icons/Light/HomePage/left-indicator-on.png
+        assets/icons/Light/HomePage/range.png
+        assets/icons/Light/HomePage/right-indicator-off.png
+        assets/icons/Light/HomePage/right-indicator-on.png
+        assets/icons/Light/HomePage/speedometer.png
+        
         #Music Page
         assets/icons/Light/MusicPage/play.png
         assets/icons/Light/MusicPage/pause.png
@@ -119,6 +181,10 @@ qt_add_resources(EV_HMI "assets"
         assets/icons/Light/MusicPage/repeat.png 
         assets/icons/Light/MusicPage/volume-loud.png
         assets/icons/Light/MusicPage/volume-mute.png
+        assets/icons/Light/MusicPage/search.png
+        assets/icons/Light/MusicPage/queue.png
+        assets/icons/Light/MusicPage/lyrics.png
+        assets/icons/Light/MusicPage/playback.png
 
         #Settings Page
         assets/icons/Light/SettingsPage/Tabs/display-tab.png
@@ -142,11 +208,17 @@ qt_add_resources(EV_HMI "assets"
         assets/icons/Light/SettingsPage/about.png
 
     # Fonts
-        assets/fonts/Rajdhani-Regular.ttf
-        assets/fonts/Rajdhani-Medium.ttf
-        assets/fonts/Rajdhani-Bold.ttf
-        assets/fonts/Rajdhani-Light.ttf
-        assets/fonts/Rajdhani-SemiBold.ttf
+        assets/fonts/Rajdhani/Rajdhani-Regular.ttf
+        assets/fonts/Rajdhani/Rajdhani-Medium.ttf
+        assets/fonts/Rajdhani/Rajdhani-Bold.ttf
+        assets/fonts/Rajdhani/Rajdhani-Light.ttf
+        assets/fonts/Rajdhani/Rajdhani-SemiBold.ttf
+        assets/fonts/Orbitron/Orbitron-Black.ttf
+        assets/fonts/Orbitron/Orbitron-Bold.ttf
+        assets/fonts/Orbitron/Orbitron-ExtraBold.ttf
+        assets/fonts/Orbitron/Orbitron-Medium.ttf
+        assets/fonts/Orbitron/Orbitron-Regular.ttf
+        assets/fonts/Orbitron/Orbitron-SemiBold.ttf
 
 )
 
