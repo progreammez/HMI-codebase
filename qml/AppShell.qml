@@ -14,8 +14,127 @@ Item {
     property string globalFont: "Rajdhani"
     property string globalUnits: "metric"
 
+    // GLOBAL HISTORY CACHE FOR POWERTRAIN GRAPHS
+    property var persistentVoltHistory: []
+    property var persistentCurrentHistory: []
+    property var persistentPowerHistory: []
+    readonly property int maxPowertrainPoints: 30
+
+    // GLOBAL HISTORY CACHE FOR THERMAL GRAPHS
+    property var persistentMotorHistory: []
+    property var persistentBatteryHistory: []
+    property var persistentControllerHistory: []
+    readonly property int maxThermalPoints: 60
+
     // Automatically safeguard bounds when toggling between standard (4) and engineer (7) arrays
     onIsEngineerModeChanged: root.currentPageIndex = 0
+
+    // =====================================================
+    // BACKGROUND TELEMETRY SAMPLER (Runs continuously)
+    // =====================================================
+    Timer {
+        id: bgTelemetrySampler
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: {
+            // --- 1. POWERTRAIN SAMPLING CELL ---
+            var vList = root.persistentVoltHistory.slice()
+            var cList = root.persistentCurrentHistory.slice()
+            var pList = root.persistentPowerHistory.slice()
+
+            vList.push(72.4 + (Math.random() * 0.6 - 0.3)) 
+            cList.push(18.2 + (Math.random() * 4.0 - 2.0)) 
+            pList.push(vehicleData.motorPower)
+
+            if (vList.length > root.maxPowertrainPoints) vList.shift()
+            if (cList.length > root.maxPowertrainPoints) cList.shift()
+            if (pList.length > root.maxPowertrainPoints) pList.shift()
+
+            root.persistentVoltHistory = vList
+            root.persistentCurrentHistory = cList
+            root.persistentPowerHistory = pList
+
+            // --- 2. THERMAL SAMPLING CELL ---
+            var mList = root.persistentMotorHistory.slice()
+            var bList = root.persistentBatteryHistory.slice()
+            var cList = root.persistentControllerHistory.slice()
+
+            mList.push(vehicleData.motorTemp)
+            bList.push(vehicleData.batteryTemp)
+            cList.push(vehicleData.controllerTemp)
+
+            if (mList.length > root.maxThermalPoints) mList.shift()
+            if (bList.length > root.maxThermalPoints) bList.shift()
+            if (cList.length > root.maxThermalPoints) cList.shift()
+
+            root.persistentMotorHistory = mList
+            root.persistentBatteryHistory = bList
+            root.persistentControllerHistory = cList
+        }
+    }
+
+    // CSV File Reader Parser Engine running once at Root Level
+    function loadThermalLogFile() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "file:///home/newburner/Test07/build/logs/telemetry.csv");
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    var text = xhr.responseText;
+                    var lines = text.split("\n");
+                    
+                    var mTmpBuffer = [];
+                    var bTmpBuffer = [];
+                    var cTmpBuffer = [];
+
+                    var startLine = Math.max(1, lines.length - root.maxThermalPoints - 1);
+                    
+                    for (var i = startLine; i < lines.length; i++) {
+                        if (lines[i].trim() === "") continue;
+                        var tokens = lines[i].split(",");
+                        
+                        if (tokens.length > 6) {
+                            var mValue = parseFloat(tokens[5]); 
+                            var bValue = parseFloat(tokens[6]); 
+                            
+                            mTmpBuffer.push(mValue);
+                            bTmpBuffer.push(bValue);
+                            cTmpBuffer.push(Math.round((mValue + bValue) / 2) - 5);
+                        }
+                    }
+
+                    root.persistentMotorHistory = mTmpBuffer;
+                    root.persistentBatteryHistory = bTmpBuffer;
+                    root.persistentControllerHistory = cTmpBuffer;
+                }
+            }
+        }
+        xhr.send();
+    }
+
+    Component.onCompleted: {
+        // Run initial structural pre-fill with current live hardware registers
+        var currentM = vehicleData.motorTemp;
+        var currentB = vehicleData.batteryTemp;
+        var currentC = vehicleData.controllerTemp;
+        
+        var mBuf = [];
+        var bBuf = [];
+        var cBuf = [];
+        for (var i = 0; i < root.maxThermalPoints; i++) {
+            mBuf.push(currentM);
+            bBuf.push(currentB);
+            cBuf.push(currentC);
+        }
+        root.persistentMotorHistory = mBuf;
+        root.persistentBatteryHistory = bBuf;
+        root.persistentControllerHistory = cBuf;
+
+        // Overlay with historical files system log data if available
+        loadThermalLogFile();
+    }
 
     // =====================================================
     // GLOBAL APP TRANSLATION DICTIONARY
@@ -30,14 +149,13 @@ Item {
         "tab_settings":     { "en": "Settings",          "de": "Einstellungen",     "es": "Ajustes" },
         "tab_diagnostics":  { "en": "Diagnostics",       "de": "Diagnose",          "es": "Diagnóstico" },
         
-        // Engineer Mode Localized Text Strings
         "tab_eng_overview":  { "en": "Overview" },
         "tab_eng_telemetry": { "en": "Telemetry" },
         "tab_eng_thermal":   { "en": "Thermal" },
         "tab_eng_powertrain":{ "en": "Powertrain" },
         "tab_eng_comms":     { "en": "Comms" },
         "tab_eng_faults":    { "en": "Faults" },
-        "tab_eng_exit":      { "en": "✕ EXIT ENG" }
+        "tab_eng_exit":      { "en": "ESCAPE" }
     }
 
     // =====================================================
@@ -57,7 +175,7 @@ Item {
         { "key": "tab_eng_powertrain", "isDiag": false, "isExit": false },
         { "key": "tab_eng_comms",      "isDiag": false, "isExit": false },
         { "key": "tab_eng_faults",     "isDiag": true,  "isExit": false },
-        { "key": "tab_eng_exit",       "isDiag": false, "isExit": true } // 7th Tab Entry
+        { "key": "tab_eng_exit",       "isDiag": false, "isExit": true }
     ]
 
     readonly property var activePages: root.isEngineerMode ? engineerPages : normalPages
@@ -69,12 +187,27 @@ Item {
         color: Colors.backgroundPrimary
 
         Rectangle {
-            anchors.fill: parent
+            anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+            height: parent.height * 0.30
+            opacity: 0.22
+            visible: Colors.dayNightMode !== "day"
             gradient: Gradient {
-                GradientStop { position: 0.0; color: Colors.borderActive }                
+                GradientStop { position: 0.0; color: Colors.borderActive }
                 GradientStop { position: 1.0; color: Colors.backgroundPrimary }
             }
         }
+
+        Rectangle {
+            anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+            height: parent.height 
+            opacity: 1.0
+            visible: Colors.dayNightMode === "day"
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Colors.borderActive }
+                GradientStop { position: 0.75; color: Colors.borderSubtle }
+                GradientStop { position: 1.0; color: Colors.backgroundPrimary }
+            }
+        }        
     }
 
     // =====================================================
@@ -82,24 +215,17 @@ Item {
     // =====================================================
     Item {
         id: topBar
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
+        anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
         height: Theme.topBarHeight
 
         Row {
-            anchors.left: parent.left
-            anchors.leftMargin: Theme.pageMargin
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left; anchors.leftMargin: Theme.pageMargin; anchors.verticalCenter: parent.verticalCenter
             spacing: Math.round(12 * Theme.scale)
 
             Text {
-                // Displays elevated hierarchy header if configured in Engineer Mode (image_0a2d6c.png reference)
                 text: root.isEngineerMode ? "ENGINEER MODE • LEVEL 2 • READ / MONITOR" : "EV HMI"
                 color: root.isEngineerMode ? Colors.accentSport : Colors.textPrimary
-                font.family: Typography.family
-                font.pixelSize: Typography.bodyMedium
-                font.weight: Font.DemiBold
+                font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold
                 anchors.verticalCenter: parent.verticalCenter
             }
 
@@ -108,36 +234,26 @@ Item {
                       ? root.translations["offline"][Typography.currentLanguage] 
                       : root.translations["live_telemetry"][Typography.currentLanguage]
                 color: vehicleData.communicationFault ? Colors.critical : Colors.accentEco
-                font.family: Typography.family
-                font.pixelSize: Typography.label
-                font.weight: Font.DemiBold
+                font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.DemiBold
                 anchors.verticalCenter: parent.verticalCenter
                 visible: !root.isEngineerMode
             }
         }
 
         Row {
-            anchors.right: parent.right
-            anchors.rightMargin: Theme.pageMargin
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right; anchors.rightMargin: Theme.pageMargin; anchors.verticalCenter: parent.verticalCenter
             spacing: Math.round(14 * Theme.scale)
 
             Text {
                 text: vehicleData.driveMode
-                color: vehicleData.driveMode === "SPORT" ? Colors.accentSport
-                    : vehicleData.driveMode === "CITY" ? Colors.accentCity
-                    : Colors.accentEco
-                font.family: Typography.family
-                font.pixelSize: Typography.label
-                font.weight: Font.DemiBold
+                color: vehicleData.driveMode === "SPORT" ? Colors.accentSport : vehicleData.driveMode === "CITY" ? Colors.accentCity : Colors.accentEco
+                font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.DemiBold
             }
 
             Text {
                 text: vehicleData.communicationFault ? "?" : Math.round(vehicleData.batteryPercent) + "%"
                 color: Colors.textSecondary
-                font.family: Typography.family
-                font.pixelSize: Typography.label
-                font.weight: Font.DemiBold
+                font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.DemiBold
             }
         }
     }
@@ -147,27 +263,15 @@ Item {
     // =====================================================
     Rectangle {
         id: warningBanner
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: topBar.bottom
-        anchors.leftMargin: Theme.pageMargin
-        anchors.rightMargin: Theme.pageMargin
-        height: Math.round(40 * Theme.scale)
-        radius: Theme.controlRadius
-        color: vehicleData.communicationFault ? Qt.rgba(Colors.critical.r, Colors.critical.g, Colors.critical.b, 0.16)
-            : vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning
-            ? Qt.rgba(Colors.critical.r, Colors.critical.g, Colors.critical.b, 0.16)
-            : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Qt.rgba(Colors.warning.r, Colors.warning.g, Colors.warning.b, 0.16) : Qt.rgba(Colors.accentCity.r, Colors.accentCity.g, Colors.accentCity.b, 0.11)
-        border.color: vehicleData.communicationFault ? Colors.critical
-            : vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning
-            ? Colors.critical
-            : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Colors.warning : Colors.borderSubtle
+        anchors.left: parent.left; anchors.right: parent.right; anchors.top: topBar.bottom
+        anchors.leftMargin: Theme.pageMargin; anchors.rightMargin: Theme.pageMargin
+        height: Math.round(40 * Theme.scale); radius: Theme.controlRadius
+        color: vehicleData.communicationFault ? Qt.rgba(Colors.critical.r, Colors.critical.g, Colors.critical.b, 0.16) : vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? Qt.rgba(Colors.critical.r, Colors.critical.g, Colors.critical.b, 0.16) : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Qt.rgba(Colors.warning.r, Colors.warning.g, Colors.warning.b, 0.16) : Qt.rgba(Colors.accentCity.r, Colors.accentCity.g, Colors.accentCity.b, 0.11)
+        border.color: vehicleData.communicationFault ? Colors.critical : vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? Colors.critical : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Colors.warning : Colors.borderSubtle
         border.width: 1
 
         Row {
-            anchors.fill: parent
-            anchors.leftMargin: Math.round(14 * Theme.scale)
-            anchors.rightMargin: Math.round(14 * Theme.scale)
+            anchors.fill: parent; anchors.leftMargin: Math.round(14 * Theme.scale); anchors.rightMargin: Math.round(14 * Theme.scale)
             spacing: Math.round(10 * Theme.scale)
             visible: root.hasWarning
 
@@ -175,23 +279,14 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: vehicleData.communicationFault ? "⚠" : vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? "!" : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? "WARN" : "OK"
                 color: vehicleData.communicationFault ? Colors.critical : vehicleData.batteryOverTempWarning || vehicleData.motorOverTempWarning ? Colors.critical : vehicleData.lowBatteryWarning || vehicleData.lowRangeWarning ? Colors.warning : Colors.accentEco
-                font.family: Typography.family
-                font.pixelSize: Typography.bodySmall
-                font.weight: Font.DemiBold
+                font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.DemiBold
             }
 
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 width: parent.width - Math.round(42 * Theme.scale)
-                
-                text: vehicleData.communicationFault 
-                      ? root.translations["comm_fault"][Typography.currentLanguage] : vehicleData.hasWarning 
-                      ? vehicleData.warningMessage.toUpperCase() : clockDisplay.text = clockDisplay.getOffsetTime()
-                color: Colors.textPrimary
-                elide: Text.ElideRight
-                font.family: Typography.family
-                font.pixelSize: Typography.bodySmall
-                font.weight: Font.DemiBold
+                text: vehicleData.communicationFault ? root.translations["comm_fault"][Typography.currentLanguage] : vehicleData.hasWarning ? vehicleData.warningMessage.toUpperCase() : clockDisplay.text = clockDisplay.getOffsetTime()
+                color: Colors.textPrimary; elide: Text.ElideRight; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.DemiBold
             }
         }
 
@@ -201,14 +296,8 @@ Item {
 
             Text {
                 id: clockDisplay
-                anchors.left: parent.left
-                anchors.leftMargin: Math.round(14 * Theme.scale)
-                anchors.verticalCenter: parent.verticalCenter
-                text: getOffsetTime()
-                color: Colors.textPrimary
-                font.family: Typography.family
-                font.pixelSize: Typography.bodySmall
-                font.weight: Font.DemiBold
+                anchors.left: parent.left; anchors.leftMargin: Math.round(14 * Theme.scale); anchors.verticalCenter: parent.verticalCenter
+                text: getOffsetTime(); color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.DemiBold
 
                 function getOffsetTime() {
                     let date = new Date();
@@ -220,34 +309,17 @@ Item {
                 }
 
                 Timer {
-                    interval: 1000
-                    running: true
-                    repeat: true
+                    interval: 1000; running: true; repeat: true
                     onTriggered: clockDisplay.text = clockDisplay.getOffsetTime()
                 }
             }
 
             Row {
-                anchors.right: parent.right
-                anchors.rightMargin: Math.round(14 * Theme.scale)
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.right: parent.right; anchors.rightMargin: Math.round(14 * Theme.scale); anchors.verticalCenter: parent.verticalCenter
                 spacing: Math.round(8 * Theme.scale)
 
-                Text {
-                    text: typeof weatherData !== 'undefined' ? weatherData.conditionText : "Sunny"
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodySmall
-                    font.weight: Font.Medium
-                }
-
-                Text {
-                    text: typeof weatherData !== 'undefined' ? Math.round(weatherData.temperature) + "°C" : "24°C"
-                    color: Colors.textPrimary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodySmall
-                    font.weight: Font.DemiBold
-                }
+                Text { text: typeof weatherData !== 'undefined' ? weatherData.conditionText : "Sunny"; color: Colors.textSecondary; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Medium }
+                Text { text: typeof weatherData !== 'undefined' ? Math.round(weatherData.temperature) + "°C" : "24°C"; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Math.round(12 * Theme.scale); font.weight: Font.DemiBold }
             }
         }
     }
@@ -257,28 +329,21 @@ Item {
     // =====================================================
     Loader {
         id: pageLoader
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: warningBanner.bottom
-        anchors.bottom: navBar.top
-        anchors.leftMargin: Theme.pageMargin
-        anchors.rightMargin: Theme.pageMargin
-        anchors.topMargin: Math.round(10 * Theme.scale)
-        anchors.bottomMargin: Math.round(8 * Theme.scale)
+        anchors.left: parent.left; anchors.right: parent.right; anchors.top: warningBanner.bottom; anchors.bottom: navBar.top
+        anchors.leftMargin: Theme.pageMargin; anchors.rightMargin: Theme.pageMargin
+        anchors.topMargin: Math.round(10 * Theme.scale); anchors.bottomMargin: Math.round(8 * Theme.scale)
         
         sourceComponent: {
             if (!root.isEngineerMode) {
-                return root.currentPageIndex === 0 ? homePage
-                     : root.currentPageIndex === 1 ? musicPage
-                     : root.currentPageIndex === 2 ? settingsPage
-                     : diagnosticsPage;
+                return root.currentPageIndex === 0 ? homePage : root.currentPageIndex === 1 ? musicPage : root.currentPageIndex === 2 ? settingsPage : diagnosticsPage;
             } else {
-                return root.currentPageIndex === 0 ? engOverviewPage
-                     : root.currentPageIndex === 1 ? engTelemetryPage
-                     : root.currentPageIndex === 2 ? engThermalPage
-                     : root.currentPageIndex === 3 ? engPowertrainPage
-                     : root.currentPageIndex === 4 ? engCommsPage
-                     : engFaultsPage; // Note: The 7th (Exit) button handles context state switching, not layout content loading.
+                return root.currentPageIndex === 0 ? engOverviewPage : root.currentPageIndex === 1 ? engTelemetryPage : root.currentPageIndex === 2 ? engThermalPage : root.currentPageIndex === 3 ? engPowertrainPage : root.currentPageIndex === 4 ? engCommsPage : engFaultsPage;
+            }
+        }
+
+        onLoaded: {
+            if (root.isEngineerMode && root.currentPageIndex === 3) {
+                item.processTelemetryStatistics()
             }
         }
     }
@@ -288,41 +353,22 @@ Item {
     // =====================================================
     Rectangle {
         id: navBar
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        height: Theme.navBarHeight
-        color: Colors.surfaceRaised
-        border.color: Colors.borderSubtle
+        anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+        height: Theme.navBarHeight; color: Colors.surfaceRaised; border.color: Colors.borderSubtle
 
         Row {
-            anchors.centerIn: parent
-            spacing: Math.round(6 * Theme.scale) // Snugger spacing to fit 7 elements easily
+            anchors.centerIn: parent; spacing: Math.round(6 * Theme.scale)
 
             Repeater {
                 model: root.activePages.length
-
                 Rectangle {
-                    // Dynamically adjusts width to fit 7 tabs comfortably side-by-side in Engineer Mode
                     width: root.isEngineerMode ? Math.round(102 * Theme.scale) : Math.round(132 * Theme.scale)
-                    height: Math.round(46 * Theme.scale)
-                    radius: Math.round(8 * Theme.scale)
-                    
-                    color: root.activePages[index].isExit 
-                           ? "transparent"
-                           : (root.currentPageIndex === index ? Colors.surfaceBase : "transparent")
-                           
-                    border.color: root.activePages[index].isExit 
-                                  ? Colors.critical 
-                                  : (root.currentPageIndex === index ? Colors.borderWarm : Colors.borderSubtle)
+                    height: Math.round(46 * Theme.scale); radius: Math.round(8 * Theme.scale)
+                    color: root.activePages[index].isExit ? "transparent" : (root.currentPageIndex === index ? Colors.surfaceBase : "transparent")
+                    border.color: root.activePages[index].isExit ? Colors.critical : (root.currentPageIndex === index ? Colors.borderWarm : Colors.borderSubtle)
                     border.width: 1
 
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: Theme.motionFast
-                            easing.type: Easing.OutCubic
-                        }
-                    }
+                    Behavior on color { ColorAnimation { duration: Theme.motionFast; easing.type: Easing.OutCubic } }
 
                     Text {
                         anchors.centerIn: parent
@@ -331,62 +377,42 @@ Item {
                             var dict = root.translations[keyLookup];
                             return (dict && dict[Typography.currentLanguage] !== undefined) ? dict[Typography.currentLanguage] : (dict ? dict["en"] : "");
                         }
-                        color: root.activePages[index].isExit 
-                               ? Colors.critical 
-                               : (root.currentPageIndex === index ? Colors.textPrimary : Colors.textMuted)
-                        font.family: Typography.family
-                        font.pixelSize: root.isEngineerMode ? Typography.label : Typography.bodySmall
+                        color: root.activePages[index].isExit ? Colors.critical : (root.currentPageIndex === index ? Colors.textPrimary : Colors.textMuted)
+                        font.family: Typography.family; font.pixelSize: root.isEngineerMode ? Typography.label : Typography.bodySmall
                         font.weight: (root.currentPageIndex === index || root.activePages[index].isExit) ? Font.DemiBold : Font.Medium
                     }
 
                     MouseArea {
                         anchors.fill: parent
-                        
                         onClicked: {
                             if (root.activePages[index].isExit) {
-                                root.isEngineerMode = false; // Graceful state reversal back to user mode
+                                root.isEngineerMode = false;
                             } else {
                                 root.currentPageIndex = index;
                             }
                         }
-                        
                         pressAndHoldInterval: 800
-                        onPressAndHold: {
-                            // Diagnostics tab (and Faults tab in engineer view) accepts long press state flips
-                            if (root.activePages[index].isDiag) {
-                                root.isEngineerMode = !root.isEngineerMode;
-                            }
-                        }
+                        onPressAndHold: { if (root.activePages[index].isDiag) root.isEngineerMode = !root.isEngineerMode }
                     }
                 }
             }
         }
     }
     
-    // Core User Mode Components
     Component { id: homePage; HomePage {} }
     Component { id: musicPage; MusicPage {} }
     Component { id: settingsPage; SettingsPage {} }
     Component { id: diagnosticsPage; DiagnosticsPage {} }
-
-    // Specialized Engineer Components
     Component { id: engOverviewPage;  OverviewPage {} }
     Component { id: engTelemetryPage;  TelemetryPage {} }
     Component { id: engThermalPage;   ThermalPage {} }
     Component { id: engPowertrainPage; PowertrainPage {} }
-    Component { id: engCommsPage;     CommsPage {} }
+    Component { id: engCommsPage;      CommsPage {} }
     Component { id: engFaultsPage;     FaultsPage {} }
 
-    // =====================================================
-    // GLOBAL HARDWARE BRIGHTNESS DIMMER OVERLAY
-    // =====================================================
     Rectangle {
-        id: globalHardwareDimmer
-        anchors.fill: parent
-        color: "black"
+        id: globalHardwareDimmer; anchors.fill: parent; color: "black"
         opacity: (100 - root.globalBrightness) / 100 * 0.75
-        visible: opacity > 0.01
-        z: 999999 
-        enabled: false 
+        visible: opacity > 0.01; z: 999999; enabled: false 
     }
 }

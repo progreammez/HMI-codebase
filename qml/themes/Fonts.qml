@@ -9,6 +9,6 @@ Item {
 
     FontLoader {
         id: rajdhaniRegular
-        source: "qrc:/assets/fonts/Rajdhani-Regular.ttf"
+        source: "qrc:/assets/fonts/Rajdhani-SemiBold.ttf"
     }
 }

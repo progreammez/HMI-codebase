@@ -16,43 +16,44 @@ void TelemetrySimulator::start()
 void TelemetrySimulator::generateFakeData()
 {
     // =========================================================================
-    // 1. ENGINE TOGGLE: SIMULATION ACTIVE CHECK
-    // =========================================================================
-    // Sync internal state with the QML toggle
-    m_state.simulationActive = m_vehicleData->simulationActive();
-
-    if (!m_state.simulationActive)
-    {
-        // If stopped, we bypass data generation calculations entirely.
-        // This causes the dashboard UI values to freeze at their last state.
-        return; 
-    }
-
-    // =========================================================================
-    // 2. FAULT TOGGLE: COMMUNICATION FAULT CHECK
+    // 1. FAULT GATEWAY: COMMUNICATION FAULT CHECK (HIGHEST PRIORITY)
     // =========================================================================
     m_state.communicationFault = m_vehicleData->communicationFault();
 
     if (m_state.communicationFault)
     {
-        // SIMULATE BUS CORRUPTION: Inject missing/garbage telemetry frames
-        // In a real EV, a CAN-bus failure results in frozen, out-of-bounds, or missing data.
-        
-        // Randomly spike power and RPM to simulate bus noise
-        float corruptedPower = QRandomGenerator::global()->bounded(-50, 150);
-        int corruptedRpm = QRandomGenerator::global()->bounded(0, 8000);
+        // INTERLOCK ACTUATED: Force simulation state off immediately 
+        m_vehicleData->setSimulationActive(false);
 
-        m_vehicleData->setMotorPower(corruptedPower);
-        m_vehicleData->setRpm(corruptedRpm);
-        m_vehicleData->setWarningMessage("CAN BUS COMMS FAULT: CRC ERROR");
+        // SIMULATE BUS CORRUPTION NOISE OVER THE DATA LINK
+        // float corruptedPower = QRandomGenerator::global()->bounded(-50, 150);
+        // int corruptedRpm = QRandomGenerator::global()->bounded(0, 8000);
+
+        // m_vehicleData->setMotorPower(corruptedPower);
+        // m_vehicleData->setRpm(corruptedRpm);
+        
+        m_vehicleData->setWarningMessage("CAN BUS COMMS FAULT: SIMULATION INHIBITED");
         m_vehicleData->setHasWarning(true);
         
-        // We skip updating the rest of the variables to let them freeze/stale out
+        // Bail immediately. The physics engine cannot calculate under bus fault conditions.
         return; 
     }
 
     // =========================================================================
-    // 3. NOMINAL OPERATION CALCULATIONS (Runs only if Active & No Fault)
+    // 2. ENGINE GATEWAY: SIMULATION ACTIVE CHECK
+    // =========================================================================
+    // Sync internal state with QML. This will only matter if communicationFault == false
+    m_state.simulationActive = m_vehicleData->simulationActive();
+
+    if (!m_state.simulationActive)
+    {
+        // If the engineer toggled it off manually (while system is NOMINAL), 
+        // freeze values or optionally set them to safety idles.
+        return; 
+    }
+
+    // =========================================================================
+    // 3. NOMINAL OPERATION CALCULATIONS (Runs only if Active & Healthy Comms)
     // =========================================================================
     if (m_state.accelerating)
     {
@@ -84,7 +85,7 @@ void TelemetrySimulator::generateFakeData()
         }
     }
 
-    // Dynamic temps, power, gear states
+    // Dynamic environmental and powertrain states
     m_state.motorTemp = 35 + (m_state.speed / 4);
     m_state.batteryTemp = 50 + (m_state.speed / 8);
     m_state.controllerTemp = 30 + (m_state.speed / 6);
@@ -95,11 +96,10 @@ void TelemetrySimulator::generateFakeData()
     else if (m_state.speed < 80) m_state.driveMode = "CITY";
     else m_state.driveMode = "SPORT";
 
-    // Odometer increments
     m_state.odometer += m_state.speed / 36000.0f;
     m_state.tripDistance += m_state.speed / 36000.0f;
 
-    // Indicators
+    // Signal status updates
     static int indicatorCounter = 0;
     indicatorCounter++;
     if (indicatorCounter >= 50)
@@ -111,7 +111,7 @@ void TelemetrySimulator::generateFakeData()
     m_state.headlights = (m_state.speed > 60);
     m_state.regenLevel = m_state.speed > 60 ? 3 : m_state.speed > 30 ? 2 : 1;
 
-    // Clear warnings if we are nominal
+    // Clear active faults once conditions return to nominal states
     m_vehicleData->setWarningMessage("");
     m_vehicleData->setHasWarning(false);
 
