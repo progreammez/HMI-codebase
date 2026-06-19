@@ -1,6 +1,6 @@
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Layouts
+import QtQuick 
+import QtQuick.Controls 
+import QtQuick.Layouts 
 import EvHmi
 
 Item {
@@ -55,6 +55,25 @@ Item {
         if (vehicleData.batteryOverTempWarning) score -= 30
         if (vehicleData.communicationFault) score -= 50
         return Math.max(0, score)
+    }
+
+    readonly property bool isMetric: Typography.unitSystem === "metric"
+
+    readonly property real unitSpeedFactor: isMetric ? 1 : 0.62137
+
+    readonly property string unitSpeedLabel: isMetric ? " km" : " mi"
+    readonly property string unitTempLabel: isMetric ? "°C" : "°F"
+
+    function displayTemp(celsius) {
+        return isMetric
+                ? celsius
+                : ((celsius * 9 / 5) + 32)
+    }
+
+    function displayDistance(km) {
+        return isMetric
+                ? km
+                : (km * 0.62137)
     }
 
     // =====================================================
@@ -302,7 +321,7 @@ Item {
                                 anchors.centerIn: parent
                                 spacing: 2
                                 Text { text: diagnosticsCoreGrid.translations["motor"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textSecondary; Layout.alignment: Qt.AlignHCenter }
-                                Text { text: vehicleData.communicationFault ? "--" : vehicleData.motorTemp + "°C"; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Normal; color: Colors.textPrimary; Layout.alignment: Qt.AlignHCenter }
+                                Text { text: vehicleData.communicationFault ? "--" : Math.round(displayTemp(vehicleData.motorTemp)) + unitTempLabel; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Normal; color: Colors.textPrimary; Layout.alignment: Qt.AlignHCenter }
                                 RowLayout { 
                                     spacing: 4; Layout.alignment: Qt.AlignHCenter
                                     Rectangle { width: 4; height: 4; radius: 2; color: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco } 
@@ -324,7 +343,7 @@ Item {
                                 anchors.centerIn: parent
                                 spacing: 2
                                 Text { text: diagnosticsCoreGrid.translations["battery_pack"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textSecondary; Layout.alignment: Qt.AlignHCenter }
-                                Text { text: vehicleData.communicationFault ? "--" : vehicleData.batteryTemp + "°C"; font.family: Typography.family; font.pixelSize: Typography.titleSmall; font.weight: Font.Normal; color: Colors.textPrimary; Layout.alignment: Qt.AlignHCenter }
+                                Text { text: vehicleData.communicationFault ? "--" : Math.round(displayTemp(vehicleData.batteryTemp)) + unitTempLabel; font.family: Typography.family; font.pixelSize: Typography.titleSmall; font.weight: Font.Normal; color: Colors.textPrimary; Layout.alignment: Qt.AlignHCenter }
                                 RowLayout { 
                                     spacing: 4; Layout.alignment: Qt.AlignHCenter
                                     Rectangle { width: 4; height: 4; radius: 2; color: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco } 
@@ -345,7 +364,7 @@ Item {
                                 anchors.centerIn: parent
                                 spacing: 2
                                 Text { text: diagnosticsCoreGrid.translations["controller"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textSecondary; Layout.alignment: Qt.AlignHCenter }
-                                Text { text: vehicleData.communicationFault ? "--" : vehicleData.controllerTemp + "°C"; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Normal; color: Colors.textPrimary; Layout.alignment: Qt.AlignHCenter }
+                                Text { text: vehicleData.communicationFault ? "--" : Math.round(displayTemp(vehicleData.controllerTemp)) + unitTempLabel; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Normal; color: Colors.textPrimary; Layout.alignment: Qt.AlignHCenter }
                                 RowLayout { 
                                     spacing: 4; Layout.alignment: Qt.AlignHCenter
                                     Rectangle { width: 4; height: 4; radius: 2; color: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco } 
@@ -475,9 +494,9 @@ Item {
                         }
                     }
 
-                    TemperatureMetricRow { moduleName: diagnosticsCoreGrid.translations["motor"][Typography.currentLanguage]; temperature: vehicleData.motorTemp; currentTemp: vehicleData.communicationFault ? "--" : vehicleData.motorTemp + "°C" }
-                    TemperatureMetricRow { moduleName: diagnosticsCoreGrid.translations["battery_pack"][Typography.currentLanguage]; temperature: vehicleData.batteryTemp; currentTemp: vehicleData.communicationFault ? "--" : vehicleData.batteryTemp + "°C" }
-                    TemperatureMetricRow { moduleName: diagnosticsCoreGrid.translations["controller"][Typography.currentLanguage]; temperature: vehicleData.controllerTemp; currentTemp: vehicleData.communicationFault ? "--" : vehicleData.controllerTemp + "°C" } 
+                    TemperatureMetricRow { moduleName: diagnosticsCoreGrid.translations["motor"][Typography.currentLanguage]; temperature: vehicleData.motorTemp; currentTemp: vehicleData.communicationFault ? "--" : Math.round(displayTemp(vehicleData.motorTemp)) + unitTempLabel }
+                    TemperatureMetricRow { moduleName: diagnosticsCoreGrid.translations["battery_pack"][Typography.currentLanguage]; temperature: vehicleData.batteryTemp; currentTemp: vehicleData.communicationFault ? "--" : Math.round(displayTemp(vehicleData.batteryTemp)) + unitTempLabel }
+                    TemperatureMetricRow { moduleName: diagnosticsCoreGrid.translations["controller"][Typography.currentLanguage]; temperature: vehicleData.controllerTemp; currentTemp: vehicleData.communicationFault ? "--" : Math.round(displayTemp(vehicleData.controllerTemp)) + unitTempLabel } 
                     
                     Item { Layout.preferredHeight: 2 }
 
@@ -802,7 +821,7 @@ Item {
                                 Layout.fillWidth: true
                                 Text { text: diagnosticsCoreGrid.translations["sub_range"][Typography.currentLanguage]; width: 50; color: Colors.textSecondary; font.pixelSize: Typography.bodySmall }
                                 Item { Layout.fillWidth: true }
-                                Text { text: vehicleData.communicationFault ? "--" : vehicleData.rangeKm + " km"; color: Colors.textPrimary; font.pixelSize: Typography.bodySmall }
+                                Text { text: vehicleData.communicationFault ? "--" : Math.round(displayDistance(vehicleData.rangeKm)) + unitSpeedLabel; color: Colors.textPrimary; font.pixelSize: Typography.bodySmall }
                             }
 
                             RowLayout {

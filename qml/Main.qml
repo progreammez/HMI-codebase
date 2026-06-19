@@ -20,6 +20,16 @@ Window {
     onHeightChanged: updateScale()
     Component.onCompleted: {
         updateScale()
+
+        var chance = Math.floor(Math.random() * 100)
+
+        if (chance === 0) {
+            console.log("Rick Roll Activated")
+            bootPlayer.source = "qrc:/assets/Boot/RickRoll.mp4"
+        } else {
+            bootPlayer.source = "qrc:/assets/Boot/Splash-screen.mp4"
+        }
+        
         bootPlayer.play()
     }
 

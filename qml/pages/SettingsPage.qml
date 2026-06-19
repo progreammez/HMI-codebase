@@ -7,13 +7,17 @@ Item {
     id: settingsRoot
     anchors.fill: parent
 
+    Component.onCompleted: {
+        Colors.contrastValue = settingsState.contrast
+    }
+
     property int cardSpacing: Theme.cardGap ? Theme.cardGap : 10
     property int innerMargin: Theme.cardPadding ? Theme.cardPadding : 14
 
     QtObject {
         id: settingsState
         property int brightness: typeof root !== 'undefined' ? root.globalBrightness : 100
-        property int contrast: 55
+        property int contrast: Colors.contrastValue
         property int alertVolume: 66
         property int indicatorVolume: 40
         property int masterVolume: Math.round((alertVolume + indicatorVolume) / 2)
@@ -95,7 +99,7 @@ Item {
                     Rectangle {
                         width: (parent.width - 8) / 2; height: 54; radius: Theme.controlRadius*1.67
                         color: settingsState.units === "metric" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.units === "metric" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.units === "metric" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Metric\nkm/h, °C"; color: settingsState.units === "metric" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignCenter }
                         MouseArea { anchors.fill: parent; onClicked: {settingsState.units = "metric" 
                         Typography.unitSystem = "metric"} }
@@ -103,7 +107,7 @@ Item {
                     Rectangle {
                         width: (parent.width - 8) / 2; height: 54; radius: Theme.controlRadius*1.67
                         color: settingsState.units === "imperial" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.units === "imperial" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.units === "imperial" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Imperial\nmph, °F"; color: settingsState.units === "imperial" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignCenter }
                         MouseArea { anchors.fill: parent; onClicked:{ settingsState.units = "imperial"
                         Typography.unitSystem = "imperial" } }
@@ -132,21 +136,21 @@ Item {
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.language === "en" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.language === "en" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.language === "en" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "ENG"; color: settingsState.language === "en" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.language = "en"; Typography.currentLanguage = "en" } }
                     }
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.language === "de" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.language === "de" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.language === "de" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "GER"; color: settingsState.language === "de" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.language = "de"; Typography.currentLanguage = "de" } }
                     }
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.language === "es" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.language === "es" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.language === "es" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "ESP"; color: settingsState.language === "es" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.language = "es"; Typography.currentLanguage = "es" } }
                     }
@@ -174,21 +178,21 @@ Item {
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.fontStyle === "Rajdhani" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.fontStyle === "Rajdhani" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.fontStyle === "Rajdhani" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Rajdhani"; color: settingsState.fontStyle === "Rajdhani" ? Colors.textPrimary : Colors.textMuted; font.family: "Rajdhani"; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.fontStyle = "Rajdhani"; if (typeof root !== 'undefined') { root.globalFont = "Rajdhani" } } }
                     }
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.fontStyle === "Roboto" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.fontStyle === "Roboto" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.fontStyle === "Roboto" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Roboto"; color: settingsState.fontStyle === "Roboto" ? Colors.textPrimary : Colors.textMuted; font.family: "Roboto"; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.fontStyle = "Roboto"; if (typeof root !== 'undefined') { root.globalFont = "Roboto" } } }
                     }
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.fontStyle === "Orbitron" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.fontStyle === "Orbitron" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.fontStyle === "Orbitron" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Orbitron"; color: settingsState.fontStyle === "Orbitron" ? Colors.textPrimary : Colors.textMuted; font.family: "Orbitron"; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.fontStyle = "Orbitron"; if (typeof root !== 'undefined') { root.globalFont = "Orbitron" } } }
                     }
@@ -216,21 +220,21 @@ Item {
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.dayNightMode === "auto" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.dayNightMode === "auto" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.dayNightMode === "auto" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Auto"; color: settingsState.dayNightMode === "auto" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.dayNightMode = "auto"; Colors.dayNightMode = "auto" } }
                     }
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.dayNightMode === "day" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.dayNightMode === "day" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.dayNightMode === "day" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Day"; color: settingsState.dayNightMode === "day" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.dayNightMode = "day"; Colors.dayNightMode = "day" } }
                     }
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.dayNightMode === "night" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.dayNightMode === "night" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.dayNightMode === "night" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Night"; color: settingsState.dayNightMode === "night" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.dayNightMode = "night"; Colors.dayNightMode = "night" } }
                     }
@@ -438,7 +442,7 @@ Item {
                     handle: Rectangle {
                         x: brightnessSlider.leftPadding + brightnessSlider.visualPosition * (brightnessSlider.availableWidth - width)
                         y: brightnessSlider.topPadding + brightnessSlider.availableHeight / 2 - height / 2
-                        implicitWidth: 20; implicitHeight: 20; radius: 10; color: "#ffffff"; border.color: Colors.borderActive; border.width: 2
+                        implicitWidth: 20; implicitHeight: 20; radius: 10; color: "#ffffff"; border.color: Colors.borderActive; border.width: 2 + (Colors.contrastFactor / 2)
                     }
                 }
                 Item {
@@ -468,7 +472,10 @@ Item {
                     id: contrastSlider
                     Layout.fillWidth: true; Layout.topMargin: 8; Layout.preferredHeight: 32
                     from: 0; to: 100; value: settingsState.contrast
-                    onValueChanged: { settingsState.contrast = value }
+                    onValueChanged: { 
+                        settingsState.contrast = value
+                        Colors.contrastValue = value
+                            }
                     background: Rectangle {
                         x: contrastSlider.leftPadding; y: contrastSlider.topPadding + contrastSlider.availableHeight / 2 - height / 2
                         width: contrastSlider.availableWidth; height: 6; radius: 3; color: Colors.borderSubtle
@@ -477,7 +484,7 @@ Item {
                     handle: Rectangle {
                         x: contrastSlider.leftPadding + contrastSlider.visualPosition * (contrastSlider.availableWidth - width)
                         y: contrastSlider.topPadding + contrastSlider.availableHeight / 2 - height / 2
-                        implicitWidth: 20; implicitHeight: 20; radius: 10; color: "#ffffff"; border.color: Colors.borderActive; border.width: 2
+                        implicitWidth: 20; implicitHeight: 20; radius: 10; color: "#ffffff"; border.color: Colors.borderActive; border.width: 2 + (Colors.contrastFactor / 2)
                     }
                 }
                 Item {
@@ -535,7 +542,7 @@ Item {
                     handle: Rectangle {
                         x: masterSlider.leftPadding + masterSlider.visualPosition * (masterSlider.availableWidth - width)
                         y: masterSlider.topPadding + masterSlider.availableHeight / 2 - height / 2
-                        implicitWidth: 20; implicitHeight: 20; radius: 10; color: "#ffffff"; border.color: Colors.borderActive; border.width: 2
+                        implicitWidth: 20; implicitHeight: 20; radius: 10; color: "#ffffff"; border.color: Colors.borderActive; border.width: 2 + (Colors.contrastFactor / 2)
                     }
                 }
                 Item {
@@ -574,7 +581,7 @@ Item {
                     handle: Rectangle {
                         x: alertSlider.leftPadding + alertSlider.visualPosition * (alertSlider.availableWidth - width)
                         y: alertSlider.topPadding + alertSlider.availableHeight / 2 - height / 2
-                        implicitWidth: 20; implicitHeight: 20; radius: 10; color: "#ffffff"; border.color: Colors.borderActive; border.width: 2
+                        implicitWidth: 20; implicitHeight: 20; radius: 10; color: "#ffffff"; border.color: Colors.borderActive; border.width: 2 + (Colors.contrastFactor / 2)
                     }
                 }
                 Item {
@@ -613,7 +620,7 @@ Item {
                     handle: Rectangle {
                         x: indicatorSlider.leftPadding + indicatorSlider.visualPosition * (indicatorSlider.availableWidth - width)
                         y: indicatorSlider.topPadding + indicatorSlider.availableHeight / 2 - height / 2
-                        implicitWidth: 20; implicitHeight: 20; radius: 10; color: "#ffffff"; border.color: Colors.borderActive; border.width: 2 
+                        implicitWidth: 20; implicitHeight: 20; radius: 10; color: "#ffffff"; border.color: Colors.borderActive; border.width: 2 + (Colors.contrastFactor / 2) 
                     }
                 }
                 Item {
@@ -659,14 +666,14 @@ Item {
                     Rectangle {
                         width: (parent.width - 6) / 2; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.clockFormat === 12 ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.clockFormat === 12 ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.clockFormat === 12 ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "12 Hour"; color: settingsState.clockFormat === 12 ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyLarge; font.weight: settingsState.clockFormat === 12 ? Font.DemiBold : Font.Normal }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.clockFormat = 12; Typography.timeFormat = "hh:mm AP" } }
                     }
                     Rectangle {
                         width: (parent.width - 6) / 2; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.clockFormat === 24 ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.clockFormat === 24 ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.clockFormat === 24 ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "24 Hour"; color: settingsState.clockFormat === 24 ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyLarge; font.weight: settingsState.clockFormat === 24 ? Font.DemiBold : Font.Normal }
                         MouseArea { anchors.fill: parent; onClicked: { settingsState.clockFormat = 24; Typography.timeFormat = "HH:mm" } }
                     }
@@ -692,14 +699,14 @@ Item {
                     Rectangle {
                         width: (parent.width - 6) / 2; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.dateFormat === "dd" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.dateFormat === "dd" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.dateFormat === "dd" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "DD/MM/YY"; color: settingsState.dateFormat === "dd" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyLarge; font.weight: settingsState.dateFormat === "dd" ? Font.DemiBold : Font.Normal }
                         MouseArea { anchors.fill: parent; onClicked: settingsState.dateFormat = "dd" }
                     }
                     Rectangle {
                         width: (parent.width - 6) / 2; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.dateFormat === "mm" ? Colors.surfacePressed : Colors.surfaceRaised
-                        border.width: 1; border.color: settingsState.dateFormat === "mm" ? Colors.borderActive : Colors.borderSubtle
+                        border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.dateFormat === "mm" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "MM/DD/YY"; color: settingsState.dateFormat === "mm" ? Colors.textPrimary : Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyLarge; font.weight: settingsState.dateFormat === "mm" ? Font.DemiBold : Font.Normal }
                         MouseArea { anchors.fill: parent; onClicked: settingsState.dateFormat = "mm" }
                     }
@@ -731,7 +738,7 @@ Item {
 
                 Rectangle {
                     Layout.fillWidth: true; Layout.topMargin: 12; Layout.preferredHeight: 51; radius: Theme.controlRadius*1.67
-                    color: "transparent"; border.width: 1; border.color: "#88ff4444"
+                    color: "transparent"; border.width: 1 + (Colors.contrastFactor / 2); border.color: "#88ff4444"
                     Row {
                         anchors.centerIn: parent; spacing: 8
                         Text { text: settingsRoot.translations["factory_reset"][settingsState.language]; color: "#ff4444"; font.family: settingsState.fontStyle; font.weight: Font.Bold; font.pixelSize: Typography.bodyLarge }
@@ -779,7 +786,7 @@ Item {
 
             color: Colors.surfaceRaised
             border.color: "#ff4444"
-            border.width: 1
+            border.width: 1 + (Colors.contrastFactor / 2)
             radius: Theme.controlRadius * 1.5
         }
 
@@ -840,7 +847,7 @@ Item {
                 background: Rectangle {
                     color: "transparent"
                     border.color: Colors.borderSubtle
-                    border.width: 1
+                    border.width: 1 + (Colors.contrastFactor / 2)
                     radius: Theme.controlRadius
                 }
             }
@@ -868,7 +875,7 @@ Item {
                 background: Rectangle {
                     color: "transparent"
                     border.color: "#ff4444"
-                    border.width: 1
+                    border.width: 1 + (Colors.contrastFactor / 2)
                     radius: Theme.controlRadius
                 }
             }
