@@ -161,12 +161,12 @@ BaseCard {
                         spacing: 6 * Theme.scale
 
                         Image {
-                            source: root.iconSetPath + (vehicleData.highBeam ? "high-beam.png" : "low-beam.png")
+                            source: root.iconSetPath + (!vehicleData.headlights ? "low-beam.png" : vehicleData.highBeam ? "high-beam.png" : "low-beam.png")
                             width: 32 * Theme.scale
                             height: 32 * Theme.scale
                             fillMode: Image.PreserveAspectFit
                             antialiasing: true
-                            opacity: vehicleData.headlights ? 1.0 : 0.3
+                            opacity: vehicleData.headlights ? 1.0 : 0.25
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
 

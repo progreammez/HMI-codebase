@@ -10,12 +10,12 @@ Item {
     readonly property string rajdhaniMedium: rajdhaniMedium.name
     readonly property string rajdhaniRegular: rajdhaniRegular.name
     readonly property string rajdhaniSemiBold: rajdhaniSemiBold.name
-    readonly property string orbitronBlack: orbitronBlackLoader.name
-    readonly property string orbitronBold: orbitronBoldLoader.name
-    readonly property string orbitronExtraBold: orbitronExtraBoldLoader.name
-    readonly property string orbitronMedium: orbitronMediumLoader.name
-    readonly property string orbitronRegular: orbitronRegularLoader.name
-    readonly property string orbitronSemiBold: orbitronSemiBoldLoader.name
+    readonly property string orbitronBlack: orbitronBlack.name
+    readonly property string orbitronBold: orbitronBold.name
+    readonly property string orbitronExtraBold: orbitronExtraBold.name
+    readonly property string orbitronMedium: orbitronMedium.name
+    readonly property string orbitronRegular: orbitronRegular.name
+    readonly property string orbitronSemiBold: orbitronSemiBold.name
 
     FontLoader {
         id: rajdhaniBold
