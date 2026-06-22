@@ -862,11 +862,11 @@ Item {
                                         ThermalIcon { anchors.centerIn: parent; visible: cardType === "thermal" }
                                         Item {
                                             anchors.fill: parent; visible: cardType === "communication"
-                                            Rectangle { id: signalMast; width: Math.max(1.2, 1.5 * Theme.scale); height: Math.round(22 * Theme.scale); color: "#00d2ff"; anchors.bottom: parent.bottom; anchors.bottomMargin: Math.round(1 * Theme.scale); anchors.horizontalCenter: parent.horizontalCenter }
-                                            Rectangle { id: signalNode; width: Math.round(5 * Theme.scale); height: Math.round(5 * Theme.scale); radius: width / 2; color: "#00d2ff"; anchors.bottom: signalMast.top; anchors.bottomMargin: -1; anchors.horizontalCenter: parent.horizontalCenter }
+                                            Rectangle { id: signalMast; width: Math.max(1.2, 1.5 * Theme.scale); height: Math.round(22 * Theme.scale); color: Colors.borderActive; anchors.bottom: parent.bottom; anchors.bottomMargin: Math.round(1 * Theme.scale); anchors.horizontalCenter: parent.horizontalCenter }
+                                            Rectangle { id: signalNode; width: Math.round(5 * Theme.scale); height: Math.round(5 * Theme.scale); radius: width / 2; color: Colors.accentCity; anchors.bottom: signalMast.top; anchors.bottomMargin: -1; anchors.horizontalCenter: parent.horizontalCenter }
                                             Repeater {
                                                 model: 3
-                                                Rectangle { anchors.centerIn: signalNode; width: Math.round((12 + index * 9) * Theme.scale); height: width; radius: width / 2; color: "transparent"; border.color: "#00d2ff"; border.width: Math.max(1, 1.2 * Theme.scale); opacity: 1.0 - (index * 0.3) }
+                                                Rectangle { anchors.centerIn: signalNode; width: Math.round((12 + index * 9) * Theme.scale); height: width; radius: width / 2; color: "transparent"; border.color: Colors.borderActive ; border.width: Math.max(1, 1.2 * Theme.scale); opacity: 1.0 - (index * 0.3) }
                                             }
                                         }
                                     }
@@ -875,10 +875,10 @@ Item {
                                         spacing: Math.round(2 * Theme.scale); Layout.alignment: Qt.AlignVCenter
                                         RowLayout {
                                             spacing: Math.round(4 * Theme.scale); visible: cardType !== "communication"
-                                            Text { font.pixelSize: Math.round(26 * Theme.scale); font.family: Typography.family; font.weight: Font.Bold; color: Colors.textPrimary; text: mainValue; Layout.alignment: Qt.AlignBottom }
+                                            Text { font.pixelSize: Math.round(22 * Theme.scale); font.family: Typography.family; font.weight: Font.Bold; color: Colors.textPrimary; text: mainValue; Layout.alignment: Qt.AlignBottom }
                                             Text { font.pixelSize: Math.round(14 * Theme.scale); font.family: Typography.family; font.weight: Font.Normal; color: Colors.textPrimary; text: mainLabel; visible: mainLabel !== ""; Layout.alignment: Qt.AlignBottom; Layout.bottomMargin: Math.round(3 * Theme.scale) }
                                         }
-                                        Text { font.pixelSize: Math.round(26 * Theme.scale); font.family: Typography.family; font.weight: Font.Bold; color: Colors.textPrimary; text: diagnosticsCoreGrid.translations[mainValue] ? diagnosticsCoreGrid.translations[mainValue][Typography.currentLanguage] : mainValue; visible: cardType === "communication" }
+                                        Text { font.pixelSize: Math.round(22 * Theme.scale); font.family: Typography.family; font.weight: Font.Bold; color: Colors.textPrimary; text: diagnosticsCoreGrid.translations[mainValue] ? diagnosticsCoreGrid.translations[mainValue][Typography.currentLanguage] : mainValue; visible: cardType === "communication" }
                                         Text { font.pixelSize: Math.round(11 * Theme.scale); font.family: Typography.family; color: Colors.textMuted; text: subLabel }
                                     }
                                 }

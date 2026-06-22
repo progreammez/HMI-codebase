@@ -1,5 +1,4 @@
 // Storing state variables for the vehicle and providing a way to update them from the simulator
-
 #ifndef VEHICLEDATA_H
 #define VEHICLEDATA_H
 
@@ -57,8 +56,20 @@ class VehicleData : public QObject
 
     Q_PROPERTY(bool simulationActive READ simulationActive WRITE setSimulationActive NOTIFY simulationActiveChanged)
 
+    Q_PROPERTY(int framesReceived READ framesReceived WRITE setFramesReceived NOTIFY framesReceivedChanged)
+    Q_PROPERTY(int invalidFrames READ invalidFrames WRITE setInvalidFrames NOTIFY invalidFramesChanged)
+    Q_PROPERTY(int checksumErrors READ checksumErrors WRITE setChecksumErrors NOTIFY checksumErrorsChanged)
+
 public:
     explicit VehicleData(QObject *parent = nullptr);
+
+public slots:
+    // Fully exposed execution handlers called directly by QML action buttons
+    void resetStatistics();
+    void exportLog();
+    void testConnection();
+
+public:
     // Getter functions
     int rpm() const;
     int speed() const;
@@ -94,7 +105,11 @@ public:
     bool communicationFault() const;
     bool lowRangeWarning() const;
     QString warningMessage() const;
-    bool simulationActive() const; // Backing getter for simulation configuration states
+    bool simulationActive() const; 
+
+    int framesReceived() const;
+    int invalidFrames() const;
+    int checksumErrors() const;
 
     bool hasWarning() const
     {
@@ -153,6 +168,10 @@ public:
     void setLowRangeWarning(bool lowRangeWarning);
     void setWarningMessage(const QString &warningMessage);
     void setSimulationActive(bool active);
+
+    void setFramesReceived(int framesReceived);
+    void setInvalidFrames(int invalidFrames);
+    void setChecksumErrors(int checksumErrors);
 
     void setHasWarning(bool value)
     {
@@ -224,6 +243,10 @@ signals:
     void historicalWarningsChanged();
     void simulationActiveChanged();
 
+    void framesReceivedChanged();
+    void invalidFramesChanged();
+    void checksumErrorsChanged();
+
 private:
     // Member variables to store the current state of the vehicle
     int m_rpm;
@@ -265,6 +288,11 @@ private:
     QString m_warningTimestamp;
     int m_historicalWarnings = 0;
     bool m_simulationActive = true;
+
+    int m_framesReceived;
+    int m_invalidFrames ;
+    int m_checksumErrors;
+    
 };
 
 #endif
