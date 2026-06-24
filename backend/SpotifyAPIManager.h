@@ -10,6 +10,7 @@
 #include <QVector>
 #include <QtNetworkAuth/qoauth2authorizationcodeflow.h>
 #include <QtNetworkAuth/qoauthhttpserverreplyhandler.h>
+#include <QTimer>
 
 struct SpotifyTrack
 {
@@ -54,6 +55,8 @@ public:
     Q_INVOKABLE void addToQueue(int index);
     Q_INVOKABLE void playQueueTrack(int index);
     Q_INVOKABLE void login();
+    Q_INVOKABLE void getCurrentTrack();
+    Q_INVOKABLE void playPause();
 
     QStringList trackTitles() const;
     QVariantList tracks() const;
@@ -98,6 +101,7 @@ private:
 
     QOAuth2AuthorizationCodeFlow m_oauth;
     QOAuthHttpServerReplyHandler *m_replyHandler = nullptr;
+    QTimer m_spotifyTimer;
 };
 
 #endif // SPOTIFYAPIMANAGER_H
