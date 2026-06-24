@@ -300,7 +300,6 @@ void SpotifyApiManager::searchTracks(const QString &query)
 
 void SpotifyApiManager::loadLyrics(const QString &trackId)
 {   
-    qDebug() << "TRACK ID:" << trackId;
     QString apiKey = loadApiKey();
     QUrl url("https://spotify23.p.rapidapi.com/track_lyrics/");
 
@@ -316,12 +315,6 @@ void SpotifyApiManager::loadLyrics(const QString &trackId)
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         QByteArray response = reply->readAll();
-        qDebug() << "HTTP STATUS:"
-                << reply->attribute(
-                        QNetworkRequest::HttpStatusCodeAttribute);
-
-        qDebug().noquote() << response;
-
         QJsonDocument doc = QJsonDocument::fromJson(response);
         QJsonObject root = doc.object();
         QJsonArray lines = root["lyrics"].toObject()["lines"].toArray();
@@ -375,7 +368,6 @@ void SpotifyApiManager::login()
 
 void SpotifyApiManager::getCurrentTrack()
 {   
-    qDebug() << "Polling Spotify...";
     QNetworkRequest request(
         QUrl("https://api.spotify.com/v1/me/player/currently-playing"));
 
@@ -391,10 +383,6 @@ void SpotifyApiManager::getCurrentTrack()
     {
         QByteArray response = reply->readAll();
 
-        qDebug() << "HTTP:"
-                << reply->attribute(
-                        QNetworkRequest::HttpStatusCodeAttribute);
-
         QJsonDocument doc =
             QJsonDocument::fromJson(response);
 
@@ -403,6 +391,15 @@ void SpotifyApiManager::getCurrentTrack()
 
         QJsonObject item =
             root["item"].toObject();
+
+        bool newPlaying =
+            root["is_playing"].toBool();
+
+        qint64 newPosition =
+            root["progress_ms"].toVariant().toLongLong();
+
+        qint64 newDuration =
+            item["duration_ms"].toVariant().toLongLong();
 
         QString newTitle =
             item["name"].toString();
@@ -420,7 +417,22 @@ void SpotifyApiManager::getCurrentTrack()
                 .toObject()["url"]
                 .toString();
             
-            if (newTitle != m_selectedTitle)
+        if (newPlaying != m_isPlaying)
+        {
+            m_isPlaying = newPlaying;
+            emit playbackStateChanged();
+        }
+
+        if (newPosition != m_position ||
+            newDuration != m_duration)
+        {
+            m_position = newPosition;
+            m_duration = newDuration;
+
+            emit playbackPositionChanged();
+        }
+
+        if (newTitle != m_selectedTitle)
         {
             qDebug() << "Song changed";
 
@@ -431,6 +443,90 @@ void SpotifyApiManager::getCurrentTrack()
             emit selectedTrackChanged();
         }
     });
+}
+
+void SpotifyApiManager::previousTrack()
+{
+    QNetworkRequest request(
+        QUrl("https://api.spotify.com/v1/me/player/previous"));
+
+    request.setRawHeader(
+        "Authorization",
+        QString("Bearer " + m_oauth.token()).toUtf8());
+
+    QNetworkReply *reply =
+        m_network.post(request, QByteArray());
+
+    connect(reply,
+            &QNetworkReply::finished,
+            reply,
+            &QNetworkReply::deleteLater);
+}
+
+void SpotifyApiManager::playPause()
+{
+    QString endpoint =
+        m_isPlaying
+        ? "https://api.spotify.com/v1/me/player/pause"
+        : "https://api.spotify.com/v1/me/player/play";
+
+    QNetworkRequest request{QUrl(endpoint)};
+
+    request.setRawHeader(
+        "Authorization",
+        QString("Bearer " + m_oauth.token()).toUtf8());
+
+    QNetworkReply *reply =
+        m_network.put(request, QByteArray());
+
+    connect(reply,
+            &QNetworkReply::finished,
+            reply,
+            &QNetworkReply::deleteLater);
+}
+
+void SpotifyApiManager::nextTrack()
+{
+    QNetworkRequest request(
+        QUrl("https://api.spotify.com/v1/me/player/next"));
+
+    request.setRawHeader(
+        "Authorization",
+        QString("Bearer %1")
+            .arg(m_oauth.token())
+            .toUtf8());
+
+    QNetworkReply *reply =
+        m_network.post(request, QByteArray());
+
+    connect(reply,
+            &QNetworkReply::finished,
+            [reply]()
+    {
+        reply->deleteLater();
+    });
+}
+
+void SpotifyApiManager::seek(qint64 position)
+{
+    QString url =
+        QString(
+            "https://api.spotify.com/v1/me/player/seek?position_ms=%1")
+            .arg(position);
+
+    QNetworkRequest request{QUrl(url)};
+
+    request.setRawHeader(
+        "Authorization",
+        QString("Bearer " + m_oauth.token()).toUtf8());
+
+    QNetworkReply *reply =
+        m_network.put(request, QByteArray());
+
+    connect(reply,
+            &QNetworkReply::finished,
+            reply,
+            &QNetworkReply::deleteLater);
 }
 
 QStringList SpotifyApiManager::lyricList() const { return m_lyricList; }

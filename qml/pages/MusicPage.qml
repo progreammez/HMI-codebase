@@ -12,6 +12,7 @@ Item {
     // Virtual Keyboard Target Configuration State Variables
     property bool showKeyboard: false
     property var activeInputTarget: null
+    property bool userSeeking: false
 
     // Helper property to fetch dynamic theme paths cleanly across all components
     readonly property string iconPathPrefix: "qrc:/assets/icons/" + (Colors.dayNightMode === "day" ? "Light" : "Dark") + "/MusicPage/"
@@ -37,6 +38,53 @@ Item {
         } else {
             activeInputTarget.text += keyKey;
         }
+    }
+
+    function playPause() {
+        if (mediaSourceTab === 1)
+            spotifyApi.playPause()
+        else
+            musicPlayer.togglePlayback()
+    }
+
+    function nextTrack() {
+        if (mediaSourceTab === 1)
+            spotifyApi.nextTrack()
+        else
+            musicPlayer.nextTrack()
+    }
+
+    function previousTrack() {
+        if (mediaSourceTab === 1)
+            spotifyApi.previousTrack()
+        else
+            musicPlayer.previousTrack()
+    }
+
+    readonly property bool currentPlayingState:
+        mediaSourceTab === 1
+        ? spotifyApi.isPlaying
+        : musicPlayer.isPlaying
+
+    readonly property int currentDuration:
+        mediaSourceTab === 1
+        ? spotifyApi.duration
+        : musicPlayer.duration
+
+    readonly property int currentPosition:
+        mediaSourceTab === 1
+        ? spotifyApi.position
+        : musicPlayer.position
+
+    function formatTime(ms)
+    {
+        let totalSeconds = Math.floor(ms / 1000)
+        let minutes = Math.floor(totalSeconds / 60)
+        let seconds = totalSeconds % 60
+
+        return minutes + ":" +
+            (seconds < 10 ? "0" : "") +
+            seconds
     }
 
     // =====================================================
@@ -223,9 +271,23 @@ Item {
                                 width: parent.width
                                 anchors.top: parent.top
                                 from: 0
-                                to: musicPlayer.duration
-                                value: musicPlayer.position
-                                onMoved: musicPlayer.seek(value)
+                                to: currentDuration
+                                value: currentPosition
+                                onPressedChanged: {
+                                    if (pressed)
+                                    {
+                                        userSeeking = true
+                                    }
+                                    else
+                                    {
+                                        userSeeking = false
+
+                                        if (mediaSourceTab === 1)
+                                            spotifyApi.seek(value)
+                                        else
+                                            musicPlayer.seek(value)
+                                    }
+                                }
 
                                 background: Rectangle {
                                     x: progressSlider.leftPadding
@@ -260,13 +322,13 @@ Item {
                             Text {
                                 id: startTimeText
                                 anchors.left: progressSlider.left; anchors.top: progressSlider.bottom; anchors.topMargin: 2
-                                text: musicPlayer.currentTime; color: Colors.textSecondary; font.family: Typography.family; font.pixelSize: Typography.bodySmall
+                                text: formatTime(currentPosition); color: Colors.textSecondary; font.family: Typography.family; font.pixelSize: Typography.bodySmall
                             }
 
                             Text {
                                 id: endTimeText
                                 anchors.right: progressSlider.right; anchors.top: progressSlider.bottom; anchors.topMargin: 2
-                                text: musicPlayer.totalTime; color: Colors.textSecondary; font.family: Typography.family; font.pixelSize: Typography.bodySmall
+                                text: formatTime(currentDuration); color: Colors.textSecondary; font.family: Typography.family; font.pixelSize: Typography.bodySmall
                             }
                         }
 
@@ -285,7 +347,7 @@ Item {
                                     anchors.centerIn: parent; width: 20; height: 20
                                     source: iconPathPrefix + "previous.png"
                                 }
-                                MouseArea { id: prevMouse; anchors.fill: parent; onClicked: musicPlayer.previousTrack() }
+                                MouseArea { id: prevMouse; anchors.fill: parent; onClicked: previousTrack() }
                             }
 
                             Rectangle {
@@ -294,11 +356,11 @@ Item {
 
                                 Image {
                                     anchors.centerIn: parent; width: 26; height: 26
-                                    source: musicPlayer.isPlaying
+                                    source: currentPlayingState
                                         ? (iconPathPrefix + "pause.png")
                                         : (iconPathPrefix + "play.png")
                                 }
-                                MouseArea { anchors.fill: parent; onClicked: musicPlayer.togglePlayback() }
+                                MouseArea { anchors.fill: parent; onClicked: playPause() }
                             }
 
                             Rectangle {
@@ -311,7 +373,7 @@ Item {
                                     anchors.centerIn: parent; width: 20; height: 20
                                     source: iconPathPrefix + "next.png"
                                 }
-                                MouseArea { id: nextMouse; anchors.fill: parent; onClicked: musicPlayer.nextTrack() }
+                                MouseArea { id: nextMouse; anchors.fill: parent; onClicked: nextTrack() }
                             }
                         }
 
