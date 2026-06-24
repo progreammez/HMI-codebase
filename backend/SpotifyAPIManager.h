@@ -3,6 +3,10 @@
 
 #include <QObject>
 #include <QNetworkAccessManager>
+#include <QList>
+#include <QStringList>
+#include <QVariantList>
+#include <QVariantMap>
 #include <QVector>
 
 struct SpotifyTrack
@@ -33,14 +37,22 @@ class SpotifyApiManager : public QObject
     Q_PROPERTY(QString selectedImageUrl READ selectedImageUrl NOTIFY selectedTrackChanged)
     Q_PROPERTY(QString selectedAlbum READ selectedAlbum NOTIFY selectedTrackChanged)
 
+    // Dedicated Queue Subsystem Properties
+    Q_PROPERTY(QStringList queueTitles READ queueTitles NOTIFY queueChanged)
+    Q_PROPERTY(int currentTrackIndex READ currentTrackIndex NOTIFY currentTrackIndexChanged)
+
 public:
     explicit SpotifyApiManager(QObject *parent = nullptr);
 
     Q_INVOKABLE void searchTracks(const QString &query);
     Q_INVOKABLE void loadLyrics(const QString &trackId);
     Q_INVOKABLE void selectTrack(int index);
-    QStringList trackTitles() const;
+    
+    // Type-safe structural interfaces matching front-end layouts
+    Q_INVOKABLE void addToQueue(int index);
+    Q_INVOKABLE void playQueueTrack(int index);
 
+    QStringList trackTitles() const;
     QVariantList tracks() const;
     QString currentLyric() const;
     QStringList lyricList() const;
@@ -50,29 +62,36 @@ public:
     QString selectedImageUrl() const;
     QString selectedAlbum() const;
 
+    // Queue read permissions properties
+    QStringList queueTitles() const;
+    int currentTrackIndex() const;
+
 signals:
     void searchFinished(QString result);
     void searchResultsChanged();
     void currentLyricChanged();
     void lyricsChanged();
     void selectedTrackChanged();
+    void queueChanged();
+    void currentTrackIndexChanged();
 
 private:
     QNetworkAccessManager m_network;
-
     QList<SpotifyTrack> m_tracks;
 
     QString loadApiKey();
     QVector<SpotifyLyricLine> m_lyrics;
-
     QStringList m_lyricList;
-
     QString m_currentLyric;
 
     QString m_selectedTitle;
     QString m_selectedArtist;
     QString m_selectedImageUrl;
     QString m_selectedAlbum;
+
+    // Core vector structures containing the playlist queues
+    QList<SpotifyTrack> m_queue;
+    int m_currentTrackIndex = -1;
 };
 
-#endif
+#endif // SPOTIFYAPIMANAGER_H

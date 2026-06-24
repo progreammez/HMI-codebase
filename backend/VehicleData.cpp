@@ -8,6 +8,7 @@ VehicleData::VehicleData(QObject *parent)
       m_batteryPercent(100),
       m_motorTemp(35),
       m_batteryTemp(30),
+      m_controllerTemp(30),
       m_rangeKm(180),
       m_driveMode("ECO"),
       m_gearState("P"),
@@ -20,11 +21,14 @@ VehicleData::VehicleData(QObject *parent)
       m_regenLevel(0),
       m_odometer(0.0f),
       m_tripDistance(0.0f),
+      m_tripA(0.0f),
+      m_tripB(0.0f),
       m_lowBatteryWarning(false),
       m_motorOverTempWarning(false),
       m_batteryOverTempWarning(false),
       m_communicationFault(false),
-      m_warningMessage("")
+      m_warningMessage(""),
+      m_simulationActive(true)
 {
 }
 
@@ -51,6 +55,11 @@ int VehicleData::motorTemp() const
 int VehicleData::batteryTemp() const
 {
     return m_batteryTemp;
+}
+
+int VehicleData::controllerTemp() const
+{
+    return m_controllerTemp;
 }
 
 int VehicleData::rangeKm() const
@@ -113,6 +122,16 @@ float VehicleData::tripDistance() const
     return m_tripDistance;
 }
 
+float VehicleData::tripA() const
+{
+    return m_tripA;
+}
+
+float VehicleData::tripB() const
+{
+    return m_tripB;
+}
+
 bool VehicleData::lowBatteryWarning() const
 {
     return m_lowBatteryWarning;
@@ -141,6 +160,11 @@ bool VehicleData::lowRangeWarning() const
 QString VehicleData::warningMessage() const
 {
     return m_warningMessage;
+}
+
+bool VehicleData::simulationActive() const
+{
+    return m_simulationActive;
 }
 
 void VehicleData::setRpm(int rpm)
@@ -181,6 +205,16 @@ void VehicleData::setMotorTemp(int motorTemp)
 
     m_motorTemp = motorTemp;
     emit motorTempChanged();
+    emit telemetryChanged();
+}
+
+void VehicleData::setControllerTemp(int controllerTemp)
+{
+    if (m_controllerTemp == controllerTemp)
+        return;
+
+    m_controllerTemp = controllerTemp;
+    emit controllerTempChanged();
     emit telemetryChanged();
 }
 
@@ -305,6 +339,24 @@ void VehicleData::setTripDistance(float tripDistance)
     emit tripDistanceChanged();
 }
 
+void VehicleData::settripA(float tripA)
+{
+    if (qFuzzyCompare(m_tripA, tripA))
+        return;
+
+    m_tripA = tripA;
+    emit tripAChanged();
+}
+
+void VehicleData::settripB(float tripB)
+{
+    if (qFuzzyCompare(m_tripB, tripB))
+        return;
+
+    m_tripB = tripB;
+    emit tripBChanged();
+}   
+
 void VehicleData::setLowBatteryWarning(bool lowBatteryWarning)
 {
     if (m_lowBatteryWarning == lowBatteryWarning)
@@ -345,9 +397,7 @@ void VehicleData::setCommunicationFault(bool communicationFault)
     emit telemetryChanged();
 }
 
-void VehicleData::setLowRangeWarning(
-    bool lowRangeWarning
-)
+void VehicleData::setLowRangeWarning(bool lowRangeWarning)
 {
     if (m_lowRangeWarning == lowRangeWarning)
         return;
@@ -366,4 +416,13 @@ void VehicleData::setWarningMessage(const QString &warningMessage)
     m_warningMessage = warningMessage;
     emit warningMessageChanged();
     emit telemetryChanged();
+}
+
+void VehicleData::setSimulationActive(bool active)
+{
+    if (m_simulationActive == active)
+        return;
+
+    m_simulationActive = active;
+    emit simulationActiveChanged();
 }

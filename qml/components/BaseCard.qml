@@ -44,7 +44,7 @@ Rectangle {
         text: root.title
         color: Colors.textSecondary
         font.family: Typography.family
-        font.pixelSize: Typography.label
+        font.pixelSize: Typography.labelTab
         font.weight: Font.DemiBold
         elide: Text.ElideRight
     }

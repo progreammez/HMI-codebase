@@ -20,7 +20,7 @@ QtObject {
     readonly property int navRadius: Math.round(10 * scale)
 
     readonly property int topBarHeight: Math.round(30 * scale)
-    readonly property int navBarHeight: Math.round(76 * scale)
+    readonly property int navBarHeight: Math.round(85 * scale)
     readonly property int touchTarget: Math.round(56 * scale)
 
     readonly property int motionFast: 120
