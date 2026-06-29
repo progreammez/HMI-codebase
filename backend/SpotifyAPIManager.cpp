@@ -87,23 +87,24 @@ SpotifyApiManager::SpotifyApiManager(QObject *parent)
         });
 
         connect(&m_oauth,
-                &QOAuth2AuthorizationCodeFlow::granted,
-                this,
-                [this]()
-        {
-            qDebug() << "SPOTIFY LOGIN SUCCESS";
-            qDebug() << "Access Token:";
-            qDebug() << m_oauth.token();
-        });
-
-        connect(&m_oauth,
             &QOAuth2AuthorizationCodeFlow::granted,
             this,
             [this]()
     {
         qDebug() << "SPOTIFY LOGIN SUCCESS";
-        getCurrentTrack();
+        qDebug() << "Access Token:";
+        qDebug() << m_oauth.token();
+
+        m_loggedIn = true;
+        emit loggedInChanged();
+
         m_spotifyTimer.start(1000);
+
+        QTimer::singleShot(250, this, [this]()
+        {
+            getCurrentTrack();
+            getSpotifyQueue();
+        });
 
         qDebug() << "Spotify polling started";
 
@@ -116,8 +117,7 @@ SpotifyApiManager::SpotifyApiManager(QObject *parent)
                 .arg(m_oauth.token())
                 .toUtf8());
 
-        QNetworkReply *reply =
-            m_network.get(request);
+        QNetworkReply *reply = m_network.get(request);
 
         connect(reply,
                 &QNetworkReply::finished,
@@ -133,7 +133,7 @@ SpotifyApiManager::SpotifyApiManager(QObject *parent)
             this,
             [](QAbstractOAuth::Error error)
     {
-        qDebug() << "OAuth Request Failed:" << error;
+        qDebug() << "OAuth Request Failed:";
     });
 
     connect(&m_spotifyTimer,
@@ -305,7 +305,40 @@ void SpotifyApiManager::searchTracks(const QString &query)
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         QByteArray response = reply->readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(response);
+        int status =
+        reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+        if (status == 204)
+        {
+            reply->deleteLater();
+            return;
+        }
+
+        if (reply->error())
+        {
+            qDebug() << reply->errorString();
+            reply->deleteLater();
+            return;
+        }
+
+        if (response.isEmpty())
+        {
+            reply->deleteLater();
+            return;
+        }
+
+        QJsonParseError parseError;
+
+        QJsonDocument doc =
+            QJsonDocument::fromJson(response, &parseError);
+
+        if (parseError.error != QJsonParseError::NoError)
+        {
+            qDebug() << parseError.errorString();
+
+            reply->deleteLater();
+            return;
+        }
         QJsonObject root = doc.object();
         QJsonArray items = root["tracks"].toObject()["items"].toArray();
 
@@ -394,6 +427,9 @@ void SpotifyApiManager::selectTrack(int index)
 
 void SpotifyApiManager::login()
 {
+    if (m_loggedIn)
+        return;
+
     qDebug() << "Starting Spotify OAuth";
 
     m_oauth.setScope(
@@ -430,6 +466,11 @@ void SpotifyApiManager::getCurrentTrack()
 
         QJsonObject item =
             root["item"].toObject();
+        if (item.isEmpty())
+        {
+            reply->deleteLater();
+            return;
+        }
 
         bool newPlaying =
             root["is_playing"].toBool();
@@ -443,18 +484,33 @@ void SpotifyApiManager::getCurrentTrack()
         QString newTitle =
             item["name"].toString();
 
-        QString newArtist =
-            item["artists"]
-                .toArray()[0]
-                .toObject()["name"]
-                .toString();
+        QJsonArray artists =
+            item["artists"].toArray();
 
-        QString newImageUrl =
+        QString newArtist;
+
+        if (!artists.isEmpty())
+        {
+            newArtist =
+                artists.first()
+                    .toObject()["name"]
+                    .toString();
+        }
+
+        QJsonArray images =
             item["album"]
                 .toObject()["images"]
-                .toArray()[0]
-                .toObject()["url"]
-                .toString();
+                .toArray();
+
+        QString newImageUrl;
+
+        if (!images.isEmpty())
+        {
+            newImageUrl =
+                images.first()
+                    .toObject()["url"]
+                    .toString();
+        }
             
         if (newPlaying != m_isPlaying)
         {
@@ -626,6 +682,28 @@ void SpotifyApiManager::getSpotifyQueue()
         }
 
         QByteArray response = reply->readAll();
+
+        int status =
+            reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+        if (status == 204)
+        {
+            reply->deleteLater();
+            return;
+        }
+
+        if (reply->error())
+        {
+            qDebug() << reply->errorString();
+            reply->deleteLater();
+            return;
+        }
+
+        if (response.isEmpty())
+        {
+            reply->deleteLater();
+            return;
+        }
 
         QJsonDocument doc =
             QJsonDocument::fromJson(response);

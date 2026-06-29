@@ -46,6 +46,7 @@ class SpotifyApiManager : public QObject
     Q_PROPERTY(bool isPlaying READ isPlaying NOTIFY playbackStateChanged)
     Q_PROPERTY(qint64 position READ position NOTIFY playbackPositionChanged)
     Q_PROPERTY(qint64 duration READ duration NOTIFY playbackPositionChanged)
+    Q_PROPERTY(bool loggedIn READ loggedIn NOTIFY loggedInChanged)
 
 public:
     explicit SpotifyApiManager(QObject *parent = nullptr);
@@ -82,6 +83,7 @@ public:
     qint64 duration() const { return m_duration; }
     void playTrack(const QString &trackId);
     void getSpotifyQueue();
+    bool loggedIn() const { return m_loggedIn; }
 
 signals:
     void searchFinished(QString result);
@@ -93,6 +95,7 @@ signals:
     void currentTrackIndexChanged();
     void playbackStateChanged();
     void playbackPositionChanged();
+    void loggedInChanged();
 
 private:
     QNetworkAccessManager m_network;
@@ -119,6 +122,7 @@ private:
     bool m_isPlaying = false;
     qint64 m_position = 0;
     qint64 m_duration = 0;
+    bool m_loggedIn = false;
 };
 
 #endif // SPOTIFYAPIMANAGER_H

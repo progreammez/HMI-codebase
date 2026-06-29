@@ -419,27 +419,28 @@ Item {
                         anchors.right: parent.right
                         anchors.margins: 12
 
+                        // Album art (shown after login)
+                        visible: !(mediaSourceTab === 1 && !spotifyApi.loggedIn)
+
                         Rectangle {
                             id: floatingCardWrapper
                             anchors.centerIn: parent
-                            width: Math.min(parent.width * 0.62, parent.height * 0.85) 
+                            width: Math.min(parent.width * 0.62, parent.height * 0.85)
                             height: width
                             radius: 16
-                            color: Colors.surfaceRaised
 
-                            scale: musicPlayer.isPlaying ? 1.0 : 0.90
-                            Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.InOutQuad } }
+                            color: Colors.surfaceRaised
 
                             Image {
                                 id: albumArt
                                 anchors.fill: parent
-                                anchors.margins: 1 
+                                anchors.margins: 1
                                 source: mediaSourceTab === 1 ? spotifyApi.selectedImageUrl : musicPlayer.albumArtUrl
                                 fillMode: Image.PreserveAspectCrop
-                            } 
+                            }
 
                             Rectangle {
-                                anchors.fill: parent  
+                                anchors.fill: parent
                                 color: "transparent"
                                 border.width: 2
                                 border.color: Colors.borderActive
@@ -450,8 +451,79 @@ Item {
                                 visible: albumArt.status !== Image.Ready
                                 text: "♪"
                                 color: Colors.accentCity
-                                font.family: Typography.family
                                 font.pixelSize: 42
+                            }
+                        }
+                    }
+
+                    Item {
+                        anchors.top: parent.top
+                        anchors.bottom: bottomControlsColumn.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.margins: 12
+
+                        visible: mediaSourceTab === 1 && !spotifyApi.loggedIn
+
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 24
+
+                            Rectangle {
+                                width: 110
+                                height: 110
+                                radius: 55
+
+                                color: Colors.surfaceRaised
+                                border.width: 2
+                                border.color: Colors.borderActive
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "♫"
+                                    font.pixelSize: 46
+                                    color: Colors.accentCity
+                                }
+                            }
+
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "Connect your Spotify account"
+                                color: Colors.textPrimary
+                                font.pixelSize: Typography.titleLarge
+                                font.bold: true
+                            }
+
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "Log in to search, play and queue music."
+                                color: Colors.textSecondary
+                                font.pixelSize: Typography.bodyMedium
+                            }
+
+                            Rectangle {
+                                width: 180
+                                height: 46
+                                radius: 23
+
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                                color: loginMouse.pressed
+                                    ? Colors.surfacePressed
+                                    : Colors.borderActive
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Connect Spotify"
+                                    color: "white"
+                                    font.bold: true
+                                }
+
+                                MouseArea {
+                                    id: loginMouse
+                                    anchors.fill: parent
+                                    onClicked: spotifyApi.login()
+                                }
                             }
                         }
                     }
@@ -671,13 +743,12 @@ Item {
                             color: swapMouse.pressed ? Colors.surfacePressed : Colors.surfaceRaised
                             border.width: 1; border.color: Colors.borderWarm
                             Text { anchors.centerIn: parent; text: musicPageRoot.translations["switch"][Typography.currentLanguage]; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.bold: true }
-                            MouseArea { id: swapMouse; anchors.fill: parent; onClicked: { spotifyApi.login() } }
+                            MouseArea { id: swapMouse; anchors.fill: parent; onClicked: { bluetoothManager.scanDevices(); musicPageRoot.showBluetoothPopup = true } }
                         }
                     }
                 }
             }
         }
-    }
 
     // =====================================================
     // EXTENSION MODULE LAZY-COMPILER TABS
@@ -898,7 +969,27 @@ Item {
             readonly property var localResults: getFilteredLocalTracks()
             readonly property bool showSpotifyFallback: musicPageRoot.mediaSourceTab === 0 && localSearchQuery !== "" && localResults.length === 0
 
+            Rectangle {
+                visible: musicPageRoot.mediaSourceTab === 1 && !spotifyApi.loggedIn
+
+                width: parent.width
+                height: 220
+
+                radius: 10
+
+                color: Colors.surfaceRaised
+
+                Text {
+                    anchors.centerIn: parent
+
+                    text: "Please connect Spotify first."
+
+                    color: Colors.textSecondary
+                }
+            }
+
             Row {
+                visible: !(musicPageRoot.mediaSourceTab === 1 && !spotifyApi.loggedIn)
                 width: parent.width
                 spacing: 6
 
@@ -1098,6 +1189,7 @@ Item {
                 ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
             }
         }
+    }
     }
 
     // =====================================================
