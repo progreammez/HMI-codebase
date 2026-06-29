@@ -87,23 +87,24 @@ SpotifyApiManager::SpotifyApiManager(QObject *parent)
         });
 
         connect(&m_oauth,
-                &QOAuth2AuthorizationCodeFlow::granted,
-                this,
-                [this]()
-        {
-            qDebug() << "SPOTIFY LOGIN SUCCESS";
-            qDebug() << "Access Token:";
-            qDebug() << m_oauth.token();
-        });
-
-        connect(&m_oauth,
             &QOAuth2AuthorizationCodeFlow::granted,
             this,
             [this]()
     {
         qDebug() << "SPOTIFY LOGIN SUCCESS";
-        getCurrentTrack();
+        qDebug() << "Access Token:";
+        qDebug() << m_oauth.token();
+
+        m_loggedIn = true;
+        emit loggedInChanged();
+
         m_spotifyTimer.start(1000);
+
+        QTimer::singleShot(250, this, [this]()
+        {
+            getCurrentTrack();
+            getSpotifyQueue();
+        });
 
         qDebug() << "Spotify polling started";
 
@@ -116,8 +117,7 @@ SpotifyApiManager::SpotifyApiManager(QObject *parent)
                 .arg(m_oauth.token())
                 .toUtf8());
 
-        QNetworkReply *reply =
-            m_network.get(request);
+        QNetworkReply *reply = m_network.get(request);
 
         connect(reply,
                 &QNetworkReply::finished,
@@ -133,13 +133,17 @@ SpotifyApiManager::SpotifyApiManager(QObject *parent)
             this,
             [](QAbstractOAuth::Error error)
     {
-        qDebug() << "OAuth Request Failed:" << error;
+        qDebug() << "OAuth Request Failed:";
     });
 
     connect(&m_spotifyTimer,
-        &QTimer::timeout,
-        this,
-        &SpotifyApiManager::getCurrentTrack);
+            &QTimer::timeout,
+            this,
+            [this]()
+    {
+        getCurrentTrack();
+        getSpotifyQueue();
+    });
 }
 
 QString SpotifyApiManager::loadApiKey()
@@ -206,7 +210,46 @@ void SpotifyApiManager::addToQueue(int index)
         return;
     }
 
-    m_queue.append(m_tracks[index]);
+    bool exists = false;
+
+    for (const auto &track : m_queue)
+    {
+        if (track.id == m_tracks[index].id)
+        {
+            exists = true;
+            break;
+        }
+    }
+
+    if (!exists)
+    {
+        m_queue.append(m_tracks[index]);
+        emit queueChanged();
+    }
+
+    QNetworkRequest request(
+        QUrl(QString("https://api.spotify.com/v1/me/player/queue?uri=spotify:track:%1")
+             .arg(m_tracks[index].id)));
+    
+    request.setRawHeader(
+        "Authorization",
+        QString("Bearer " + m_oauth.token()).toUtf8());
+    
+    QNetworkReply *reply = m_network.post(request, QByteArray());
+    
+    connect(reply, &QNetworkReply::finished,
+            this,
+            [reply]()
+    {
+        qDebug() << "QUEUE TRACK:"
+                 << reply->attribute(
+                        QNetworkRequest::HttpStatusCodeAttribute);
+    
+        if (reply->error())
+            qDebug() << reply->readAll();
+    
+        reply->deleteLater();
+    });
     
     if (m_currentTrackIndex == -1) {
         m_currentTrackIndex = 0;
@@ -262,7 +305,40 @@ void SpotifyApiManager::searchTracks(const QString &query)
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         QByteArray response = reply->readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(response);
+        int status =
+        reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+        if (status == 204)
+        {
+            reply->deleteLater();
+            return;
+        }
+
+        if (reply->error())
+        {
+            qDebug() << reply->errorString();
+            reply->deleteLater();
+            return;
+        }
+
+        if (response.isEmpty())
+        {
+            reply->deleteLater();
+            return;
+        }
+
+        QJsonParseError parseError;
+
+        QJsonDocument doc =
+            QJsonDocument::fromJson(response, &parseError);
+
+        if (parseError.error != QJsonParseError::NoError)
+        {
+            qDebug() << parseError.errorString();
+
+            reply->deleteLater();
+            return;
+        }
         QJsonObject root = doc.object();
         QJsonArray items = root["tracks"].toObject()["items"].toArray();
 
@@ -341,20 +417,19 @@ void SpotifyApiManager::loadLyrics(const QString &trackId)
 
 void SpotifyApiManager::selectTrack(int index)
 {
-    if(index < 0 || index >= m_tracks.size())
+    if (index < 0 || index >= m_tracks.size())
         return;
 
-    m_selectedTitle = m_tracks[index].title;
-    m_selectedArtist = m_tracks[index].artist;
-    m_selectedAlbum = m_tracks[index].album;
-    m_selectedImageUrl = m_tracks[index].imageUrl;
+    playTrack(m_tracks[index].id);
 
-    emit selectedTrackChanged();
     loadLyrics(m_tracks[index].id);
 }
 
 void SpotifyApiManager::login()
 {
+    if (m_loggedIn)
+        return;
+
     qDebug() << "Starting Spotify OAuth";
 
     m_oauth.setScope(
@@ -391,6 +466,11 @@ void SpotifyApiManager::getCurrentTrack()
 
         QJsonObject item =
             root["item"].toObject();
+        if (item.isEmpty())
+        {
+            reply->deleteLater();
+            return;
+        }
 
         bool newPlaying =
             root["is_playing"].toBool();
@@ -404,18 +484,33 @@ void SpotifyApiManager::getCurrentTrack()
         QString newTitle =
             item["name"].toString();
 
-        QString newArtist =
-            item["artists"]
-                .toArray()[0]
-                .toObject()["name"]
-                .toString();
+        QJsonArray artists =
+            item["artists"].toArray();
 
-        QString newImageUrl =
+        QString newArtist;
+
+        if (!artists.isEmpty())
+        {
+            newArtist =
+                artists.first()
+                    .toObject()["name"]
+                    .toString();
+        }
+
+        QJsonArray images =
             item["album"]
                 .toObject()["images"]
-                .toArray()[0]
-                .toObject()["url"]
-                .toString();
+                .toArray();
+
+        QString newImageUrl;
+
+        if (!images.isEmpty())
+        {
+            newImageUrl =
+                images.first()
+                    .toObject()["url"]
+                    .toString();
+        }
             
         if (newPlaying != m_isPlaying)
         {
@@ -527,6 +622,138 @@ void SpotifyApiManager::seek(qint64 position)
             &QNetworkReply::finished,
             reply,
             &QNetworkReply::deleteLater);
+}
+
+void SpotifyApiManager::playTrack(const QString &trackId)
+{
+    QNetworkRequest request{QUrl("https://api.spotify.com/v1/me/player/play")};
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      "application/json");
+
+    request.setRawHeader(
+        "Authorization",
+        QString("Bearer " + m_oauth.token()).toUtf8());
+
+    QJsonObject body;
+    body["uris"] = QJsonArray{
+        QString("spotify:track:%1").arg(trackId)
+    };
+
+    QNetworkReply *reply =
+        m_network.put(request,
+                      QJsonDocument(body).toJson());
+
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            [reply]()
+    {
+        qDebug() << "PLAY TRACK:"
+                 << reply->attribute(
+                        QNetworkRequest::HttpStatusCodeAttribute);
+
+        if (reply->error())
+            qDebug() << reply->readAll();
+
+        reply->deleteLater();
+    });
+}
+
+void SpotifyApiManager::getSpotifyQueue()
+{
+    QNetworkRequest request(
+        QUrl("https://api.spotify.com/v1/me/player/queue"));
+
+    request.setRawHeader(
+        "Authorization",
+        QString("Bearer " + m_oauth.token()).toUtf8());
+
+    QNetworkReply *reply = m_network.get(request);
+
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            [this, reply]()
+    {
+        if (reply->error()) {
+            reply->deleteLater();
+            return;
+        }
+
+        QByteArray response = reply->readAll();
+
+        int status =
+            reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+        if (status == 204)
+        {
+            reply->deleteLater();
+            return;
+        }
+
+        if (reply->error())
+        {
+            qDebug() << reply->errorString();
+            reply->deleteLater();
+            return;
+        }
+
+        if (response.isEmpty())
+        {
+            reply->deleteLater();
+            return;
+        }
+
+        QJsonDocument doc =
+            QJsonDocument::fromJson(response);
+
+        QJsonObject root =
+            doc.object();
+
+        QJsonArray queue =
+            root["queue"].toArray();
+
+        m_queue.clear();
+
+        for (const QJsonValue &value : queue)
+        {
+            QJsonObject track =
+                value.toObject();
+
+            SpotifyTrack item;
+
+            item.id =
+                track["id"].toString();
+
+            item.title =
+                track["name"].toString();
+
+            item.artist =
+                track["artists"]
+                    .toArray()[0]
+                    .toObject()["name"]
+                    .toString();
+
+            item.album =
+                track["album"]
+                    .toObject()["name"]
+                    .toString();
+
+            item.imageUrl =
+                track["album"]
+                    .toObject()["images"]
+                    .toArray()[0]
+                    .toObject()["url"]
+                    .toString();
+
+            m_queue.append(item);
+        }
+
+        emit queueChanged();
+
+        reply->deleteLater();
+    });
 }
 
 QStringList SpotifyApiManager::lyricList() const { return m_lyricList; }

@@ -91,6 +91,7 @@ qt_add_resources(EV_HMI "assets"
         assets/Boot/RickRoll.mp4
     #Music
         assets/music/placeholder/default_cover.png
+        assets/icons/spotify.png
     #Dark Theme
         #Universal
         assets/icons/Dark/Universal/home-main.png
