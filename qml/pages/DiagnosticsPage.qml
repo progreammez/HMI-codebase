@@ -971,17 +971,8 @@ Item {
                                         Text { 
                                             font.pixelSize: Math.round(16 * Theme.scale); font.family: Typography.family; font.weight: Font.Bold; color: Colors.textPrimary; 
                                             text: diagnosticsCoreGrid.translations[mainValue] ? diagnosticsCoreGrid.translations[mainValue][Typography.currentLanguage] : mainValue; 
-                                            visible: cardType === "communication"; Layout.fillWidth: true; elide: Text.ElideRight 
                                         }
                                         Text { font.pixelSize: Math.round(11 * Theme.scale); font.family: Typography.family; color: Colors.textMuted; text: subLabel; Layout.fillWidth: true; elide: Text.ElideRight }
-                                    }
-                                }
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true; spacing: Math.round(4 * Theme.scale)
-                                Rectangle { width: Math.round(6 * Theme.scale); height: Math.round(6 * Theme.scale); radius: width / 2; color: statusColor2; Layout.alignment: Qt.AlignVCenter }
-                                Text { text: diagnosticsCoreGrid.translations[statusText] ? diagnosticsCoreGrid.translations[statusText][Typography.currentLanguage] : statusText; color: statusColor; font.family: Typography.family; font.bold: true; font.pixelSize: Typography.label; Layout.fillWidth: true; elide: Text.ElideRight; Layout.alignment: Qt.AlignVCenter }
                             }
                         }
                     }

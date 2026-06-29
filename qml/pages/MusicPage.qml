@@ -12,6 +12,7 @@ Item {
     // Virtual Keyboard Target Configuration State Variables
     property bool showKeyboard: false
     property var activeInputTarget: null
+    property bool userSeeking: false
 
     // Helper property to fetch dynamic theme paths cleanly across all components
     readonly property string iconPathPrefix: "qrc:/assets/icons/" + (Colors.dayNightMode === "day" ? "Light" : "Dark") + "/MusicPage/"
@@ -39,10 +40,87 @@ Item {
         }
     }
 
+    function playPause() {
+        if (mediaSourceTab === 1) {
+
+            if (musicPlayer.isPlaying)
+                musicPlayer.pause()
+
+            spotifyApi.playPause()
+
+        } else {
+
+            if (spotifyApi.isPlaying)
+                spotifyApi.playPause()
+
+            musicPlayer.togglePlayback()
+        }
+    }
+
+    function nextTrack() {
+        if (mediaSourceTab === 1) {
+
+            if (musicPlayer.isPlaying)
+                musicPlayer.pause()
+
+            spotifyApi.nextTrack()
+
+        } else {
+
+            if (spotifyApi.isPlaying)
+                spotifyApi.playPause()
+
+            musicPlayer.nextTrack()
+        }
+    }
+
+    function previousTrack() {
+        if (mediaSourceTab === 1) {
+
+            if (musicPlayer.isPlaying)
+                musicPlayer.pause()
+
+            spotifyApi.previousTrack()
+
+        } else {
+
+            if (spotifyApi.isPlaying)
+                spotifyApi.playPause()
+
+            musicPlayer.previousTrack()
+        }
+    }
+
+    readonly property bool currentPlayingState:
+        mediaSourceTab === 1
+        ? spotifyApi.isPlaying
+        : musicPlayer.isPlaying
+
+    readonly property int currentDuration:
+        mediaSourceTab === 1
+        ? spotifyApi.duration
+        : musicPlayer.duration
+
+    readonly property int currentPosition:
+        mediaSourceTab === 1
+        ? spotifyApi.position
+        : musicPlayer.position
+
+    function formatTime(ms)
+    {
+        let totalSeconds = Math.floor(ms / 1000)
+        let minutes = Math.floor(totalSeconds / 60)
+        let seconds = totalSeconds % 60
+
+        return minutes + ":" +
+            (seconds < 10 ? "0" : "") +
+            seconds
+    }
+
     // =====================================================
     // HARDCODED TRANSLATION DICTIONARY
     // =====================================================
-    readonly property var translations: ({
+    readonly property var translations: {
         "local":            { "en": "Local",            "de": "Lokal",                  "es": "Local" },
         "spotify":          { "en": "Spotify",          "de": "Spotify",                "es": "Spotify" },
         "lyrics":           { "en": "Lyrics",           "de": "Liedtext",               "es": "Lírica" },
@@ -62,7 +140,7 @@ Item {
         "search_spotify":   { "en": "Search Spotify...",       "de": "Spotify durchsuchen...",          "es": "Buscar en Spotify..." },
         "spotify_fallback": { "en": "No matches. Search Spotify instead?", "de": "Keine Treffer. Stattdessen Spotify durchsuchen?", "es": "Sin coincidencias. ¿Quieres buscar en Spotify?" },
         "queue_title":      { "en": "Playback Queue",   "de": "Wiedergabewarteschlange", "es": "Cola de Reproducción" }
-    })
+    }
 
     Row {
         anchors.fill: parent
@@ -223,9 +301,23 @@ Item {
                                 width: parent.width
                                 anchors.top: parent.top
                                 from: 0
-                                to: musicPlayer.duration
-                                value: musicPlayer.position
-                                onMoved: musicPlayer.seek(value)
+                                to: currentDuration
+                                value: currentPosition
+                                onPressedChanged: {
+                                    if (pressed)
+                                    {
+                                        userSeeking = true
+                                    }
+                                    else
+                                    {
+                                        userSeeking = false
+
+                                        if (mediaSourceTab === 1)
+                                            spotifyApi.seek(value)
+                                        else
+                                            musicPlayer.seek(value)
+                                    }
+                                }
 
                                 background: Rectangle {
                                     x: progressSlider.leftPadding
@@ -260,13 +352,13 @@ Item {
                             Text {
                                 id: startTimeText
                                 anchors.left: progressSlider.left; anchors.top: progressSlider.bottom; anchors.topMargin: 2
-                                text: musicPlayer.currentTime; color: Colors.textSecondary; font.family: Typography.family; font.pixelSize: Typography.bodySmall
+                                text: formatTime(currentPosition); color: Colors.textSecondary; font.family: Typography.family; font.pixelSize: Typography.bodySmall
                             }
 
                             Text {
                                 id: endTimeText
                                 anchors.right: progressSlider.right; anchors.top: progressSlider.bottom; anchors.topMargin: 2
-                                text: musicPlayer.totalTime; color: Colors.textSecondary; font.family: Typography.family; font.pixelSize: Typography.bodySmall
+                                text: formatTime(currentDuration); color: Colors.textSecondary; font.family: Typography.family; font.pixelSize: Typography.bodySmall
                             }
                         }
 
@@ -285,7 +377,7 @@ Item {
                                     anchors.centerIn: parent; width: 20; height: 20
                                     source: iconPathPrefix + "previous.png"
                                 }
-                                MouseArea { id: prevMouse; anchors.fill: parent; onClicked: musicPlayer.previousTrack() }
+                                MouseArea { id: prevMouse; anchors.fill: parent; onClicked: previousTrack() }
                             }
 
                             Rectangle {
@@ -294,11 +386,11 @@ Item {
 
                                 Image {
                                     anchors.centerIn: parent; width: 26; height: 26
-                                    source: musicPlayer.isPlaying
+                                    source: currentPlayingState
                                         ? (iconPathPrefix + "pause.png")
                                         : (iconPathPrefix + "play.png")
                                 }
-                                MouseArea { anchors.fill: parent; onClicked: musicPlayer.togglePlayback() }
+                                MouseArea { anchors.fill: parent; onClicked: playPause() }
                             }
 
                             Rectangle {
@@ -311,7 +403,7 @@ Item {
                                     anchors.centerIn: parent; width: 20; height: 20
                                     source: iconPathPrefix + "next.png"
                                 }
-                                MouseArea { id: nextMouse; anchors.fill: parent; onClicked: musicPlayer.nextTrack() }
+                                MouseArea { id: nextMouse; anchors.fill: parent; onClicked: nextTrack() }
                             }
                         }
 
@@ -357,27 +449,28 @@ Item {
                         anchors.right: parent.right
                         anchors.margins: 12
 
+                        // Album art (shown after login)
+                        visible: !(mediaSourceTab === 1 && !spotifyApi.loggedIn)
+
                         Rectangle {
                             id: floatingCardWrapper
                             anchors.centerIn: parent
-                            width: Math.min(parent.width * 0.62, parent.height * 0.85) 
+                            width: Math.min(parent.width * 0.62, parent.height * 0.85)
                             height: width
                             radius: 16
-                            color: Colors.surfaceRaised
 
-                            scale: musicPlayer.isPlaying ? 1.0 : 0.90
-                            Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.InOutQuad } }
+                            color: Colors.surfaceRaised
 
                             Image {
                                 id: albumArt
                                 anchors.fill: parent
-                                anchors.margins: 1 
+                                anchors.margins: 1
                                 source: mediaSourceTab === 1 ? spotifyApi.selectedImageUrl : musicPlayer.albumArtUrl
                                 fillMode: Image.PreserveAspectCrop
-                            } 
+                            }
 
                             Rectangle {
-                                anchors.fill: parent  
+                                anchors.fill: parent
                                 color: "transparent"
                                 border.width: 2
                                 border.color: Colors.borderActive
@@ -388,8 +481,73 @@ Item {
                                 visible: albumArt.status !== Image.Ready
                                 text: "♪"
                                 color: Colors.accentCity
-                                font.family: Typography.family
                                 font.pixelSize: 42
+                            }
+                        }
+                    }
+
+                    Item {
+                        anchors.top: parent.top
+                        anchors.bottom: bottomControlsColumn.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.margins: 8
+
+                        visible: mediaSourceTab === 1 && !spotifyApi.loggedIn
+
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 12
+
+                            Image {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                source: "qrc:/assets/icons/spotify.png"
+                                width: 110
+                                height: 110
+                                fillMode: Image.PreserveAspectFit
+                            }
+
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "Connect your Spotify account"
+                                color: Colors.textPrimary
+                                font.pixelSize: Typography.titleLarge
+                                font.family: Typography.family
+                                font.bold: true
+                            }
+
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "Log in to search, play and queue music."
+                                color: Colors.textSecondary
+                                font.pixelSize: Typography.bodyMedium
+                                font.family: Typography.family
+                            }
+
+                            Rectangle {
+                                width: 180
+                                height: 46
+                                radius: 23
+
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                                color: loginMouse.pressed
+                                    ? Colors.surfacePressed
+                                    : Colors.borderActive
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    font.family: Typography.family
+                                    text: "Connect Spotify"
+                                    color: "white"
+                                    font.bold: true
+                                }
+
+                                MouseArea {
+                                    id: loginMouse
+                                    anchors.fill: parent
+                                    onClicked: spotifyApi.login()
+                                }
                             }
                         }
                     }
@@ -615,7 +773,6 @@ Item {
                 }
             }
         }
-    }
 
     // =====================================================
     // EXTENSION MODULE LAZY-COMPILER TABS
@@ -836,7 +993,27 @@ Item {
             readonly property var localResults: getFilteredLocalTracks()
             readonly property bool showSpotifyFallback: musicPageRoot.mediaSourceTab === 0 && localSearchQuery !== "" && localResults.length === 0
 
+            Rectangle {
+                visible: musicPageRoot.mediaSourceTab === 1 && !spotifyApi.loggedIn
+
+                width: parent.width
+                height: 220
+
+                radius: 10
+
+                color: Colors.surfaceRaised
+
+                Text {
+                    anchors.centerIn: parent
+
+                    text: "Please connect Spotify first."
+
+                    color: Colors.textSecondary
+                }
+            }
+
             Row {
+                visible: !(musicPageRoot.mediaSourceTab === 1 && !spotifyApi.loggedIn)
                 width: parent.width
                 spacing: 6
 
@@ -958,8 +1135,14 @@ Item {
                         onClicked: {
                             if (!gestureHandled) {
                                 searchRoot.selectedIndex = index
+
                                 if (musicPageRoot.mediaSourceTab === 1) {
                                     spotifyApi.selectTrack(index)
+
+                                    searchField.clear()
+                                    searchField.focus = false
+                                    musicPageRoot.showKeyboard = false
+                                    musicPageRoot.activeInputTarget = null
                                 } else {
                                     musicPlayer.playTrack(modelData.localIndex)
                                 }
@@ -986,50 +1169,182 @@ Item {
         Item {
             anchors.fill: parent
 
-            Text { id: queueTitle; text: musicPageRoot.translations["queue_title"][Typography.currentLanguage]; anchors.top: parent.top; anchors.left: parent.left; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyLarge }
-            Rectangle { id: queueDivider; anchors.top: queueTitle.bottom; anchors.topMargin: 8; width: parent.width; height: 1; color: Colors.borderSubtle }
+            Text { 
+                id: queueTitle 
+                text: musicPageRoot.translations["queue_title"][Typography.currentLanguage] 
+                anchors.top: parent.top 
+                anchors.left: parent.left 
+                color: Colors.textPrimary 
+                font.family: Typography.family 
+                font.pixelSize: Typography.bodyLarge 
+            }
+            
+            Rectangle { 
+                id: queueDivider 
+                anchors.top: queueTitle.bottom 
+                anchors.topMargin: 8 
+                width: parent.width 
+                height: 1 
+                color: Colors.borderSubtle 
+            }
 
-            ListView {
-                id: queueList; anchors.top: queueDivider.bottom; anchors.topMargin: 8; anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom; clip: true; spacing: 4
-                model: musicPageRoot.mediaSourceTab === 0 ? musicPlayer.playlistTitles : (spotifyApi.queueTitles || [])
+            // ---------------- NOW PLAYING SECTION ----------------
+            Text {
+                id: nowPlayingLabel
+                text: "Now Playing"
+                color: Colors.textSecondary
+                font.family: Typography.family
+                font.pixelSize: Typography.bodySmall
+                font.bold: true
+                anchors.top: queueDivider.bottom
+                anchors.topMargin: 10
+                anchors.left: parent.left
+            }
 
-                delegate: Rectangle {
-                    width: queueList.width 
-                    height: 56
-                    
-                    readonly property bool isCurrentActive: musicPageRoot.mediaSourceTab === 0 
-                        ? (index === musicPlayer.currentTrackIndex - 1)
-                        : (index === spotifyApi.currentTrackIndex)
+            Rectangle {
+                id: nowPlayingBox
+                width: parent.width
+                height: 56
+                radius: 4
+                color: Colors.surfacePressed
+                border.width: 0.5
+                border.color: Colors.borderWarm
+                anchors.top: nowPlayingLabel.bottom
+                anchors.topMargin: 6
 
-                    color: isCurrentActive ? Colors.surfacePressed : Colors.surfaceRaised
-                    border.width: 0.5; border.color: Colors.borderWarm
+                Row {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    spacing: 10
 
-                    Row {
-                        anchors.fill: parent; anchors.margins: 8; spacing: 10
-                        Rectangle {
-                            width: 32; height: 32; radius: 4; color: Colors.surfacePressed
-                            Text { anchors.centerIn: parent; text: isCurrentActive ? "▶" : "♪"; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyMedium }
-                        }
+                    Rectangle {
+                        width: 32
+                        height: 32
+                        radius: 4
+                        color: Colors.surfaceRaised
+
                         Text {
-                            anchors.verticalCenter: parent.verticalCenter; width: parent.width - 60; text: modelData; color: Colors.textPrimary; font.family: Typography.family
-                            font.pixelSize: isCurrentActive ? Typography.bodyMedium : Typography.bodySmall
-                            font.bold: isCurrentActive; elide: Text.ElideRight
+                            anchors.centerIn: parent
+                            text: "▶"
+                            color: Colors.textPrimary
+                            font.pixelSize: Typography.bodyMedium
                         }
                     }
-                    MouseArea { 
-                        anchors.fill: parent 
-                        onClicked: {
-                            if (musicPageRoot.mediaSourceTab === 0) {
-                                musicPlayer.playTrack(index)
-                            } else {
-                                spotifyApi.playQueueTrack(index)
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: parent.width - 60
+
+                        text: musicPageRoot.mediaSourceTab === 0
+                                ? musicPlayer.trackTitle
+                                : spotifyApi.selectedTitle
+
+                        color: Colors.textPrimary
+                        font.family: Typography.family
+                        font.pixelSize: Typography.bodyMedium
+                        font.bold: true
+                        elide: Text.ElideRight
+                    }
+                }
+            }
+
+            Rectangle {
+                id: sectionDivider
+                width: parent.width
+                height: 1
+                color: Colors.borderSubtle
+                anchors.top: nowPlayingBox.bottom
+                anchors.topMargin: 10
+            }
+
+            Text {
+                id: upNextLabel
+                text: "Up Next"
+                color: Colors.textSecondary
+                font.family: Typography.family
+                font.pixelSize: Typography.bodySmall
+                font.bold: true
+                anchors.top: sectionDivider.bottom
+                anchors.topMargin: 10
+                anchors.left: parent.left
+            }
+
+
+            property var localUpNext: musicPlayer.playlistTitles.slice(musicPlayer.currentTrackIndex)
+            property var spotifyUpNext: (spotifyApi.queueTitles || [])
+            // ---------------- BOUNDED QUEUE LIST ----------------
+            ListView {
+                id: queueList
+                width: parent.width
+                
+                // Tight anchors lock the list directly beneath the header and align to the container bottom
+                anchors.top: upNextLabel.bottom
+                anchors.topMargin: 6
+                anchors.bottom: parent.bottom
+
+                clip: true
+                spacing: 4
+
+                model: musicPageRoot.mediaSourceTab === 0
+                    ? localUpNext
+                    : spotifyUpNext
+
+                delegate: Rectangle {
+                    width: queueList.width
+                    height: 48
+
+                    color: Colors.surfaceRaised
+                    border.width: 0.5
+                    border.color: Colors.borderWarm
+
+                    Row {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        spacing: 10
+
+                        Rectangle {
+                            width: 24
+                            height: 24
+                            radius: 3
+                            color: Colors.surfacePressed
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "♪"
+                                color: Colors.textPrimary
                             }
+                        }
+
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width - 50
+                            text: modelData
+                            color: Colors.textPrimary
+                            font.pixelSize: Typography.bodySmall
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        enabled: musicPageRoot.mediaSourceTab === 0
+
+                        onClicked: {
+
+                            if (spotifyApi.isPlaying)
+                                spotifyApi.playPause()
+
+                            musicPlayer.playTrack(index + musicPlayer.currentTrackIndex)
                         }
                     }
                 }
-                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AsNeeded
+                }
             }
         }
+    }
     }
 
     // =====================================================

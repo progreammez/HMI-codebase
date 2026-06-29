@@ -52,7 +52,7 @@ class LocalMusicPlayer : public QObject
     Q_PROPERTY(QStringList lyricList READ lyricList NOTIFY lyricsLoadedChanged)
     Q_PROPERTY(int currentLyricIndex READ currentLyricIndex NOTIFY currentLyricIndexChanged)
     
-    Q_PROPERTY(QStringList playlistTitles READ playlistTitles NOTIFY trackCountChanged)
+    Q_PROPERTY(QStringList playlistTitles READ playlistTitles NOTIFY queueChanged)
 
 public:
     explicit LocalMusicPlayer(QObject *parent = nullptr);
@@ -136,6 +136,7 @@ signals:
     void currentLyricChanged();
     void lyricsLoadedChanged();
     void currentLyricIndexChanged();
+    void queueChanged();
     
 private:
     QMediaPlayer *m_player;
