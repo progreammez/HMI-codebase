@@ -19,8 +19,23 @@ BaseCard {
         "rpm":   { "en": "RPM",         "de": "U/min",       "es": "RPM" }
     }
 
-    // Automatically repaint canvas only when the animated speed value changes
-    onDisplayedSpeedChanged: gaugeCanvas.requestPaint()
+    // Performance Optimization: Throttle main-thread Context2D repaints to whole-integer speed fluctuations
+    property int _lastPaintedSpeed: -1
+    onDisplayedSpeedChanged: {
+        var currentWholeSpeed = Math.round(displayedSpeed)
+        if (currentWholeSpeed !== _lastPaintedSpeed) {
+            _lastPaintedSpeed = currentWholeSpeed
+            gaugeCanvas.requestPaint()
+        }
+    }
+
+    // Force context redraw when active application localization changes out from under canvas labels
+    Connections {
+        target: Typography
+        function onCurrentLanguageChanged() {
+            gaugeCanvas.requestPaint()
+        }
+    }
 
     Behavior on displayedSpeed {
         NumberAnimation {
@@ -93,6 +108,7 @@ BaseCard {
             ctx.strokeStyle = Qt.rgba(Colors.textMuted.r, Colors.textMuted.g, Colors.textMuted.b, 0.4)
             ctx.lineWidth = 1.5 * Theme.scale
             
+            // Clean dynamic family concatenation string to protect fallback rendering loops
             ctx.font = "bold " + Math.round(13 * Theme.scale) + "px " + Typography.family
             ctx.fillStyle = Colors.textSecondary
             ctx.textAlign = "center"
@@ -140,7 +156,7 @@ BaseCard {
             color: Colors.textPrimary
 
             font.family: Typography.family
-            font.pixelSize: Typography.displayLarge * 1.35
+            font.pixelSize: Typography.displayLarge 
             font.bold: true
 
             scale: 1.0 + (root.displayedSpeed / 200) * 0.03

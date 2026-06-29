@@ -10,8 +10,6 @@ BaseCard {
     // =====================================================
     // ⚙️ WIRE THIS TO YOUR SETTINGS VARIABLE
     // =====================================================
-    // Change "Typography.currentUnit" here to your exact settings variable if needed 
-    // (e.g., settingsState.units, or vehicleData.units)
     property string unitSystem: Typography.unitSystem 
 
     // Flexible check: catches "metric", "km", or "km/h" dynamically
@@ -26,9 +24,26 @@ BaseCard {
     property real displayedSpeed: root.targetedSpeed
     property real displayedRpm: vehicleData.rpm
 
-    // Automatically triggers repaint loops when speed changes or units toggle
-    onDisplayedSpeedChanged: gaugeCanvas.requestPaint()
+    // Automatically triggers repaint loops when units change
     onUnitSystemChanged: gaugeCanvas.requestPaint() 
+
+    // Performance Optimization: Restrict canvas repaints to whole integer changes
+    property int _lastPaintedSpeed: -1
+    onDisplayedSpeedChanged: {
+        var currentWholeSpeed = Math.round(displayedSpeed)
+        if (currentWholeSpeed !== _lastPaintedSpeed) {
+            _lastPaintedSpeed = currentWholeSpeed
+            gaugeCanvas.requestPaint()
+        }
+    }
+
+    // Listens to global language switches to force-repaint local text metrics drawn on canvas
+    Connections {
+        target: Typography
+        function onCurrentLanguageChanged() {
+            gaugeCanvas.requestPaint()
+        }
+    }
 
     // =====================================================
     // LOCALIZATION DICTIONARY
@@ -108,6 +123,7 @@ BaseCard {
             ctx.strokeStyle = Qt.rgba(Colors.textMuted.r, Colors.textMuted.g, Colors.textMuted.b, 0.4)
             ctx.lineWidth = 1.5 * Theme.scale
             
+            // Clean dynamic string evaluation to pass linting check
             ctx.font = "bold " + Math.round(13 * Theme.scale) + "px " + Typography.family
             ctx.fillStyle = Colors.textSecondary
             ctx.textAlign = "center"
@@ -155,7 +171,7 @@ BaseCard {
             color: Colors.textPrimary
 
             font.family: Typography.family
-            font.pixelSize: Typography.displayLarge * 1.35
+            font.pixelSize: Typography.displayLarge
             font.bold: true
 
             scale: 1.0 + (root.displayedSpeed / root.maxSpeedLimit) * 0.03

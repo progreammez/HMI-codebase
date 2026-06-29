@@ -20,7 +20,7 @@ Item {
         property int contrast: Colors.contrastValue
         property int alertVolume: 66
         property int indicatorVolume: 40
-        property int masterVolume: Math.round((alertVolume + indicatorVolume) / 2)
+        property int masterVolume: musicPlayer.volume
 
         property string fontStyle: typeof root !== 'undefined' ? root.globalFont : "Rajdhani"
         property string language: Typography.currentLanguage  
@@ -180,21 +180,45 @@ Item {
                         color: settingsState.fontStyle === "Rajdhani" ? Colors.surfacePressed : Colors.surfaceRaised
                         border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.fontStyle === "Rajdhani" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Rajdhani"; color: settingsState.fontStyle === "Rajdhani" ? Colors.textPrimary : Colors.textMuted; font.family: "Rajdhani"; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
-                        MouseArea { anchors.fill: parent; onClicked: { settingsState.fontStyle = "Rajdhani"; if (typeof root !== 'undefined') { root.globalFont = "Rajdhani" } } }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                settingsState.fontStyle = "Rajdhani"
+                                Typography.family = Fonts.rajdhaniRegular
+                                if (typeof root !== "undefined")
+                                    root.globalFont = Typography.family
+                            }
+                        }
                     }
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.fontStyle === "Roboto" ? Colors.surfacePressed : Colors.surfaceRaised
                         border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.fontStyle === "Roboto" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Roboto"; color: settingsState.fontStyle === "Roboto" ? Colors.textPrimary : Colors.textMuted; font.family: "Roboto"; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
-                        MouseArea { anchors.fill: parent; onClicked: { settingsState.fontStyle = "Roboto"; if (typeof root !== 'undefined') { root.globalFont = "Roboto" } } }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                settingsState.fontStyle = "Roboto"
+                                Typography.family = "Roboto"
+                                if (typeof root !== "undefined")
+                                    root.globalFont = Typography.family
+                            }
+                        }
                     }
                     Rectangle {
                         width: (parent.width - 8) / 3; height: 48; radius: Theme.controlRadius*1.67
                         color: settingsState.fontStyle === "Orbitron" ? Colors.surfacePressed : Colors.surfaceRaised
                         border.width: 1 + (Colors.contrastFactor / 2); border.color: settingsState.fontStyle === "Orbitron" ? Colors.borderActive : Colors.borderSubtle
                         Text { anchors.centerIn: parent; text: "Orbitron"; color: settingsState.fontStyle === "Orbitron" ? Colors.textPrimary : Colors.textMuted; font.family: "Orbitron"; font.pixelSize: Typography.bodyMedium; font.weight: Font.DemiBold }
-                        MouseArea { anchors.fill: parent; onClicked: { settingsState.fontStyle = "Orbitron"; if (typeof root !== 'undefined') { root.globalFont = "Orbitron" } } }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                settingsState.fontStyle = "Orbitron"
+                                Typography.family = Fonts.orbitronRegular
+                                if (typeof root !== "undefined")
+                                    root.globalFont = Typography.family
+                            }
+                        }
                     }
                 }
 
@@ -533,6 +557,7 @@ Item {
                         settingsState.masterVolume = targetVal
                         settingsState.alertVolume = targetVal
                         settingsState.indicatorVolume = targetVal
+                        musicPlayer.volume = targetVal
                     }
                     background: Rectangle {
                         x: masterSlider.leftPadding; y: masterSlider.topPadding + masterSlider.availableHeight / 2 - height / 2
@@ -572,7 +597,7 @@ Item {
                     id: alertSlider
                     Layout.fillWidth: true; Layout.topMargin: 4; Layout.preferredHeight: 30
                     from: 0; to: 100; value: settingsState.alertVolume
-                    onValueChanged: { settingsState.alertVolume = value }
+                    onMoved: { settingsState.alertVolume = Math.round(value) }
                     background: Rectangle {
                         x: alertSlider.leftPadding; y: alertSlider.topPadding + alertSlider.availableHeight / 2 - height / 2
                         width: alertSlider.availableWidth; height: 6; radius: 3; color: Colors.borderSubtle
@@ -611,7 +636,7 @@ Item {
                     id: indicatorSlider
                     Layout.fillWidth: true; Layout.topMargin: 4; Layout.preferredHeight: 30
                     from: 0; to: 100; value: settingsState.indicatorVolume
-                    onValueChanged: { settingsState.indicatorVolume = value }
+                    onMoved: { settingsState.indicatorVolume = Math.round(value) }
                     background: Rectangle {
                         x: indicatorSlider.leftPadding; y: indicatorSlider.topPadding + indicatorSlider.availableHeight / 2 - height / 2
                         width: indicatorSlider.availableWidth; height: 6; radius: 3; color: Colors.borderSubtle
@@ -732,7 +757,7 @@ Item {
                     columns: 2; spacing: 6; Layout.fillWidth: true; Layout.topMargin: 8; Layout.preferredHeight: 50
                     Text { text: "Firmware Version"; color: Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyLarge; width: parent.width * 0.42 }
                     Text { text: "v1.2.3"; color: Colors.textPrimary; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyLarge; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignRight; width: parent.width * 0.58 }
-                    Text { text: "Build Number"; color: Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyLarge; width: parent.width * 0.42 }
+                    Text { text: "Build No."; color: Colors.textMuted; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyLarge; width: parent.width * 0.42 }
                     Text { text: "2024.05.28.01"; color: Colors.textPrimary; font.family: settingsState.fontStyle; font.pixelSize: Typography.bodyLarge; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignRight; width: parent.width * 0.58 }
                 }
 
@@ -887,6 +912,7 @@ Item {
             settingsState.alertVolume = 66
             settingsState.indicatorVolume = 40
             settingsState.masterVolume = 66
+            musicPlayer.volume = 66
 
             settingsState.language = "en"
             settingsState.fontStyle = "Rajdhani"
@@ -899,9 +925,12 @@ Item {
             Colors.dayNightMode = "auto"
             Typography.currentLanguage = "en"
             Typography.unitSystem = "metric"
+            Typography.family = Fonts.rajdhaniRegular
 
-            if (typeof root !== "undefined")
-                root.globalFont = "Rajdhani"
+            if (typeof root !== "undefined") {
+                root.globalFont = Typography.family
+                root.globalBrightness = 100
+            }
 
             close()
         }

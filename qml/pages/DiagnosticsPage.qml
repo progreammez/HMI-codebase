@@ -116,6 +116,7 @@ Item {
         "WARNING":            { "en": "WARNING",            "de": "WARNUNG",                "es": "ADVERTENCIA" },
         "HEALTHY":            { "en": "HEALTHY",            "de": "GESUND",                 "es": "SALUDABLE" },
         "OFFLINE":            { "en": "OFFLINE",            "de": "OFFLINE",                "es": "FUERA DE LÍNEA" },
+        "CONNECTED":          { "en": "CONNECTED",          "de": "VERBUNDEN",              "es": "CONECTADO" },
         "NORMAL":             { "en": "NORMAL",             "de": "NORMAL",                 "es": "NORMAL" },
         "STABLE":             { "en": "STABLE",             "de": "STABIL",                 "es": "ESTABLE" },
         "NO ACTIVE WARNINGS": { "en": "NO ACTIVE WARNINGS", "de": "KEINE AKTIVEN WARNUNGEN", "es": "SIN ADVERTENCIAS ACTIVAS" },
@@ -191,6 +192,7 @@ Item {
                 font.weight: Font.Bold
                 color: parent.parent.titleColor
                 Layout.fillWidth: true
+                elide: Text.ElideRight 
             }
 
             Item {
@@ -318,14 +320,19 @@ Item {
                             Layout.alignment: Qt.AlignHCenter
 
                             ColumnLayout {
-                                anchors.centerIn: parent
+                                anchors.fill: parent
+                                anchors.margins: Math.round(4 * Theme.scale)
                                 spacing: 2
-                                Text { text: diagnosticsCoreGrid.translations["motor"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textSecondary; Layout.alignment: Qt.AlignHCenter }
+                                Text { 
+                                    text: diagnosticsCoreGrid.translations["motor"][Typography.currentLanguage]
+                                    font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textSecondary
+                                    Layout.fillWidth: true; elide: Text.ElideRight; horizontalAlignment: Text.AlignHCenter 
+                                }
                                 Text { text: vehicleData.communicationFault ? "--" : Math.round(displayTemp(vehicleData.motorTemp)) + unitTempLabel; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Normal; color: Colors.textPrimary; Layout.alignment: Qt.AlignHCenter }
                                 RowLayout { 
                                     spacing: 4; Layout.alignment: Qt.AlignHCenter
-                                    Rectangle { width: 4; height: 4; radius: 2; color: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco } 
-                                    Text { text: vehicleData.communicationFault ? "--" : diagnosticsCoreGrid.translations["OK"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.DemiBold; color: Colors.textSecondary } 
+                                    Rectangle { width: 4; height: 4; radius: 2; color: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco; Layout.alignment: Qt.AlignVCenter } 
+                                    Text { text: vehicleData.communicationFault ? "--" : diagnosticsCoreGrid.translations["OK"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.DemiBold; color: Colors.textSecondary; Layout.alignment: Qt.AlignVCenter } 
                                 }
                             }
                         }
@@ -340,14 +347,19 @@ Item {
                             radius: Theme.controlRadius
 
                             ColumnLayout {
-                                anchors.centerIn: parent
+                                anchors.fill: parent
+                                anchors.margins: Math.round(4 * Theme.scale)
                                 spacing: 2
-                                Text { text: diagnosticsCoreGrid.translations["battery_pack"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textSecondary; Layout.alignment: Qt.AlignHCenter }
+                                Text { 
+                                    text: diagnosticsCoreGrid.translations["battery_pack"][Typography.currentLanguage]
+                                    font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textSecondary
+                                    Layout.fillWidth: true; elide: Text.ElideRight; horizontalAlignment: Text.AlignHCenter 
+                                }
                                 Text { text: vehicleData.communicationFault ? "--" : Math.round(displayTemp(vehicleData.batteryTemp)) + unitTempLabel; font.family: Typography.family; font.pixelSize: Typography.titleSmall; font.weight: Font.Normal; color: Colors.textPrimary; Layout.alignment: Qt.AlignHCenter }
                                 RowLayout { 
                                     spacing: 4; Layout.alignment: Qt.AlignHCenter
-                                    Rectangle { width: 4; height: 4; radius: 2; color: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco } 
-                                    Text { text: vehicleData.communicationFault ? "--" : diagnosticsCoreGrid.translations["OK"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.DemiBold; color: Colors.textSecondary } 
+                                    Rectangle { width: 4; height: 4; radius: 2; color: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco; Layout.alignment: Qt.AlignVCenter } 
+                                    Text { text: vehicleData.communicationFault ? "--" : diagnosticsCoreGrid.translations["OK"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.DemiBold; color: Colors.textSecondary; Layout.alignment: Qt.AlignVCenter } 
                                 }
                             }
                         }
@@ -361,14 +373,19 @@ Item {
                             Layout.alignment: Qt.AlignHCenter
 
                             ColumnLayout {
-                                anchors.centerIn: parent
+                                anchors.fill: parent
+                                anchors.margins: Math.round(4 * Theme.scale)
                                 spacing: 2
-                                Text { text: diagnosticsCoreGrid.translations["controller"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textSecondary; Layout.alignment: Qt.AlignHCenter }
+                                Text { 
+                                    text: diagnosticsCoreGrid.translations["controller"][Typography.currentLanguage]
+                                    font.family: Typography.family; font.pixelSize: Typography.label; color: Colors.textSecondary
+                                    Layout.fillWidth: true; elide: Text.ElideRight; horizontalAlignment: Text.AlignHCenter 
+                                }
                                 Text { text: vehicleData.communicationFault ? "--" : Math.round(displayTemp(vehicleData.controllerTemp)) + unitTempLabel; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Normal; color: Colors.textPrimary; Layout.alignment: Qt.AlignHCenter }
                                 RowLayout { 
                                     spacing: 4; Layout.alignment: Qt.AlignHCenter
-                                    Rectangle { width: 4; height: 4; radius: 2; color: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco } 
-                                    Text { text: vehicleData.communicationFault ? "--" : diagnosticsCoreGrid.translations["OK"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.DemiBold; color: Colors.textSecondary } 
+                                    Rectangle { width: 4; height: 4; radius: 2; color: vehicleData.communicationFault ? Colors.textMuted : Colors.accentEco; Layout.alignment: Qt.AlignVCenter } 
+                                    Text { text: vehicleData.communicationFault ? "--" : diagnosticsCoreGrid.translations["OK"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.DemiBold; color: Colors.textSecondary; Layout.alignment: Qt.AlignVCenter } 
                                 }
                             }
                         }
@@ -379,7 +396,7 @@ Item {
                         anchors.left: parent.left
                         anchors.leftMargin: Math.round(12 * Theme.scale)
                         anchors.verticalCenter: parent.verticalCenter
-                        width: Math.round(90 * Theme.scale)
+                        width: Math.round(115 * Theme.scale) // FIXED: Expanded box boundaries for longer language strings
                         height: Math.round(58 * Theme.scale)
                         color: "transparent"
                         border.color: Colors.borderSubtle
@@ -387,10 +404,21 @@ Item {
                         radius: 6
 
                         ColumnLayout {
-                            anchors.centerIn: parent
+                            anchors.fill: parent
+                            anchors.margins: Math.round(4 * Theme.scale)
                             spacing: 2
-                            Text { text: vehicleData.communicationFault ? "--" : "72.4 V"; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Normal; color: Colors.accentCity; Layout.alignment: Qt.AlignHCenter }
-                            Text { text: diagnosticsCoreGrid.translations["pack_voltage"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: 10; color: Colors.textMuted; Layout.alignment: Qt.AlignHCenter }
+                            
+                            Text { 
+                                text: vehicleData.communicationFault ? "--" : "72.4 V"
+                                font.family: Typography.family; font.pixelSize: Typography.bodyLarge
+                                font.weight: Font.Normal; color: Colors.accentCity
+                                Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter
+                            }
+                            Text { 
+                                text: diagnosticsCoreGrid.translations["pack_voltage"][Typography.currentLanguage]
+                                font.family: Typography.family; font.pixelSize: 10; color: Colors.textMuted
+                                Layout.fillWidth: true; elide: Text.ElideRight; horizontalAlignment: Text.AlignHCenter // FIXED: Forces elision safe clips
+                            }
                         }
                     }
 
@@ -411,7 +439,7 @@ Item {
                         anchors.right: parent.right
                         anchors.rightMargin: Math.round(12 * Theme.scale)
                         anchors.verticalCenter: parent.verticalCenter
-                        width: Math.round(90 * Theme.scale)
+                        width: Math.round(115 * Theme.scale) // FIXED: Symmetrical box width adaptations
                         height: Math.round(58 * Theme.scale)
                         color: "transparent"
                         border.color: Colors.borderSubtle
@@ -419,10 +447,21 @@ Item {
                         radius: 6
 
                         ColumnLayout {
-                            anchors.centerIn: parent
+                            anchors.fill: parent
+                            anchors.margins: Math.round(4 * Theme.scale)
                             spacing: 2
-                            Text { text: vehicleData.communicationFault ? "--" : "18.2 A"; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Normal; color: Colors.accentCity; Layout.alignment: Qt.AlignHCenter }
-                            Text { text: diagnosticsCoreGrid.translations["pack_current"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: 10; color: Colors.textMuted; Layout.alignment: Qt.AlignHCenter }
+                            
+                            Text { 
+                                text: vehicleData.communicationFault ? "--" : "18.2 A"
+                                font.family: Typography.family; font.pixelSize: Typography.bodyLarge
+                                font.weight: Font.Normal; color: Colors.accentCity
+                                Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter
+                            }
+                            Text { 
+                                text: diagnosticsCoreGrid.translations["pack_current"][Typography.currentLanguage]
+                                font.family: Typography.family; font.pixelSize: 10; color: Colors.textMuted
+                                Layout.fillWidth: true; elide: Text.ElideRight; horizontalAlignment: Text.AlignHCenter // FIXED: Bounded text row protection
+                            }
                         }
                     }
 
@@ -458,18 +497,24 @@ Item {
 
                         readonly property real fillRatio: vehicleData.communicationFault ? 0.0 : Math.min(temperature / 80.0, 1.0)
                         readonly property color statusColor: vehicleData.communicationFault
-                                                            ? Colors.textMuted
-                                                            : temperature > 70
-                                                                ? Colors.critical
-                                                                : temperature >= 50
-                                                                    ? Colors.warning
-                                                                    : Colors.accentCity
+                                                                    ? Colors.textMuted
+                                                                    : temperature > 70
+                                                                        ? Colors.critical
+                                                                        : temperature >= 50
+                                                                            ? Colors.warning
+                                                                            : Colors.accentCity
 
-                        Text { text: moduleName; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Medium; color: Colors.textPrimary; Layout.preferredWidth: 85 }
+                        Text { 
+                            text: moduleName; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Medium; color: Colors.textPrimary
+                            Layout.preferredWidth: Math.round(112 * Theme.scale) 
+                            Layout.alignment: Qt.AlignVCenter
+                            elide: Text.ElideRight 
+                        }
                         
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 3
+                            Layout.alignment: Qt.AlignVCenter
                             Repeater {
                                 model: 12
                                 Rectangle {
@@ -489,8 +534,11 @@ Item {
                             font.pixelSize: Typography.bodySmall
                             font.weight: Font.Bold
                             color: Colors.textPrimary
-                            Layout.preferredWidth: 45
+                            Layout.preferredWidth: Math.round(55 * Theme.scale)
+                            Layout.minimumWidth: Math.round(55 * Theme.scale)
+                            Layout.rightMargin: Math.round(10 * Theme.scale) // FIXED: Adds custom right spacing buffer from panel frame border
                             horizontalAlignment: Text.AlignRight
+                            Layout.alignment: Qt.AlignVCenter
                         }
                     }
 
@@ -504,11 +552,11 @@ Item {
                         Layout.fillWidth: true
                         spacing: 12
                         
-                        RowLayout { spacing: 5; Rectangle { width: 8; height: 8; radius: 4; color: Colors.accentCity } Text { text: diagnosticsCoreGrid.translations["legend_normal"][Typography.currentLanguage]; font.weight: Font.DemiBold; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary } }
+                        RowLayout { spacing: 5; Layout.alignment: Qt.AlignVCenter; Rectangle { width: 8; height: 8; radius: 4; color: Colors.accentCity; Layout.alignment: Qt.AlignVCenter } Text { text: diagnosticsCoreGrid.translations["legend_normal"][Typography.currentLanguage]; font.weight: Font.DemiBold; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary; Layout.alignment: Qt.AlignVCenter } }
                         Item { Layout.fillWidth: true }
-                        RowLayout { spacing: 5; Rectangle { width: 8; height: 8; radius: 4; color: Colors.warning } Text { text: diagnosticsCoreGrid.translations["legend_elevated"][Typography.currentLanguage]; font.weight: Font.DemiBold; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary } }
+                        RowLayout { spacing: 5; Layout.alignment: Qt.AlignVCenter; Rectangle { width: 8; height: 8; radius: 4; color: Colors.warning; Layout.alignment: Qt.AlignVCenter } Text { text: diagnosticsCoreGrid.translations["legend_elevated"][Typography.currentLanguage]; font.weight: Font.DemiBold; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary; Layout.alignment: Qt.AlignVCenter } }
                         Item { Layout.fillWidth: true }
-                        RowLayout { spacing: 5; Rectangle { width: 8; height: 8; radius: 4; color: Colors.critical } Text { text: diagnosticsCoreGrid.translations["legend_high"][Typography.currentLanguage]; font.weight: Font.DemiBold; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary } }
+                        RowLayout { spacing: 5; Layout.alignment: Qt.AlignVCenter; Rectangle { width: 8; height: 8; radius: 4; color: Colors.critical; Layout.alignment: Qt.AlignVCenter } Text { text: diagnosticsCoreGrid.translations["legend_high"][Typography.currentLanguage]; font.weight: Font.DemiBold; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary; Layout.alignment: Qt.AlignVCenter } }
                     }
                 }
             }
@@ -542,14 +590,17 @@ Item {
 
                         RowLayout {
                             Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
                             Text {
                                 text: diagnosticsCoreGrid.translations["overall_score"][Typography.currentLanguage]
                                 font.family: Typography.family
                                 font.pixelSize: Typography.bodyLarge
                                 color: Colors.textPrimary
                                 font.weight: Font.DemiBold
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                                Layout.alignment: Qt.AlignVCenter
                             }
-                            Item { Layout.fillWidth: true }
                             Text {
                                 text: vehicleData.communicationFault ? "--" : healthScore + "%"
                                 font.family: Typography.family
@@ -558,6 +609,7 @@ Item {
                                 color: vehicleData.communicationFault ? Colors.textMuted :
                                        overallHealthStatus === "HEALTHY" ? Colors.accentCity :
                                        overallHealthStatus === "WARNING" ? Colors.warning : Colors.critical
+                                Layout.alignment: Qt.AlignVCenter
                             }
                         }
 
@@ -565,14 +617,17 @@ Item {
 
                         RowLayout {
                             Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
                             Text {
                                 text: diagnosticsCoreGrid.translations["status"][Typography.currentLanguage]
                                 font.family: Typography.family
                                 font.pixelSize: Typography.bodyLarge
                                 color: Colors.textPrimary
                                 font.weight: Font.DemiBold
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                                Layout.alignment: Qt.AlignVCenter
                             }
-                            Item { Layout.fillWidth: true }
                             Text {
                                 text: vehicleData.communicationFault ? diagnosticsCoreGrid.translations["OFFLINE"][Typography.currentLanguage] : diagnosticsCoreGrid.translations[overallHealthStatus][Typography.currentLanguage]
                                 font.family: Typography.family
@@ -581,6 +636,7 @@ Item {
                                 color: vehicleData.communicationFault ? Colors.textMuted :
                                        overallHealthStatus === "HEALTHY" ? Colors.accentCity :
                                        overallHealthStatus === "WARNING" ? Colors.warning : Colors.critical
+                                Layout.alignment: Qt.AlignVCenter
                             }
                         }
 
@@ -590,8 +646,12 @@ Item {
                             property string itemLabel: ""
                             property string itemStatus: "OK"
                             property string itemStatusKey: "OK"
+                            spacing: 8
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
+
                             Rectangle {
-                                width: 8; height: 8; radius: 4
+                                width: 8; height: 8; radius: 4; Layout.alignment: Qt.AlignVCenter
                                 color: itemStatusKey === "OK" ? Colors.accentEco :
                                        itemStatusKey === "LOW BATTERY" ? Colors.warning :
                                        itemStatusKey === "OVERHEATING" ? Colors.critical :
@@ -599,8 +659,12 @@ Item {
                                        itemStatusKey === "FAULT" ? Colors.critical :
                                        itemStatusKey === "CRITICAL" ? Colors.critical : Colors.textMuted
                             }
-                            Text { text: itemLabel; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; color: Colors.textPrimary }
-                            Item { Layout.fillWidth: true }
+                            Text { 
+                                text: itemLabel; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; color: Colors.textPrimary
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight 
+                                Layout.alignment: Qt.AlignVCenter
+                            }
                             Text {
                                 text: itemStatus
                                 font.family: Typography.family
@@ -613,6 +677,7 @@ Item {
                                        itemStatusKey === "LOW BATTERY" ? Colors.warning :
                                        itemStatusKey === "COMMUNICATION FAULT" ? Colors.critical :
                                        itemStatusKey === "CRITICAL" ? Colors.critical : Colors.textMuted
+                                Layout.alignment: Qt.AlignVCenter
                             }
                         }
                         
@@ -667,6 +732,9 @@ Item {
                                 font.pixelSize: Typography.bodyMedium
                                 font.bold: true
                                 font.letterSpacing: 0.5
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                                horizontalAlignment: Text.AlignHCenter
                             }
 
                             Text {
@@ -675,9 +743,12 @@ Item {
                                 color: Colors.textSecondary
                                 font.family: Typography.family
                                 font.pixelSize: Typography.bodySmall
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                                horizontalAlignment: Text.AlignHCenter
                             }
                         }
-                                                                                                                
+                                                                                                                                                                                
                         Rectangle { 
                             Layout.fillWidth: true; height: 1; color: Colors.borderSubtle 
                             Layout.topMargin: 3; Layout.bottomMargin: 3
@@ -693,6 +764,8 @@ Item {
                                 font.pixelSize: Typography.label
                                 font.weight: Font.DemiBold
                                 color: Colors.textSecondary
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
                             }
                             
                             Rectangle {
@@ -703,7 +776,7 @@ Item {
 
                                 RowLayout {
                                     anchors.fill: parent
-                                    anchors.leftMargin: 14; anchors.rightMargin: 14; spacing: 2
+                                    anchors.leftMargin: 14; anchors.rightMargin: 14; spacing: 8
 
                                     Text { 
                                         text: vehicleData.communicationFault ? "X" : vehicleData.hasWarning ? "⚠" : "✓"
@@ -715,13 +788,17 @@ Item {
                                     ColumnLayout {
                                         spacing: 2; Layout.fillWidth: true; Layout.alignment: Qt.AlignVCenter
                                         Text {
-                                            text: vehicleData.communicationFault ? diagnosticsCoreGrid.translations["COMMUNICATION FAULT"][Typography.currentLanguage] : vehicleData.hasWarning ? vehicleData.warningMessage : diagnosticsCoreGrid.translations["no_active_faults"][Typography.currentLanguage]
+                                            text: vehicleData.communicationFault ? diagnosticsCoreGrid.translations["COMMUNICATION FAULT"][Typography.currentLanguage] : vehicleData.warningMessage
                                             font.family: Typography.family; font.pixelSize: Typography.bodySmall
                                             font.weight: Font.Medium; color: Colors.textPrimary
+                                            Layout.fillWidth: true
+                                            elide: Text.ElideRight 
                                         }
                                         Text { 
                                             text: vehicleData.warningTimestamp; font.family: Typography.family
                                             font.pixelSize: Typography.bodySmall; color: Colors.textMuted 
+                                            Layout.fillWidth: true
+                                            elide: Text.ElideRight
                                         }
                                     }
 
@@ -742,6 +819,7 @@ Item {
                                 text: vehicleData.communicationFault ? ("1 " + diagnosticsCoreGrid.translations["CRITICAL"][Typography.currentLanguage]) : vehicleData.hasWarning ? (activeWarningsCard.activeWarnings + " " + diagnosticsCoreGrid.translations["active_label"][Typography.currentLanguage]) : diagnosticsCoreGrid.translations["resolved_label"][Typography.currentLanguage]
                                 font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.DemiBold
                                 color: vehicleData.communicationFault ? Colors.critical : vehicleData.hasWarning ? Colors.warning : Colors.accentEco
+                                Layout.alignment: Qt.AlignVCenter
                             }
 
                             Rectangle { width: 1; height: 12; color: Colors.borderSubtle; Layout.alignment: Qt.AlignVCenter }
@@ -750,13 +828,16 @@ Item {
                                 text: vehicleData.communicationFault ? diagnosticsCoreGrid.translations["connection_lost"][Typography.currentLanguage] : (vehicleData.historicalWarnings + " " + diagnosticsCoreGrid.translations["historical_label"][Typography.currentLanguage])
                                 font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.DemiBold
                                 color: vehicleData.communicationFault ? Colors.critical : vehicleData.hasWarning ? Colors.warning : Colors.accentCity 
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                                Layout.alignment: Qt.AlignVCenter
                             }
                         }
                     }
                 }
             }
 
-            // ROW 2: QUAD AGGREGATED TELEMETRY BADGES (RESTORED & TRANSLATED!)
+            // ROW 2: QUAD AGGREGATED TELEMETRY BADGES
             RowLayout {
                 Layout.preferredHeight: Math.round(161 * Theme.scale)
                 Layout.preferredWidth: parent.width * 0.63
@@ -789,57 +870,65 @@ Item {
                             spacing: 4
 
                             RowLayout {
-                                spacing: 2 
+                                spacing: 4 
                                 Layout.alignment: Qt.AlignTop
                                 Layout.fillWidth: true
 
                                 Item {
+                                    width: 78; height: 26
+                                    Layout.alignment: Qt.AlignVCenter
                                     BatteryGraphic {
                                         width: 78; height: 26
-                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.centerIn: parent
                                         percentage: vehicleData.communicationFault ? 0 : vehicleData.batteryPercent
                                     }
                                 }
-                                Item { Layout.fillWidth: true }
                                 Text {
                                     text: mainValue
-                                    Layout.alignment: Qt.AlignTop
+                                    Layout.fillWidth: true
+                                    horizontalAlignment: Text.AlignRight
                                     color: Colors.textPrimary
                                     font.family: Typography.family
                                     font.pixelSize: Typography.titleLarge
                                     font.bold: true
+                                    elide: Text.ElideRight
+                                    Layout.alignment: Qt.AlignVCenter
                                 }
                                 Text {
                                     text: mainLabel
                                     font.family: Typography.family
                                     font.pixelSize: Typography.titleSmall
                                     color: Colors.textSecondary
+                                    Layout.alignment: Qt.AlignVCenter
                                 }
                             }
 
                             RowLayout {
                                 Layout.fillWidth: true
-                                Text { text: diagnosticsCoreGrid.translations["sub_range"][Typography.currentLanguage]; width: 50; color: Colors.textSecondary; font.pixelSize: Typography.bodySmall }
-                                Item { Layout.fillWidth: true }
+                                Layout.alignment: Qt.AlignVCenter
+                                Text { text: diagnosticsCoreGrid.translations["sub_range"][Typography.currentLanguage]; color: Colors.textSecondary; font.pixelSize: Typography.bodySmall; Layout.fillWidth: true; elide: Text.ElideRight }
                                 Text { text: vehicleData.communicationFault ? "--" : Math.round(displayDistance(vehicleData.rangeKm)) + unitSpeedLabel; color: Colors.textPrimary; font.pixelSize: Typography.bodySmall }
                             }
 
                             RowLayout {
                                 Layout.fillWidth: true
-                                Text { text: "SOH"; color: Colors.textSecondary; font.pixelSize: Typography.bodySmall }
-                                Item { Layout.fillWidth: true }
+                                Layout.alignment: Qt.AlignVCenter
+                                Text { text: "SOH"; color: Colors.textSecondary; font.pixelSize: Typography.bodySmall; Layout.fillWidth: true; elide: Text.ElideRight }
                                 Text { text: vehicleData.communicationFault ? "--" : "96%"; color: Colors.textPrimary; font.pixelSize: Typography.bodySmall }
                             }
 
                             Item { Layout.fillHeight: true }
 
                             RowLayout {
-                                spacing: 4; Layout.alignment: Qt.AlignBottom; Layout.fillHeight: true
-                                Rectangle { width: 6; height: 6; radius: 3; color: vehicleData.communicationFault ? Colors.textMuted : vehicleData.lowBatteryWarning ? Colors.warning : Colors.accentEco }
+                                spacing: 4; Layout.alignment: Qt.AlignBottom; Layout.fillWidth: true
+                                Rectangle { width: 6; height: 6; radius: 3; color: vehicleData.communicationFault ? Colors.textMuted : vehicleData.lowBatteryWarning ? Colors.warning : Colors.accentEco; Layout.alignment: Qt.AlignVCenter }
                                 Text {
                                     text: vehicleData.communicationFault ? diagnosticsCoreGrid.translations["OFFLINE"][Typography.currentLanguage] : vehicleData.lowBatteryWarning ? diagnosticsCoreGrid.translations["LOW BATTERY"][Typography.currentLanguage] : diagnosticsCoreGrid.translations[statusText][Typography.currentLanguage]
                                     color: vehicleData.communicationFault ? Colors.textMuted : vehicleData.lowBatteryWarning ? Colors.warning : Colors.accentCity
                                     font.family: Typography.family; font.bold: true; font.pixelSize: Typography.label
+                                    Layout.fillWidth: true
+                                    elide: Text.ElideRight
+                                    Layout.alignment: Qt.AlignVCenter
                                 }
                             }
                         }
@@ -854,7 +943,8 @@ Item {
                                 Layout.fillWidth: true; Layout.fillHeight: true
 
                                 RowLayout {
-                                    anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter; spacing: Math.round(12 * Theme.scale)
+                                    anchors.fill: parent
+                                    spacing: Math.round(8 * Theme.scale)
 
                                     Item {
                                         Layout.preferredWidth: Math.round(44 * Theme.scale); Layout.preferredHeight: Math.round(44 * Theme.scale); Layout.alignment: Qt.AlignVCenter
@@ -872,23 +962,26 @@ Item {
                                     }
 
                                     ColumnLayout {
-                                        spacing: Math.round(2 * Theme.scale); Layout.alignment: Qt.AlignVCenter
+                                        spacing: Math.round(2 * Theme.scale); Layout.fillWidth: true; Layout.alignment: Qt.AlignVCenter
                                         RowLayout {
-                                            spacing: Math.round(4 * Theme.scale); visible: cardType !== "communication"
-                                            Text { font.pixelSize: Math.round(22 * Theme.scale); font.family: Typography.family; font.weight: Font.Bold; color: Colors.textPrimary; text: mainValue; Layout.alignment: Qt.AlignBottom }
+                                            spacing: Math.round(4 * Theme.scale); visible: cardType !== "communication"; Layout.fillWidth: true
+                                            Text { font.pixelSize: Math.round(22 * Theme.scale); font.family: Typography.family; font.weight: Font.Bold; color: Colors.textPrimary; text: mainValue; Layout.fillWidth: true; elide: Text.ElideRight; Layout.alignment: Qt.AlignBottom }
                                             Text { font.pixelSize: Math.round(14 * Theme.scale); font.family: Typography.family; font.weight: Font.Normal; color: Colors.textPrimary; text: mainLabel; visible: mainLabel !== ""; Layout.alignment: Qt.AlignBottom; Layout.bottomMargin: Math.round(3 * Theme.scale) }
                                         }
-                                        Text { font.pixelSize: Math.round(22 * Theme.scale); font.family: Typography.family; font.weight: Font.Bold; color: Colors.textPrimary; text: diagnosticsCoreGrid.translations[mainValue] ? diagnosticsCoreGrid.translations[mainValue][Typography.currentLanguage] : mainValue; visible: cardType === "communication" }
-                                        Text { font.pixelSize: Math.round(11 * Theme.scale); font.family: Typography.family; color: Colors.textMuted; text: subLabel }
+                                        Text { 
+                                            font.pixelSize: Math.round(16 * Theme.scale); font.family: Typography.family; font.weight: Font.Bold; color: Colors.textPrimary; 
+                                            text: diagnosticsCoreGrid.translations[mainValue] ? diagnosticsCoreGrid.translations[mainValue][Typography.currentLanguage] : mainValue; 
+                                            visible: cardType === "communication"; Layout.fillWidth: true; elide: Text.ElideRight 
+                                        }
+                                        Text { font.pixelSize: Math.round(11 * Theme.scale); font.family: Typography.family; color: Colors.textMuted; text: subLabel; Layout.fillWidth: true; elide: Text.ElideRight }
                                     }
                                 }
                             }
 
                             RowLayout {
                                 Layout.fillWidth: true; spacing: Math.round(4 * Theme.scale)
-                                Rectangle { width: Math.round(6 * Theme.scale); height: Math.round(6 * Theme.scale); radius: width / 2; color: statusColor2 }
-                                Text { text: diagnosticsCoreGrid.translations[statusText] ? diagnosticsCoreGrid.translations[statusText][Typography.currentLanguage] : statusText; color: statusColor; font.family: Typography.family; font.bold: true; font.pixelSize: Typography.label }
-                                Item { Layout.fillWidth: true }
+                                Rectangle { width: Math.round(6 * Theme.scale); height: Math.round(6 * Theme.scale); radius: width / 2; color: statusColor2; Layout.alignment: Qt.AlignVCenter }
+                                Text { text: diagnosticsCoreGrid.translations[statusText] ? diagnosticsCoreGrid.translations[statusText][Typography.currentLanguage] : statusText; color: statusColor; font.family: Typography.family; font.bold: true; font.pixelSize: Typography.label; Layout.fillWidth: true; elide: Text.ElideRight; Layout.alignment: Qt.AlignVCenter }
                             }
                         }
                     }
@@ -966,9 +1059,10 @@ Item {
                             
                             RowLayout {
                                 Layout.fillWidth: true; Layout.preferredHeight: Math.round(34 * Theme.scale) 
+                                spacing: 8
                                 
                                 Item {
-                                    id: iconContainer; Layout.preferredWidth: Math.round(28 * Theme.scale); Layout.preferredHeight: Math.round(28 * Theme.scale); Layout.rightMargin: Math.round(12 * Theme.scale)
+                                    id: iconContainer; Layout.preferredWidth: Math.round(28 * Theme.scale); Layout.preferredHeight: Math.round(28 * Theme.scale); Layout.alignment: Qt.AlignVCenter
                                     
                                     Rectangle {
                                         anchors.centerIn: parent; width: 20; height: 14; radius: 2; color: "transparent"
@@ -994,9 +1088,13 @@ Item {
                                     }
                                 }
                                 
-                                Text { text: diagnosticsCoreGrid.translations[model.metricKey][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary }
-                                Item { Layout.fillWidth: true }
-                                Text { text: vehicleData.communicationFault ? "--" : model.reading; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.weight: Font.Bold; color: Colors.textPrimary }
+                                Text { 
+                                    text: diagnosticsCoreGrid.translations[model.metricKey][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; color: Colors.textSecondary
+                                    Layout.fillWidth: true
+                                    elide: Text.ElideRight 
+                                    Layout.alignment: Qt.AlignVCenter
+                                }
+                                Text { text: vehicleData.communicationFault ? "--" : model.reading; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.weight: Font.Bold; color: Colors.textPrimary; Layout.alignment: Qt.AlignVCenter }
                             }
                             Rectangle { Layout.fillWidth: true; height: 1; color: Colors.surfaceSunken; visible: index < 3 }
                         }
@@ -1033,16 +1131,21 @@ Item {
 
                                     RowLayout {
                                         anchors.fill: parent; anchors.leftMargin: 10; anchors.rightMargin: 10; spacing: 8
-                                        Text { text: "⚠"; color: Colors.warning; font.pixelSize: Typography.bodyMedium }
+                                        Text { text: "⚠"; color: Colors.warning; font.pixelSize: Typography.bodyMedium; Layout.alignment: Qt.AlignVCenter }
 
                                         ColumnLayout {
-                                            spacing: 1; Layout.fillWidth: true
-                                            Text { text: warningText; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Medium }
-                                            Row {
-                                                spacing: 8
+                                            spacing: 1; Layout.fillWidth: true; Layout.alignment: Qt.AlignVCenter
+                                            Text { 
+                                                text: warningText; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Medium 
+                                                Layout.fillWidth: true
+                                                elide: Text.ElideRight 
+                                            }
+                                            RowLayout {
+                                                spacing: 8; Layout.fillWidth: true
                                                 Text { text: datePart; color: Colors.textMuted; font.pixelSize: Typography.label }
                                                 Text { text: "•"; color: Colors.borderSubtle; font.family: Typography.family; font.pixelSize: Typography.label }
                                                 Text { text: timePart; color: Colors.textMuted; font.pixelSize: Typography.label }
+                                                Item { Layout.fillWidth: true }
                                             }
                                         }
                                     }
@@ -1078,8 +1181,8 @@ Item {
                                     border.color: Colors.accentEco; border.width: 1; anchors.horizontalCenter: parent.horizontalCenter
                                     Text { anchors.centerIn: parent; text: "✓"; color: Colors.accentEco; font.pixelSize: 22; font.bold: true }
                                 }
-                                Text { text: diagnosticsCoreGrid.translations["no_recent_faults"][Typography.currentLanguage]; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; Layout.alignment: Qt.AlignHCenter }
-                                Text { text: diagnosticsCoreGrid.translations["sys_normal"][Typography.currentLanguage]; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.label; Layout.alignment: Qt.AlignHCenter }
+                                Text { text: diagnosticsCoreGrid.translations["no_recent_faults"][Typography.currentLanguage]; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; anchors.horizontalCenter: parent.horizontalCenter }
+                                Text { text: diagnosticsCoreGrid.translations["sys_normal"][Typography.currentLanguage]; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.label; anchors.horizontalCenter: parent.horizontalCenter }
                             }    
                         }
 

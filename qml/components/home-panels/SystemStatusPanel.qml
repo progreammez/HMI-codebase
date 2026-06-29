@@ -62,20 +62,10 @@ BaseCard {
                 radius: 6 * Theme.scale
                 color: Qt.rgba(1, 1, 1, 0.03) 
 
-                // Label Text (Left-Aligned)
-                Text {
-                    anchors.left: parent.left
-                    anchors.leftMargin: 12 * Theme.scale
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: root.translations[modelData.labelKey][Typography.currentLanguage]
-                    color: Colors.textSecondary
-                    font.family: Typography.family
-                    font.pixelSize: Typography.bodyMedium
-                }
-
-                // Status Group: Dot indicator + Status string (Right-Aligned)
+                // 1. Status Group: Dot indicator + Status string (Right-Aligned)
+                // Declared first in code so the label element can look up its ID
                 Row {
+                    id: statusGroup
                     anchors.right: parent.right
                     anchors.rightMargin: 12 * Theme.scale
                     anchors.verticalCenter: parent.verticalCenter
@@ -101,6 +91,22 @@ BaseCard {
                         font.pixelSize: Typography.bodyMedium
                         font.bold: true
                     }
+                }
+
+                // 2. Label Text (Left-Aligned, safely bounded on the right edge)
+                Text {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 12 * Theme.scale
+                    anchors.right: statusGroup.left          // FIX: Prevents text from expanding past the status group
+                    anchors.rightMargin: 8 * Theme.scale     // FIX: Sets a clear gap buffer between text fields
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    text: root.translations[modelData.labelKey][Typography.currentLanguage]
+                    color: Colors.textSecondary
+                    font.family: Typography.family
+                    font.pixelSize: Typography.bodyMedium
+                    
+                    elide: Text.ElideRight                   // FIX: Drops an ellipsis if font styles or translations overflow bounds
                 }
             }
         }

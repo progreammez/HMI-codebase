@@ -54,9 +54,9 @@ Item {
                                 anchors.margins: Math.round(12 * Theme.scale)
                                 spacing: Math.round(2 * Theme.scale)
 
-                                Text { text: modelData.title; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold }
-                                Text { text: modelData.val; color: modelData.isAlert ? Colors.critical : Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Bold; wrapMode: Text.WordWrap; Layout.fillWidth: true }
-                                Text { text: modelData.desc; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.label; elide: Text.ElideRight; Layout.fillWidth: true }
+                                Text { text: modelData.title; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.weight: Font.Bold }
+                                Text { text: modelData.val; color: modelData.isAlert ? Colors.critical : Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.weight: Font.Bold; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+                                Text { text: modelData.desc; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; elide: Text.ElideRight; Layout.fillWidth: true }
                                 
                                 Item { Layout.fillHeight: true } // Keeps layout tight by pushing status flag down
 
@@ -64,7 +64,7 @@ Item {
                                     text: modelData.sub
                                     color: modelData.isAlert ? Colors.critical : Colors.success
                                     font.family: Typography.family
-                                    font.pixelSize: Typography.label
+                                    font.pixelSize: Typography.bodyMedium
                                     font.weight: Font.Bold
                                 }
                             }
@@ -90,7 +90,7 @@ Item {
                         Text { 
                             text: root.hasWarning ? "1 ACTIVE" : "0 ACTIVE"
                             color: root.hasWarning ? Colors.critical : Colors.success
-                            font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold 
+                            font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.weight: Font.Bold 
                         }
                     }
 
@@ -101,21 +101,21 @@ Item {
 
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: "⚠  MOTOR TEMPERATURE HIGH"; color: vehicleData.motorOverTempWarning ? Colors.critical : Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.DemiBold }
+                            Text { text: "⚠  MOTOR TEMPERATURE HIGH"; color: vehicleData.motorOverTempWarning ? Colors.critical : Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.DemiBold }
                             Item { Layout.fillWidth: true }
-                            Text { text: vehicleData.motorTemp + " °C"; color: vehicleData.motorOverTempWarning ? Colors.critical : Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodySmall }
+                            Text { text: vehicleData.motorTemp + " °C"; color: vehicleData.motorOverTempWarning ? Colors.critical : Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.bodyLarge }
                         }
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: "✓  LOW BATTERY WARNING"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.bodySmall }
+                            Text { text: "✓  LOW BATTERY WARNING"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.bodyLarge }
                             Item { Layout.fillWidth: true }
-                            Text { text: vehicleData.lowBatteryWarning ? "WARN" : "OK"; color: vehicleData.lowBatteryWarning ? Colors.warning : Colors.success; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Bold }
+                            Text { text: vehicleData.lowBatteryWarning ? "WARN" : "OK"; color: vehicleData.lowBatteryWarning ? Colors.warning : Colors.success; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Bold }
                         }
                         RowLayout {
                             Layout.fillWidth: true
-                            Text { text: "✓  COMMUNICATION FAULT"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.bodySmall }
+                            Text { text: "✓  COMMUNICATION FAULT"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.bodyLarge }
                             Item { Layout.fillWidth: true }
-                            Text { text: vehicleData.communicationFault ? "FAULT" : "OK"; color: vehicleData.communicationFault ? Colors.critical : Colors.success; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Bold }
+                            Text { text: vehicleData.communicationFault ? "FAULT" : "OK"; color: vehicleData.communicationFault ? Colors.critical : Colors.success; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Bold }
                         }
                         
                         Item { Layout.fillHeight: true } // Prevents list items from awkwardly stretching vertically
@@ -179,7 +179,7 @@ Item {
                                 Layout.alignment: Qt.AlignVCenter
                                 text: modelData.ok ? "OK" : "FAIL"
                                 color: modelData.ok ? Colors.success : Colors.critical
-                                font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Bold
+                                font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Bold
                             }
                         }
                     }
@@ -242,7 +242,7 @@ Item {
                                 text: modelData.val
                                 color: Colors.textWarm
                                 font.family: Typography.family
-                                font.pixelSize: modelData.highlight ? Typography.displaySmall : Typography.bodyMedium
+                                font.pixelSize: modelData.highlight ? Typography.displaySmall : Typography.titleMedium
                                 font.weight: Font.Bold 
                                 Layout.fillWidth: true
                                 
@@ -253,7 +253,7 @@ Item {
                                 text: modelData.unit
                                 color: Colors.textMuted
                                 font.family: Typography.family
-                                font.pixelSize: Typography.label
+                                font.pixelSize: Typography.bodyMedium
                                 Layout.fillWidth: true
                             }
                         }
@@ -290,20 +290,12 @@ Item {
                                 anchors.margins: Math.round(8 * Theme.scale)
                                 spacing: 0
 
-                                Text { text: modelData; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; elide: Text.ElideRight; Layout.fillWidth: true }
-                                Text { text: "OK"; color: Colors.success; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Bold }
+                                Text { text: modelData; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.bodyMedium; font.weight: Font.Bold; elide: Text.ElideRight; Layout.fillWidth: true }
+                                Text { text: "OK"; color: Colors.success; font.family: Typography.family; font.pixelSize: Typography.bodyLarge; font.weight: Font.Bold }
                                 
                                 Item { Layout.fillHeight: true } 
 
-                                Text { 
-                                    text: "All parameters normal"
-                                    color: Colors.textMuted
-                                    font.family: Typography.family
-                                    font.pixelSize: Typography.label
-                                    elide: Text.ElideRight
-                                    wrapMode: Text.WordWrap
-                                    Layout.fillWidth: true
-                                }
+                            
                             }
                         }
                     }
