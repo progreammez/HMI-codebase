@@ -1020,8 +1020,14 @@ Item {
                         onClicked: {
                             if (!gestureHandled) {
                                 searchRoot.selectedIndex = index
+
                                 if (musicPageRoot.mediaSourceTab === 1) {
                                     spotifyApi.selectTrack(index)
+
+                                    searchField.clear()
+                                    searchField.focus = false
+                                    musicPageRoot.showKeyboard = false
+                                    musicPageRoot.activeInputTarget = null
                                 } else {
                                     musicPlayer.playTrack(modelData.localIndex)
                                 }

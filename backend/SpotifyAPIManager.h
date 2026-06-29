@@ -80,6 +80,8 @@ public:
     bool isPlaying() const { return m_isPlaying; }
     qint64 position() const { return m_position; }
     qint64 duration() const { return m_duration; }
+    void playTrack(const QString &trackId);
+    void getSpotifyQueue();
 
 signals:
     void searchFinished(QString result);
