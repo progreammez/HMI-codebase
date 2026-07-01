@@ -40,4 +40,7 @@ signals:
 
     // Handbrake
     void handBrakePressed();
+
+    // Drive mode (ECO / NORMAL / SPORT)
+    void driveModePressed();
 };

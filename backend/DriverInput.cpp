@@ -57,6 +57,7 @@ bool DriverInput::eventFilter(QObject *, QEvent *event)
         case Qt::Key_C: emit cruisePressed(); break;
         case Qt::Key_M: emit chargingPressed(); break;
         case Qt::Key_Space: emit handBrakePressed(); break;
+        case Qt::Key_V: emit driveModePressed(); break;
         default:
             handled = false;
             break;
