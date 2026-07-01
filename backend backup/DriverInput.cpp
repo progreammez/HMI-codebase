@@ -44,8 +44,8 @@ bool DriverInput::eventFilter(QObject *, QEvent *event)
     {
         switch (key->key())
         {
-        case Qt::Key_U: emit gearShiftDown(); break; // step toward P
-        case Qt::Key_I: emit gearShiftUp();   break; // step toward D
+        case Qt::Key_U: emit gearChanged("P"); break;
+        case Qt::Key_I: emit gearChanged("R"); break;
         case Qt::Key_O: emit gearChanged("N"); break;
         case Qt::Key_P: emit gearChanged("D"); break;
         case Qt::Key_H: emit headlightsPressed(); break;
@@ -57,7 +57,6 @@ bool DriverInput::eventFilter(QObject *, QEvent *event)
         case Qt::Key_C: emit cruisePressed(); break;
         case Qt::Key_M: emit chargingPressed(); break;
         case Qt::Key_Space: emit handBrakePressed(); break;
-        case Qt::Key_V: emit driveModePressed(); break;
         default:
             handled = false;
             break;

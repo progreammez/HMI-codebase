@@ -100,6 +100,20 @@ int main(int argc, char *argv[])
         &virtualVehicle,
         &VirtualVehicle::setGear
     );
+
+    QObject::connect(
+        &driverInput,
+        &DriverInput::gearShiftDown,
+        &virtualVehicle,
+        &VirtualVehicle::shiftGearDown
+    );
+
+    QObject::connect(
+        &driverInput,
+        &DriverInput::gearShiftUp,
+        &virtualVehicle,
+        &VirtualVehicle::shiftGearUp
+    );
     
     QObject::connect(
         &driverInput,
@@ -164,6 +178,20 @@ int main(int argc, char *argv[])
         &VirtualVehicle::toggleHandBrake
     );
 
+    QObject::connect(
+        &driverInput,
+        &DriverInput::driveModePressed,
+        &virtualVehicle,
+        &VirtualVehicle::cycleDriveMode
+    );
+
+    // NOTE: TelemetryParser currently writes STM32 telemetry straight into
+    // VehicleData. For VirtualVehicle's field-authority check to work,
+    // route real telemetry through stmSimulator's onXReceived() slots
+    // instead (e.g. connect TelemetryParser::speedParsed to
+    // stmSimulator.onSpeedReceived) so STMDataSimulator can stamp each
+    // field as "live" at the moment real data arrives.
+
     stmSimulator.start();
     //musicPlayer.play();
     virtualVehicle.start();
@@ -173,6 +201,11 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(
         "vehicleData",
         &vehicleData
+    );
+
+    engine.rootContext()->setContextProperty(
+        "virtualVehicle",
+        &virtualVehicle
     );
 
     engine.rootContext()->setContextProperty(

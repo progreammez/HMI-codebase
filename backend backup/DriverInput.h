@@ -18,9 +18,7 @@ signals:
     void brakePressed(bool);
 
     // Gear
-    void gearChanged(QString);   // absolute jump (still used by O/P)
-    void gearShiftDown();        // relative: D -> N -> R -> P
-    void gearShiftUp();          // relative: P -> R -> N -> D
+    void gearChanged(QString);
 
     // Lights
     void headlightsPressed();
@@ -42,7 +40,4 @@ signals:
 
     // Handbrake
     void handBrakePressed();
-
-    // Drive mode (ECO / NORMAL / SPORT)
-    void driveModePressed();
 };

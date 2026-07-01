@@ -6,6 +6,21 @@
 
 class VehicleData;
 class DriverInput;
+class STMDataSimulator;
+
+// Drive-mode tuning. Values are intentionally simple constants rather
+// than curves/tables -- this is a dashboard simulator, not a physics
+// engine, so "intuitive and clearly different per mode" beats "precise".
+struct DriveModeParams
+{
+    float maxMotorPowerKw;   // ceiling on tractive power
+    float maxTractionForceN; // low-speed force ceiling (traction/torque limit)
+    float torqueMultiplier;  // scales how eagerly pedal maps to force
+    float regenMultiplier;   // scales regen strength
+    float rangeEfficiency;   // >1 = better range (ECO), <1 = worse (SPORT)
+    float rpmLoadGain;       // extra RPM "kick" from throttle load, on top of speed-coupled RPM
+    float rpmResponseMultiplier; // scales how snappy the RPM needle reacts (spring/damping)
+};
 
 struct VirtualVehicleState
 {
@@ -19,6 +34,8 @@ struct VirtualVehicleState
     QString driveMode = "ECO";
 
     bool cruiseControl = false;
+    float cruiseTargetSpeedMs = 0.0f; // speed latched when cruise is engaged
+    float cruiseIntegral = 0.0f;      // PI controller integral term
     bool handBrake = true;
 
     // ===========================
@@ -108,6 +125,8 @@ public slots:
     void setBraking(bool pressed);
 
     void setGear(const QString &gear);
+    void shiftGearDown(); // relative: D -> N -> R -> P, no-op at P
+    void shiftGearUp();   // relative: P -> R -> N -> D, no-op at D
 
     void toggleHeadlights();
     void toggleHighBeam();
@@ -117,11 +136,32 @@ public slots:
     void toggleHazards();
 
     void cycleRegen();
+    void cycleDriveMode();
+    void setDriveMode(const QString &mode);
 
     void toggleCharging();
     void toggleCruise();
     void toggleHandBrake();
 
+private:
+    // ==========================================================
+    // Simulation pipeline -- each stage owns one concern.
+    // Order matters: dynamics/motor must run before battery/temps,
+    // which must run before publish() (which enforces STM authority).
+    // ==========================================================
+    void update();
+
+    void updateInputs(float dt);          // smooth pedals, resolve gear legality
+    void updateVehicleDynamics(float dt); // force balance -> speed, spring-damper -> rpm
+    void updateMotor();                   // tractive/regen power from forces
+    void updateBattery(float dt);         // SOC, voltage, current, range
+    void updateCharging(float dt);        // CC/CV charge curve
+    void updateTemperatures(float dt);    // asymmetric first-order thermal lag
+    void updateTrips(float dt);           // odometer/trip integration
+    void updateWarnings();                // communication fault mirror
+    void publish();                       // write to VehicleData, respecting STM authority
+
+    const DriveModeParams &currentModeParams() const;
 
     VehicleData *m_vehicleData;
     DriverInput *m_driverInput;
@@ -130,6 +170,8 @@ public slots:
     QTimer m_timer;
     VirtualVehicleState m_state;
 
+    static constexpr float kDt = 0.1f; // 10 Hz, matches m_timer interval
+
 private slots:
-    void update();
+    void onTick();
 };

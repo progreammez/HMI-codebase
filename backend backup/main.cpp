@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     app.installEventFilter(&driverInput);
 
     STMDataSimulator stmSimulator(&vehicleData);
-    VirtualVehicle virtualVehicle(&vehicleData, &driverInput, &stmSimulator);
+    VirtualVehicle virtualVehicle(&vehicleData, &driverInput);
     TelemetryLogger telemetryLogger(&vehicleData);
     WarningManager warningManager(&vehicleData, &telemetryLogger);
     TelemetryParser parser(&vehicleData);
@@ -163,20 +163,6 @@ int main(int argc, char *argv[])
         &virtualVehicle,
         &VirtualVehicle::toggleHandBrake
     );
-
-    QObject::connect(
-        &driverInput,
-        &DriverInput::driveModePressed,
-        &virtualVehicle,
-        &VirtualVehicle::cycleDriveMode
-    );
-
-    // NOTE: TelemetryParser currently writes STM32 telemetry straight into
-    // VehicleData. For VirtualVehicle's field-authority check to work,
-    // route real telemetry through stmSimulator's onXReceived() slots
-    // instead (e.g. connect TelemetryParser::speedParsed to
-    // stmSimulator.onSpeedReceived) so STMDataSimulator can stamp each
-    // field as "live" at the moment real data arrives.
 
     stmSimulator.start();
     //musicPlayer.play();

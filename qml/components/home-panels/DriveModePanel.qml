@@ -72,7 +72,7 @@ BaseCard {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            vehicleData.driveMode = modelData
+                            virtualVehicle.setDriveMode(modelData)
                         }
                     }
                 }
