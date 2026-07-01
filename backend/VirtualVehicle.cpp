@@ -36,9 +36,9 @@ void VirtualVehicle::update()
             m_state.speed -= 4;
     }
 
-    m_state.speed = qBound(0, m_state.speed, 120);
+    m_state.speed = qBound(0, m_state.speed, 180);
 
-    m_state.rpm = (m_state.speed == 0) ? 0 : 800 + m_state.speed * 45;
+    m_state.rpm = (m_state.speed == 0) ? 0 : 800 + m_state.speed * 25;
     m_state.rpm = qBound(0, m_state.rpm, 6500);
 
     m_vehicleData->setSpeed(m_state.speed);
