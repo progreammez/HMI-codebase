@@ -13,7 +13,7 @@ qt_add_executable(EV_HMI
     main.cpp
 
     backend/VehicleData.cpp
-    backend/TelemetrySimulator.cpp
+    backend/STMDataSimulator.cpp
     backend/WarningManager.cpp
     backend/LocalMusicPlayer.cpp
     backend/TelemetryParser.cpp
@@ -22,6 +22,7 @@ qt_add_executable(EV_HMI
     backend/SpotifyAPIManager.cpp
     backend/BluetoothManager.cpp
     backend/DummyBluetoothManager.cpp
+    backend/VirtualVehicle.cpp
 )
 
 target_include_directories(EV_HMI PRIVATE

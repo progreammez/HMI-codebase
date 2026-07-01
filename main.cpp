@@ -4,7 +4,8 @@
 #include <QUrl>
 
 #include "backend/VehicleData.h"
-#include "backend/TelemetrySimulator.h"
+#include "backend/VirtualVehicle.h"
+#include "backend/STMDataSimulator.h"
 #include "backend/WarningManager.h"
 #include "backend/LocalMusicPlayer.h"
 #include "backend/TelemetryParser.h"
@@ -23,7 +24,8 @@ int main(int argc, char *argv[])
     SerialManager serialManager;
     SpotifyApiManager spotifyApi;
 
-    TelemetrySimulator simulator(&vehicleData);
+    STMDataSimulator stmSimulator(&vehicleData);
+    VirtualVehicle virtualVehicle(&vehicleData);
     TelemetryLogger telemetryLogger(&vehicleData);
     WarningManager warningManager(&vehicleData, &telemetryLogger);
     TelemetryParser parser(&vehicleData);
@@ -38,10 +40,10 @@ int main(int argc, char *argv[])
 
     // CONNECTS GO HERE
     QObject::connect(
-    &vehicleData,
-    &VehicleData::batteryPercentChanged,
-    &warningManager,
-    &WarningManager::evaluateWarnings
+        &vehicleData,
+        &VehicleData::batteryPercentChanged,
+        &warningManager,
+        &WarningManager::evaluateWarnings
     );
 
     QObject::connect(
@@ -74,8 +76,9 @@ int main(int argc, char *argv[])
         }
     );
 
-    simulator.start();
+    stmSimulator.start();
     //musicPlayer.play();
+    virtualVehicle.start();
 
     QQmlApplicationEngine engine;
 

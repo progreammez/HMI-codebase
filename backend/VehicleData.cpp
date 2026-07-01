@@ -5,38 +5,7 @@
 
 // VehicleData class implementation
 VehicleData::VehicleData(QObject *parent)
-    : QObject(parent),
-      m_rpm(0),
-      m_speed(0),
-      m_batteryPercent(100),
-      m_motorTemp(35),
-      m_batteryTemp(30),
-      m_controllerTemp(30),
-      m_rangeKm(180),
-      m_driveMode("ECO"),
-      m_gearState("P"),
-      m_leftIndicator(false),
-      m_rightIndicator(false),
-      m_hazardLights(false),
-      m_headlights(false),
-      m_highBeam(false),
-      m_motorPower(0.0f),
-      m_regenLevel(0),
-      m_odometer(0.0f),
-      m_tripDistance(0.0f),
-      m_tripA(0.0f),
-      m_tripB(0.0f),
-      m_lowBatteryWarning(false),
-      m_motorOverTempWarning(false),
-      m_batteryOverTempWarning(false),
-      m_communicationFault(false),
-      m_lowRangeWarning(false),
-      m_warningMessage(""),
-      m_simulationActive(true),
-      m_framesReceived(124536),
-      m_invalidFrames(15),
-      m_checksumErrors(2)
-
+    : QObject(parent)
 {
 }
 
@@ -85,21 +54,22 @@ void VehicleData::testConnection()
 // GETTER METHODS
 // =====================================================
 
-int VehicleData::rpm() const
-{
-    return m_rpm;
-}
+// ==========================================================
+// CORE VEHICLE TELEMETRY (STM / Raspberry Pi)
+// ==========================================================
 
+// Motion
 int VehicleData::speed() const
 {
     return m_speed;
 }
 
-int VehicleData::batteryPercent() const
+int VehicleData::rpm() const
 {
-    return m_batteryPercent;
+    return m_rpm;
 }
 
+// Temperatures
 int VehicleData::motorTemp() const
 {
     return m_motorTemp;
@@ -115,11 +85,7 @@ int VehicleData::controllerTemp() const
     return m_controllerTemp;
 }
 
-int VehicleData::rangeKm() const
-{
-    return m_rangeKm;
-}
-
+// Drive State
 QString VehicleData::driveMode() const
 {
     return m_driveMode;
@@ -130,6 +96,7 @@ QString VehicleData::gearState() const
     return m_gearState;
 }
 
+// Indicators
 bool VehicleData::leftIndicator() const
 {
     return m_leftIndicator;
@@ -140,31 +107,28 @@ bool VehicleData::rightIndicator() const
     return m_rightIndicator;
 }
 
-bool VehicleData::hazardLights() const
+
+// ==========================================================
+// VIRTUAL VEHICLE (Always Simulated)
+// ==========================================================
+
+// Battery
+int VehicleData::batteryPercent() const
 {
-    return m_hazardLights;
+    return m_batteryPercent;
 }
 
-bool VehicleData::headlights() const
+int VehicleData::rangeKm() const
 {
-    return m_headlights;
+    return m_rangeKm;
 }
 
-bool VehicleData::highBeam() const
+float VehicleData::batteryVoltage() const
 {
-    return m_highBeam;
+    return m_batteryVoltage;
 }
 
-float VehicleData::motorPower() const
-{
-    return m_motorPower;
-}
-
-int VehicleData::regenLevel() const
-{
-    return m_regenLevel;
-}
-
+// Trips
 float VehicleData::odometer() const
 {
     return m_odometer;
@@ -184,6 +148,80 @@ float VehicleData::tripB() const
 {
     return m_tripB;
 }
+
+// Lighting
+bool VehicleData::hazardLights() const
+{
+    return m_hazardLights;
+}
+
+bool VehicleData::headlights() const
+{
+    return m_headlights;
+}
+
+bool VehicleData::highBeam() const
+{
+    return m_highBeam;
+}
+
+// Powertrain
+float VehicleData::motorPower() const
+{
+    return m_motorPower;
+}
+
+int VehicleData::regenLevel() const
+{
+    return m_regenLevel;
+}
+
+// Charging
+bool VehicleData::charging() const
+{
+    return m_charging;
+}
+
+float VehicleData::chargingPower() const
+{
+    return m_chargingPower;
+}
+
+int VehicleData::chargeTimeRemaining() const
+{
+    return m_chargeTimeRemaining;
+}
+
+// Cooling
+int VehicleData::fanSpeed() const
+{
+    return m_fanSpeed;
+}
+
+float VehicleData::coolantTemp() const
+{
+    return m_coolantTemp;
+}
+
+float VehicleData::coolantFlow() const
+{
+    return m_coolantFlow;
+}
+
+bool VehicleData::pumpStatus() const
+{
+    return m_pumpStatus;
+}
+
+QString VehicleData::radiatorStatus() const
+{
+    return m_radiatorStatus;
+}
+
+
+// ==========================================================
+// WARNINGS & FAULTS
+// ==========================================================
 
 bool VehicleData::lowBatteryWarning() const
 {
@@ -215,9 +253,84 @@ QString VehicleData::warningMessage() const
     return m_warningMessage;
 }
 
+
+// ==========================================================
+// ENGINEER / POWERTRAIN STATUS
+// ==========================================================
+
+QString VehicleData::bmsStatus() const
+{
+    return m_bmsStatus;
+}
+
+QString VehicleData::vcuStatus() const
+{
+    return m_vcuStatus;
+}
+
+QString VehicleData::inverterStatus() const
+{
+    return m_inverterStatus;
+}
+
+QString VehicleData::dcDcStatus() const
+{
+    return m_dcDcStatus;
+}
+
+QString VehicleData::motorControllerStatus() const
+{
+    return m_motorControllerStatus;
+}
+
+QString VehicleData::driveSystemFault() const
+{
+    return m_driveSystemFault;
+}
+
+QString VehicleData::powerLimitState() const
+{
+    return m_powerLimitState;
+}
+
+
+// ==========================================================
+// COMMUNICATION / TELEMETRY
+// ==========================================================
+
 bool VehicleData::simulationActive() const
 {
     return m_simulationActive;
+}
+
+QString VehicleData::uartStatus() const
+{
+    return m_uartStatus;
+}
+
+QString VehicleData::parserStatus() const
+{
+    return m_parserStatus;
+}
+
+QString VehicleData::loggerStatus() const
+{
+    return m_loggerStatus;
+}
+
+QString VehicleData::simulatorStatus() const
+{
+    return m_simulatorStatus;
+}
+
+int VehicleData::telemetryRate() const
+{
+    return m_telemetryRate;
+}
+
+int VehicleData::frameInterval() const
+{
+    return m_frameInterval;
 }
 
 int VehicleData::framesReceived() const
@@ -233,6 +346,11 @@ int VehicleData::invalidFrames() const
 int VehicleData::checksumErrors() const
 {
     return m_checksumErrors;
+}
+
+int VehicleData::packetLoss() const
+{
+    return m_packetLoss;
 }
 
 // =====================================================
@@ -392,7 +510,7 @@ void VehicleData::setTripDistance(float tripDistance)
     emit tripDistanceChanged();
 }
 
-void VehicleData::settripA(float tripA)
+void VehicleData::setTripA(float tripA)
 {
     if (qFuzzyCompare(m_tripA, tripA))
         return;
@@ -400,7 +518,7 @@ void VehicleData::settripA(float tripA)
     emit tripAChanged();
 }
 
-void VehicleData::settripB(float tripB)
+void VehicleData::setTripB(float tripB)
 {
     if (qFuzzyCompare(m_tripB, tripB))
         return;
@@ -408,88 +526,233 @@ void VehicleData::settripB(float tripB)
     emit tripBChanged();
 }  
 
-void VehicleData::setLowBatteryWarning(bool lowBatteryWarning)
+// ==========================================================
+// Battery
+// ==========================================================
+
+void VehicleData::setBatteryVoltage(float batteryVoltage)
 {
-    if (m_lowBatteryWarning == lowBatteryWarning)
+    if (qFuzzyCompare(m_batteryVoltage, batteryVoltage))
         return;
-    m_lowBatteryWarning = lowBatteryWarning;
-    emit lowBatteryWarningChanged();
-    emit telemetryChanged();
+
+    m_batteryVoltage = batteryVoltage;
+    emit batteryVoltageChanged();
 }
 
-void VehicleData::setMotorOverTempWarning(bool motorOverTempWarning)
+// ==========================================================
+// Charging
+// ==========================================================
+
+void VehicleData::setCharging(bool charging)
 {
-    if (m_motorOverTempWarning == motorOverTempWarning)
+    if (m_charging == charging)
         return;
-    m_motorOverTempWarning = motorOverTempWarning;
-    emit motorOverTempWarningChanged();
-    emit telemetryChanged();
+
+    m_charging = charging;
+    emit chargingChanged();
 }
 
-void VehicleData::setBatteryOverTempWarning(bool batteryOverTempWarning)
+void VehicleData::setChargingPower(float chargingPower)
 {
-    if (m_batteryOverTempWarning == batteryOverTempWarning)
+    if (qFuzzyCompare(m_chargingPower, chargingPower))
         return;
-    m_batteryOverTempWarning = batteryOverTempWarning;
-    emit batteryOverTempWarningChanged();
-    emit telemetryChanged();
+
+    m_chargingPower = chargingPower;
+    emit chargingPowerChanged();
 }
 
-void VehicleData::setCommunicationFault(bool communicationFault)
+void VehicleData::setChargeTimeRemaining(int chargeTimeRemaining)
 {
-    if (m_communicationFault == communicationFault)
+    if (m_chargeTimeRemaining == chargeTimeRemaining)
         return;
-    m_communicationFault = communicationFault;
-    emit communicationFaultChanged();
-    emit telemetryChanged();
+
+    m_chargeTimeRemaining = chargeTimeRemaining;
+    emit chargeTimeRemainingChanged();
 }
 
-void VehicleData::setLowRangeWarning(bool lowRangeWarning)
+// ==========================================================
+// Cooling
+// ==========================================================
+
+void VehicleData::setFanSpeed(int fanSpeed)
 {
-    if (m_lowRangeWarning == lowRangeWarning)
+    if (m_fanSpeed == fanSpeed)
         return;
-    m_lowRangeWarning = lowRangeWarning;
-    emit lowRangeWarningChanged();
-    emit telemetryChanged();
+
+    m_fanSpeed = fanSpeed;
+    emit fanSpeedChanged();
 }
 
-void VehicleData::setWarningMessage(const QString &warningMessage)
+void VehicleData::setCoolantTemp(float coolantTemp)
 {
-    if (m_warningMessage == warningMessage)
+    if (qFuzzyCompare(m_coolantTemp, coolantTemp))
         return;
-    m_warningMessage = warningMessage;
-    emit warningMessageChanged();
-    emit telemetryChanged();
+
+    m_coolantTemp = coolantTemp;
+    emit coolantTempChanged();
 }
 
-void VehicleData::setSimulationActive(bool active)
+void VehicleData::setCoolantFlow(float coolantFlow)
 {
-    if (m_simulationActive == active)
+    if (qFuzzyCompare(m_coolantFlow, coolantFlow))
         return;
-    m_simulationActive = active;
-    emit simulationActiveChanged();
+
+    m_coolantFlow = coolantFlow;
+    emit coolantFlowChanged();
 }
 
-void VehicleData::setFramesReceived(int framesReceived)
+void VehicleData::setPumpStatus(bool pumpStatus)
 {
-    if (m_framesReceived == framesReceived)
+    if (m_pumpStatus == pumpStatus)
         return;
-    m_framesReceived = framesReceived;
-    emit framesReceivedChanged();
+
+    m_pumpStatus = pumpStatus;
+    emit pumpStatusChanged();
 }
 
-void VehicleData::setInvalidFrames(int invalidFrames)
+void VehicleData::setRadiatorStatus(const QString &radiatorStatus)
 {
-    if (m_invalidFrames == invalidFrames)
+    if (m_radiatorStatus == radiatorStatus)
         return;
-    m_invalidFrames = invalidFrames;
-    emit invalidFramesChanged();
+
+    m_radiatorStatus = radiatorStatus;
+    emit radiatorStatusChanged();
 }
 
-void VehicleData::setChecksumErrors(int checksumErrors)
+// ==========================================================
+// Engineer Status
+// ==========================================================
+
+void VehicleData::setBmsStatus(const QString &bmsStatus)
 {
-    if (m_checksumErrors == checksumErrors)
+    if (m_bmsStatus == bmsStatus)
         return;
-    m_checksumErrors = checksumErrors;
-    emit checksumErrorsChanged();
+
+    m_bmsStatus = bmsStatus;
+    emit bmsStatusChanged();
+}
+
+void VehicleData::setVcuStatus(const QString &vcuStatus)
+{
+    if (m_vcuStatus == vcuStatus)
+        return;
+
+    m_vcuStatus = vcuStatus;
+    emit vcuStatusChanged();
+}
+
+// ==========================================================
+// Powertrain Status
+// ==========================================================
+
+void VehicleData::setInverterStatus(const QString &inverterStatus)
+{
+    if (m_inverterStatus == inverterStatus)
+        return;
+
+    m_inverterStatus = inverterStatus;
+    emit inverterStatusChanged();
+}
+
+void VehicleData::setDcDcStatus(const QString &dcDcStatus)
+{
+    if (m_dcDcStatus == dcDcStatus)
+        return;
+
+    m_dcDcStatus = dcDcStatus;
+    emit dcDcStatusChanged();
+}
+
+void VehicleData::setMotorControllerStatus(const QString &motorControllerStatus)
+{
+    if (m_motorControllerStatus == motorControllerStatus)
+        return;
+
+    m_motorControllerStatus = motorControllerStatus;
+    emit motorControllerStatusChanged();
+}
+
+void VehicleData::setDriveSystemFault(const QString &driveSystemFault)
+{
+    if (m_driveSystemFault == driveSystemFault)
+        return;
+
+    m_driveSystemFault = driveSystemFault;
+    emit driveSystemFaultChanged();
+}
+
+void VehicleData::setPowerLimitState(const QString &powerLimitState)
+{
+    if (m_powerLimitState == powerLimitState)
+        return;
+
+    m_powerLimitState = powerLimitState;
+    emit powerLimitStateChanged();
+}
+
+// ==========================================================
+// Communication
+// ==========================================================
+
+void VehicleData::setUartStatus(const QString &uartStatus)
+{
+    if (m_uartStatus == uartStatus)
+        return;
+
+    m_uartStatus = uartStatus;
+    emit uartStatusChanged();
+}
+
+void VehicleData::setParserStatus(const QString &parserStatus)
+{
+    if (m_parserStatus == parserStatus)
+        return;
+
+    m_parserStatus = parserStatus;
+    emit parserStatusChanged();
+}
+
+void VehicleData::setLoggerStatus(const QString &loggerStatus)
+{
+    if (m_loggerStatus == loggerStatus)
+        return;
+
+    m_loggerStatus = loggerStatus;
+    emit loggerStatusChanged();
+}
+
+void VehicleData::setSimulatorStatus(const QString &simulatorStatus)
+{
+    if (m_simulatorStatus == simulatorStatus)
+        return;
+
+    m_simulatorStatus = simulatorStatus;
+    emit simulatorStatusChanged();
+}
+
+void VehicleData::setTelemetryRate(int telemetryRate)
+{
+    if (m_telemetryRate == telemetryRate)
+        return;
+
+    m_telemetryRate = telemetryRate;
+    emit telemetryRateChanged();
+}
+
+void VehicleData::setFrameInterval(int frameInterval)
+{
+    if (m_frameInterval == frameInterval)
+        return;
+
+    m_frameInterval = frameInterval;
+    emit frameIntervalChanged();
+}
+
+void VehicleData::setPacketLoss(int packetLoss)
+{
+    if (m_packetLoss == packetLoss)
+        return;
+
+    m_packetLoss = packetLoss;
+    emit packetLossChanged();
 }

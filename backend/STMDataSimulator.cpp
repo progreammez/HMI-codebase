@@ -1,19 +1,19 @@
-#include "TelemetrySimulator.h"
+#include "STMDataSimulator.h"
 #include "VehicleData.h"
 #include <QRandomGenerator>
 
-TelemetrySimulator::TelemetrySimulator(VehicleData *vehicleData, QObject *parent) 
+STMDataSimulator::STMDataSimulator(VehicleData *vehicleData, QObject *parent) 
     : QObject(parent), m_vehicleData(vehicleData)
 {
-    connect(&m_timer, &QTimer::timeout, this, &TelemetrySimulator::generateFakeData);
+    connect(&m_timer, &QTimer::timeout, this, &STMDataSimulator::generateFakeData);
 }
 
-void TelemetrySimulator::start()
+void STMDataSimulator::start()
 {
-    m_timer.start(100); // 10 Hz update loop
+    m_timer.start(500); // 50 Hz update loop
 }
 
-void TelemetrySimulator::generateFakeData()
+void STMDataSimulator::generateFakeData()
 {
     // =========================================================================
     // 1. COMMUNICATION FAULT GATEWAY
@@ -133,14 +133,6 @@ void TelemetrySimulator::generateFakeData()
     }
 
     // =========================================================================
-    // 7. POWER MODEL
-    // =========================================================================
-
-    m_state.motorPower =
-        (m_state.speed * 0.65f)
-        + QRandomGenerator::global()->bounded(-5, 6);
-
-    // =========================================================================
     // 8. THERMAL MODEL
     // =========================================================================
 
@@ -171,24 +163,6 @@ void TelemetrySimulator::generateFakeData()
         qBound(45, m_state.batteryTemp, 85);
 
     // =========================================================================
-    // 9. BATTERY + RANGE
-    // =========================================================================
-
-    static int batteryCounter = 0;
-    batteryCounter++;
-
-    if (batteryCounter >= 50)
-    {
-        batteryCounter = 0;
-
-        if (m_state.batteryPercent > 0)
-            m_state.batteryPercent--;
-    }
-
-    m_state.rangeKm =
-        static_cast<int>(m_state.batteryPercent * 1.8f);
-
-    // =========================================================================
     // 10. INDICATORS
     // =========================================================================
 
@@ -211,66 +185,6 @@ void TelemetrySimulator::generateFakeData()
         if (state == 2)
             m_state.rightIndicator = true;
     }
-
-    // =========================================================================
-    // 11. HEADLIGHTS
-    // =========================================================================
-
-    static int headlightCounter = 0;
-    headlightCounter++;
-
-    if (headlightCounter >= 150)
-    {
-        headlightCounter = 0;
-
-        m_state.headlights =
-            QRandomGenerator::global()->bounded(100) > 40;
-    }
-
-    // =========================================================================
-    // 12. HIGH BEAM
-    // =========================================================================
-
-    if (!m_state.headlights)
-    {
-        m_state.highBeam = false;
-    }
-    else
-    {
-        static int highBeamCounter = 0;
-        highBeamCounter++;
-
-        if (highBeamCounter >= 60)
-        {
-            highBeamCounter = 0;
-
-            m_state.highBeam =
-                QRandomGenerator::global()->bounded(100) > 70;
-        }
-    }
-
-    // =========================================================================
-    // 13. REGEN
-    // =========================================================================
-
-    m_state.regenLevel =
-        QRandomGenerator::global()->bounded(1, 4);
-
-    // =========================================================================
-    // 14. ODOMETER
-    // =========================================================================
-
-    m_state.odometer +=
-        m_state.speed / 36000.0f;
-
-    m_state.tripDistance +=
-        m_state.speed / 36000.0f;
-
-    m_state.tripA +=
-        m_state.speed / 36000.0f;
-
-    m_state.tripB +=
-        m_state.speed / 36000.0f;
 
     // =========================================================================
     // 15. WARNINGS
@@ -307,20 +221,20 @@ void TelemetrySimulator::generateFakeData()
     m_vehicleData->setSpeed(m_state.speed);
     m_vehicleData->setRpm(m_state.rpm);
 
-    m_vehicleData->setBatteryPercent(
-        m_state.batteryPercent);
+    // m_vehicleData->setBatteryPercent(
+    //     m_state.batteryPercent);
 
     m_vehicleData->setMotorTemp(
         m_state.motorTemp);
 
-    m_vehicleData->setBatteryTemp(
-        m_state.batteryTemp);
+    // m_vehicleData->setBatteryTemp(
+    //     m_state.batteryTemp);
 
     m_vehicleData->setControllerTemp(
         m_state.controllerTemp);
 
-    m_vehicleData->setRangeKm(
-        m_state.rangeKm);
+    // m_vehicleData->setRangeKm(
+    //     m_state.rangeKm);
 
     m_vehicleData->setDriveMode(
         m_state.driveMode);
@@ -334,21 +248,21 @@ void TelemetrySimulator::generateFakeData()
     m_vehicleData->setRightIndicator(
         m_state.rightIndicator);
 
-    m_vehicleData->setHeadlights(
-        m_state.headlights);
+    // m_vehicleData->setHeadlights(
+    //     m_state.headlights);
 
-    m_vehicleData->setHighBeam(
-        m_state.highBeam);
+    // m_vehicleData->setHighBeam(
+    //     m_state.highBeam);
 
-    m_vehicleData->setMotorPower(
-        m_state.motorPower);
+    // m_vehicleData->setMotorPower(
+    //     m_state.motorPower);
 
-    m_vehicleData->setRegenLevel(
-        m_state.regenLevel);
+    // m_vehicleData->setRegenLevel(
+    //     m_state.regenLevel);
 
-    m_vehicleData->setOdometer(
-        m_state.odometer);
+    // m_vehicleData->setOdometer(
+    //     m_state.odometer);
 
-    m_vehicleData->setTripDistance(
-        m_state.tripDistance);
+    // m_vehicleData->setTripDistance(
+    //     m_state.tripDistance);
 }
