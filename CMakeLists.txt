@@ -23,6 +23,7 @@ qt_add_executable(EV_HMI
     backend/BluetoothManager.cpp
     backend/DummyBluetoothManager.cpp
     backend/VirtualVehicle.cpp
+    backend/DriverInput.cpp
 )
 
 target_include_directories(EV_HMI PRIVATE

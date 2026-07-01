@@ -14,6 +14,7 @@
 #include "backend/SpotifyAPIManager.h"
 #include "backend/BluetoothManager.h"
 #include "backend/DummyBluetoothManager.h"
+#include "backend/DriverInput.h"
 
 int main(int argc, char *argv[])
 {
@@ -23,12 +24,16 @@ int main(int argc, char *argv[])
     LocalMusicPlayer musicPlayer;
     SerialManager serialManager;
     SpotifyApiManager spotifyApi;
+    DriverInput driverInput;
+
+    app.installEventFilter(&driverInput);
 
     STMDataSimulator stmSimulator(&vehicleData);
-    VirtualVehicle virtualVehicle(&vehicleData);
+    VirtualVehicle virtualVehicle(&vehicleData, &driverInput);
     TelemetryLogger telemetryLogger(&vehicleData);
     WarningManager warningManager(&vehicleData, &telemetryLogger);
     TelemetryParser parser(&vehicleData);
+
     if (!serialManager.connectPort("/dev/ttyACM0"))
         {
             qDebug() << "Failed to open STM serial port";
@@ -74,6 +79,89 @@ int main(int argc, char *argv[])
         {
             qDebug() << "STM:" << packet;
         }
+    );
+
+    QObject::connect(&driverInput,
+        &DriverInput::acceleratePressed,
+        &virtualVehicle,
+        &VirtualVehicle::setAccelerating
+    );
+
+    QObject::connect(
+        &driverInput,
+        &DriverInput::brakePressed,
+        &virtualVehicle,
+        &VirtualVehicle::setBraking
+    );
+    
+    QObject::connect(
+        &driverInput,
+        &DriverInput::gearChanged,
+        &virtualVehicle,
+        &VirtualVehicle::setGear
+    );
+    
+    QObject::connect(
+        &driverInput,
+        &DriverInput::headlightsPressed,
+        &virtualVehicle,
+        &VirtualVehicle::toggleHeadlights
+    );
+    
+    QObject::connect(
+        &driverInput,
+        &DriverInput::highBeamPressed,
+        &virtualVehicle,
+        &VirtualVehicle::toggleHighBeam
+    );
+    
+    QObject::connect(
+        &driverInput,
+        &DriverInput::leftIndicatorPressed,
+        &virtualVehicle,
+        &VirtualVehicle::toggleLeftIndicator
+    );
+    
+    QObject::connect(
+        &driverInput,
+        &DriverInput::rightIndicatorPressed,
+        &virtualVehicle,
+        &VirtualVehicle::toggleRightIndicator
+    );
+    
+    QObject::connect(
+        &driverInput,
+        &DriverInput::hazardPressed,
+        &virtualVehicle,
+        &VirtualVehicle::toggleHazards
+    );
+    
+    QObject::connect(
+        &driverInput,
+        &DriverInput::regenPressed,
+        &virtualVehicle,
+        &VirtualVehicle::cycleRegen
+    );
+    
+    QObject::connect(
+        &driverInput,
+        &DriverInput::chargingPressed,
+        &virtualVehicle,
+        &VirtualVehicle::toggleCharging
+    );
+    
+    QObject::connect(
+        &driverInput,
+        &DriverInput::cruisePressed,
+        &virtualVehicle,
+        &VirtualVehicle::toggleCruise
+    );
+    
+    QObject::connect(
+        &driverInput,
+        &DriverInput::handBrakePressed,
+        &virtualVehicle,
+        &VirtualVehicle::toggleHandBrake
     );
 
     stmSimulator.start();

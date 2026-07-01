@@ -218,7 +218,7 @@ BaseCard {
                         spacing: 6 * Theme.scale
 
                         Image {
-                            source: root.iconSetPath + (vehicleData.handbrakeEngaged ? "handbrake-light-on.png" : "handbrake-light-off.png")
+                            source: root.iconSetPath + (vehicleData.handBrake ? "handbrake-light-on.png" : "handbrake-light-off.png")
                             width: 32 * Theme.scale
                             height: 32 * Theme.scale
                             fillMode: Image.PreserveAspectFit

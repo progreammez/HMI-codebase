@@ -25,6 +25,7 @@ class VehicleData : public QObject
     // Drive State
     Q_PROPERTY(QString driveMode READ driveMode WRITE setDriveMode NOTIFY driveModeChanged)
     Q_PROPERTY(QString gearState READ gearState WRITE setGearState NOTIFY gearStateChanged)
+    Q_PROPERTY(bool handBrake READ handBrake WRITE setHandBrake NOTIFY handBrakeChanged)
 
     // Indicators
     Q_PROPERTY(bool leftIndicator READ leftIndicator WRITE setLeftIndicator NOTIFY leftIndicatorChanged)
@@ -140,6 +141,7 @@ public:
     // Drive State
     QString driveMode() const;
     QString gearState() const;
+    bool handBrake() const;
 
     // Indicators
     bool leftIndicator() const;
@@ -256,6 +258,7 @@ public:
     // Drive State
     void setDriveMode(const QString &driveMode);
     void setGearState(const QString &gearState);
+    void setHandBrake(bool handBrake);
 
     // Indicators
     void setLeftIndicator(bool leftIndicator);
@@ -385,6 +388,7 @@ signals:
     // Drive State
     void driveModeChanged();
     void gearStateChanged();
+    void handBrakeChanged();
 
     // Indicators
     void leftIndicatorChanged();
@@ -494,6 +498,7 @@ private:
     // Drive State
     QString m_driveMode = "ECO";
     QString m_gearState = "P";
+    bool m_handBrake = true;
 
     // Indicators
     bool m_leftIndicator = false;

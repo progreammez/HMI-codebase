@@ -96,6 +96,11 @@ QString VehicleData::gearState() const
     return m_gearState;
 }
 
+bool VehicleData::handBrake() const
+{
+    return m_handBrake;
+}
+
 // Indicators
 bool VehicleData::leftIndicator() const
 {
@@ -438,8 +443,17 @@ void VehicleData::setGearState(const QString &gearState)
     emit telemetryChanged();
 }
 
-void VehicleData::setLeftIndicator(bool leftIndicator)
+void VehicleData::setHandBrake(bool handBrake)
 {
+    if (m_handBrake == handBrake)
+        return;
+
+    m_handBrake = handBrake;
+    emit handBrakeChanged();
+}
+
+void VehicleData::setLeftIndicator(bool leftIndicator)
+{   
     if (m_leftIndicator == leftIndicator)
         return;
     m_leftIndicator = leftIndicator;
@@ -755,4 +769,98 @@ void VehicleData::setPacketLoss(int packetLoss)
 
     m_packetLoss = packetLoss;
     emit packetLossChanged();
+}
+
+// ==========================================================
+// Warning Flags
+// ==========================================================
+
+void VehicleData::setLowBatteryWarning(bool value)
+{
+    if (m_lowBatteryWarning == value)
+        return;
+
+    m_lowBatteryWarning = value;
+    emit lowBatteryWarningChanged();
+}
+
+void VehicleData::setMotorOverTempWarning(bool value)
+{
+    if (m_motorOverTempWarning == value)
+        return;
+
+    m_motorOverTempWarning = value;
+    emit motorOverTempWarningChanged();
+}
+
+void VehicleData::setBatteryOverTempWarning(bool value)
+{
+    if (m_batteryOverTempWarning == value)
+        return;
+
+    m_batteryOverTempWarning = value;
+    emit batteryOverTempWarningChanged();
+}
+
+void VehicleData::setCommunicationFault(bool value)
+{
+    if (m_communicationFault == value)
+        return;
+
+    m_communicationFault = value;
+    emit communicationFaultChanged();
+}
+
+void VehicleData::setLowRangeWarning(bool value)
+{
+    if (m_lowRangeWarning == value)
+        return;
+
+    m_lowRangeWarning = value;
+    emit lowRangeWarningChanged();
+}
+
+void VehicleData::setWarningMessage(const QString &message)
+{
+    if (m_warningMessage == message)
+        return;
+
+    m_warningMessage = message;
+    emit warningMessageChanged();
+}
+
+void VehicleData::setSimulationActive(bool active)
+{
+    if (m_simulationActive == active)
+        return;
+
+    m_simulationActive = active;
+    emit simulationActiveChanged();
+}
+
+void VehicleData::setFramesReceived(int value)
+{
+    if (m_framesReceived == value)
+        return;
+
+    m_framesReceived = value;
+    emit framesReceivedChanged();
+}
+
+void VehicleData::setInvalidFrames(int value)
+{
+    if (m_invalidFrames == value)
+        return;
+
+    m_invalidFrames = value;
+    emit invalidFramesChanged();
+}
+
+void VehicleData::setChecksumErrors(int value)
+{
+    if (m_checksumErrors == value)
+        return;
+
+    m_checksumErrors = value;
+    emit checksumErrorsChanged();
 }

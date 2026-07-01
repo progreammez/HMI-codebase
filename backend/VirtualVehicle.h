@@ -4,9 +4,26 @@
 #include <QTimer>
 
 class VehicleData;
+class DriverInput;
 
 struct VirtualVehicleState
 {
+    // ===========================
+    // Driving
+    // ===========================
+
+    int speed = 0;
+    int rpm = 0;
+
+    QString gearState = "P";
+    QString driveMode = "ECO";
+
+    bool accelerating = false;
+    bool braking = false;
+
+    bool cruiseControl = false;
+    bool handBrake = true;
+
     // ===========================
     // Battery
     // ===========================
@@ -27,10 +44,12 @@ struct VirtualVehicleState
     // ===========================
     // Lighting
     // ===========================
-
+    
     bool hazardLights = false;
     bool headlights = false;
     bool highBeam = false;
+    bool leftIndicator = false;
+    bool rightIndicator = false;
 
     // ===========================
     // Powertrain
@@ -100,12 +119,37 @@ class VirtualVehicle : public QObject
 
 public:
     explicit VirtualVehicle(VehicleData *vehicleData,
+                            DriverInput *driverInput,
                             QObject *parent = nullptr);
 
     void start();
 
+public slots:
+
+    void setAccelerating(bool pressed);
+    void setBraking(bool pressed);
+
+    void setGear(const QString &gear);
+
+    void toggleHeadlights();
+    void toggleHighBeam();
+
+    void toggleLeftIndicator();
+    void toggleRightIndicator();
+    void toggleHazards();
+
+    void cycleRegen();
+
+    void toggleCharging();
+
+    void toggleCruise();
+
+    void toggleHandBrake();
+
+
 private:
     VehicleData *m_vehicleData;
+    DriverInput *m_driverInput;
 
     QTimer m_timer;
 
