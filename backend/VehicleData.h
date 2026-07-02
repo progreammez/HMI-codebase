@@ -60,6 +60,7 @@ class VehicleData : public QObject
     Q_PROPERTY(int invalidFrames READ invalidFrames WRITE setInvalidFrames NOTIFY invalidFramesChanged)
     Q_PROPERTY(int checksumErrors READ checksumErrors WRITE setChecksumErrors NOTIFY checksumErrorsChanged)
 
+    
 public:
     explicit VehicleData(QObject *parent = nullptr);
 
@@ -110,6 +111,7 @@ public:
     int framesReceived() const;
     int invalidFrames() const;
     int checksumErrors() const;
+
 
     bool hasWarning() const
     {
@@ -247,6 +249,7 @@ signals:
     void invalidFramesChanged();
     void checksumErrorsChanged();
 
+
 private:
     // Member variables to store the current state of the vehicle
     int m_rpm;
@@ -292,7 +295,7 @@ private:
     int m_framesReceived;
     int m_invalidFrames ;
     int m_checksumErrors;
-    
+
 };
 
 #endif

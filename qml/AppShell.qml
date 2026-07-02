@@ -18,7 +18,7 @@ Item {
     property var persistentVoltHistory: []
     property var persistentCurrentHistory: []
     property var persistentPowerHistory: []
-    readonly property int maxPowertrainPoints: 30
+    readonly property int maxPowertrainPoints: 300
 
     // GLOBAL HISTORY CACHE FOR THERMAL GRAPHS
     property var persistentMotorHistory: []

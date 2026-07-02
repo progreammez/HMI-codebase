@@ -99,7 +99,7 @@ Item {
         "pack_current":       { "en": "Pack Current",       "de": "Pack-Strom",             "es": "Corriente del Paquete" },
         
         "legend_normal":      { "en": "< 50°C Normal",      "de": "< 50°C Normal",          "es": "< 50°C Normal" },
-        "legend_elevated":    { "en": "50°C - 70°C Elevated","de": "50°C - 70°C Erhöht",     "es": "50°C - 70°C Elevado" },
+        "legend_elevated":    { "en": "50-70°C Elevated","de": "50-70°C Erhöht",     "es": "50- 70°C Elevado" },
         "legend_high":        { "en": "> 70°C High",        "de": "> 70°C Hoch",            "es": "> 70°C Alto" },
 
         "overall_score":      { "en": "Overall Score",      "de": "Gesamtwertung",          "es": "Puntuación General" },

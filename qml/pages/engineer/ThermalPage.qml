@@ -41,6 +41,52 @@ Item {
         return sum / dataset.length;
     }
 
+    // =====================================================
+    // LOCALIZATION DICTIONARY
+    // =====================================================
+    readonly property var translations: {
+        "title_current_temps":   { "en": "Current Temperatures",   "de": "Aktuelle Temperaturen",   "es": "Temperaturas Actuales" },
+        "title_trends":          { "en": "Temperature Trends (Live)", "de": "Temperaturverlauf (Live)", "es": "Tendencias de Temp. (Vivo)" },
+        "title_status":          { "en": "Thermal Status",        "de": "Thermischer Status",      "es": "Estado Térmico" },
+        "title_cooling":         { "en": "Cooling System",        "de": "Kühlsystem",              "es": "Sistema de Enfriamiento" },
+        "title_warnings":        { "en": "Thermal Warnings",      "de": "Thermische Warnungen",    "es": "Advertencias Térmicas" },
+        "title_history":         { "en": "Temperature History",   "de": "Temperaturhistorie",      "es": "Historial de Temperatura" },
+
+        "lbl_motor_temp":        { "en": "MOTOR TEMP",            "de": "MOTORTEMPERATUR",         "es": "TEMP. DEL MOTOR" },
+        "lbl_battery_temp":      { "en": "BATTERY TEMP",          "de": "BATTERIETEMPERATUR",      "es": "TEMP. DE BATERÍA" },
+        "lbl_controller_temp":   { "en": "CONTROLLER TEMP",       "de": "STEUERGERÄTETEMP.",       "es": "TEMP. CONTROLADOR" },
+        
+        "legend_motor":          { "en": "— Motor",               "de": "— Motor",                 "es": "— Motor" },
+        "legend_battery":        { "en": "— Battery",             "de": "— Batterie",              "es": "— Batería" },
+        "legend_controller":     { "en": "— Controller",          "de": "— Steuergerät",           "es": "— Controlador" },
+
+        "status_normal":         { "en": "NORMAL",                "de": "NORMAL",                  "es": "NORMAL" },
+        "status_overtemp":       { "en": "OVERTEMP",              "de": "ÜBERTEMP.",               "es": "SOBRETEMP." },
+        "status_active_tag":     { "en": " ACTIVE",               "de": " AKTIV",                  "es": " ACTIVO" },
+        "status_ok":             { "en": "OK",                    "de": "OK",                      "es": "OK" },
+        "status_fail":           { "en": "FAIL",                  "de": "FEHLER",                  "es": "FALLO" },
+        "status_on":             { "en": "ON",                    "de": "AN",                      "es": "ENCENDIDO" },
+        
+        "lbl_fan_speed":         { "en": "FAN SPEED",             "de": "LÜFTERDREHZAHL",          "es": "VELOCIDAD VENTILADOR" },
+        "lbl_coolant_temp":      { "en": "Coolant Temp",          "de": "Kühlmitteltemp.",         "es": "Temp. Refrigerante" },
+        "lbl_coolant_flow":      { "en": "Coolant Flow",          "de": "Kühlmittelfluss",         "es": "Flujo Refrigerante" },
+        "lbl_pump_status":       { "en": "Pump Status",           "de": "Pumpenstatus",            "es": "Estado de Bomba" },
+        "lbl_radiator_status":   { "en": "Radiator Status",       "de": "Radiatorstatus",          "es": "Estado Radiador" },
+
+        "warn_motor":            { "en": "Motor Over Temp",       "de": "Motor Übertemperatur",    "es": "Sobretamp. del Motor" },
+        "warn_battery":          { "en": "Battery Over Temp",     "de": "Batterie Übertemperatur",  "es": "Sobretamp. de Batería" },
+        "warn_controller":       { "en": "Controller Over Temp",  "de": "Steuergerät Übertemp.",   "es": "Sobretamp. Controlador" },
+        "warn_derate":           { "en": "High Temp Derate",      "de": "Hochtemp.-Drosselung",    "es": "Reducción por Alta Temp." },
+
+        // FIXED: Added missing keys utilized by Row 2 and Row 3 repeaters
+        "check_motor":           { "en": "MOTOR",                 "de": "MOTOR",                   "es": "MOTOR" },
+        "check_battery":         { "en": "BATTERY",               "de": "BATTERIE",                "es": "BATERÍA" },
+        "check_controller":      { "en": "CONTROLLER",            "de": "STEUERGERÄT",             "es": "CONTROLADOR" },
+        "lbl_min":               { "en": "MIN",                   "de": "MIN",                     "es": "MÍN" },
+        "lbl_max":               { "en": "MAX",                   "de": "MAX",                     "es": "MÁX" },
+        "lbl_avg":               { "en": "AVG",                   "de": "MITTEL",                  "es": "PROM" }
+    }
+
     // Master Page Layout Architecture Container
     ColumnLayout {
         anchors.fill: parent
@@ -51,17 +97,13 @@ Item {
         // ROW 1: TOP LAYER (CURRENT TEMPERATURES [46%] + TEMPERATURE TRENDS [54%])
         // =========================================================================
         RowLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: 240 
+            Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredHeight: 240 
             spacing: thermalPage.gridSpacing
 
             // --- 1. CURRENT TEMPERATURES CARD ---
             BaseCard {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: 46
-                title: "CURRENT TEMPERATURES"
+                Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 46
+                title: thermalPage.translations["title_current_temps"][Typography.currentLanguage]
 
                 RowLayout {
                     anchors.fill: parent
@@ -69,49 +111,51 @@ Item {
 
                     Repeater {
                         model: [
-                            { title: "MOTOR TEMP", val: vehicleData.motorTemp, max: 120, col: thermalPage.motorColor, icon: "⚙" },
-                            { title: "BATTERY TEMP", val: vehicleData.batteryTemp, max: 60, col: thermalPage.batteryColor, icon: "🔋" },
-                            { title: "CONTROLLER TEMP", val: vehicleData.controllerTemp, max: 100, col: thermalPage.controllerColor, icon: "🎛" }
+                            { titleKey: "lbl_motor_temp", val: vehicleData.motorTemp, max: 120, col: thermalPage.motorColor, icon: "⚙" },
+                            { titleKey: "lbl_battery_temp", val: vehicleData.batteryTemp, max: 60, col: thermalPage.batteryColor, icon: "🔋" },
+                            { titleKey: "lbl_controller_temp", val: vehicleData.controllerTemp, max: 100, col: thermalPage.controllerColor, icon: "🎛" }
                         ]
 
                         delegate: Rectangle {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            color: Colors.surfaceSunken
-                            radius: Theme.controlRadius
-                            border.color: Colors.borderSubtle
-                            border.width: 1
+                            Layout.fillWidth: true; Layout.fillHeight: true
+                            color: Colors.surfaceSunken; radius: Theme.controlRadius
+                            border.color: Colors.borderSubtle; border.width: 1
 
-                            Item {
+                            ColumnLayout {
                                 anchors.fill: parent
                                 anchors.margins: Math.round(12 * Theme.scale)
+                                spacing: 0
 
-                                Text { id: tLabel; text: modelData.title; color: modelData.col; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold; anchors.top: parent.top; anchors.left: parent.left }
-                                Text { text: modelData.icon; color: modelData.col; font.pixelSize: Math.round(32 * Theme.scale); anchors.centerIn: parent; anchors.verticalCenterOffset: Math.round(-12 * Theme.scale) }
+                                Text { 
+                                    text: thermalPage.translations[modelData.titleKey][Typography.currentLanguage]
+                                    color: modelData.col; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold
+                                    Layout.fillWidth: true; elide: Text.ElideRight 
+                                }
                                 
-                                Row {
-                                    id: numValueRow
-                                    anchors.bottom: pTrack.top
-                                    anchors.bottomMargin: Math.round(6 * Theme.scale)
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    spacing: 2
+                                Item { Layout.fillHeight: true }
+                                Text { text: modelData.icon; color: modelData.col; font.pixelSize: Math.round(32 * Theme.scale); Layout.alignment: Qt.AlignHCenter }
+                                Item { Layout.fillHeight: true }
+                                
+                                RowLayout {
+                                    Layout.alignment: Qt.AlignHCenter; spacing: 2
                                     Text { text: modelData.val; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.titleLarge; font.weight: Font.Bold; renderType: Text.QtRendering }
-                                    Text { text: "°C"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.label; anchors.bottom: parent.bottom; anchors.bottomMargin: Math.round(4 * Theme.scale) }
+                                    Text { text: "°C"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.label; Layout.alignment: Qt.AlignBottom; Layout.bottomMargin: Math.round(4 * Theme.scale) }
                                 }
 
-                                Text { text: "0"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: 9; anchors.left: parent.left; anchors.bottom: parent.bottom }
-                                Text { text: modelData.max; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: 9; anchors.right: parent.right; anchors.bottom: parent.bottom }
+                                Item { Layout.preferredHeight: Math.round(4 * Theme.scale) }
 
                                 Rectangle {
-                                    id: pTrack
-                                    anchors.bottom: parent.bottom
-                                    anchors.bottomMargin: Math.round(14 * Theme.scale)
-                                    anchors.left: parent.left
-                                    anchors.right: parent.right
-                                    height: Math.round(4 * Theme.scale)
-                                    color: Colors.surfaceBase
-                                    radius: 2
+                                    Layout.fillWidth: true; height: Math.round(4 * Theme.scale); color: Colors.surfaceBase; radius: 2
                                     Rectangle { anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: parent.width * (Math.min(modelData.val, modelData.max) / modelData.max); color: modelData.col; radius: 2 }
+                                }
+
+                                Item { Layout.preferredHeight: Math.round(2 * Theme.scale) }
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    Text { text: "0"; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: 9 }
+                                    Item { Layout.fillWidth: true }
+                                    Text { text: modelData.max; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: 9; Layout.alignment: Qt.AlignRight }
                                 }
                             }
                         }
@@ -122,7 +166,7 @@ Item {
             // --- 2. TEMPERATURE TRENDS LIVE GRAPH CARD ---
             BaseCard {
                 Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 54
-                title: "TEMPERATURE TRENDS (LIVE)"
+                title: thermalPage.translations["title_trends"][Typography.currentLanguage]
 
                 ColumnLayout {
                     anchors.fill: parent; spacing: 4
@@ -131,9 +175,9 @@ Item {
                         Item { Layout.fillWidth: true }
                         Row {
                             spacing: Math.round(12 * Theme.scale)
-                            Text { text: "— Motor"; color: thermalPage.motorColor; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold }
-                            Text { text: "— Battery"; color: thermalPage.batteryColor; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold }
-                            Text { text: "— Controller"; color: thermalPage.controllerColor; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold }
+                            Text { text: thermalPage.translations["legend_motor"][Typography.currentLanguage]; color: thermalPage.motorColor; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold }
+                            Text { text: thermalPage.translations["legend_battery"][Typography.currentLanguage]; color: thermalPage.batteryColor; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold }
+                            Text { text: thermalPage.translations["legend_controller"][Typography.currentLanguage]; color: thermalPage.controllerColor; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold }
                         }
                     }
 
@@ -210,21 +254,22 @@ Item {
             spacing: thermalPage.gridSpacing
 
             BaseCard {
-                Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 28; title: "THERMAL STATUS"
+                Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 28
+                title: thermalPage.translations["title_status"][Typography.currentLanguage]
                 ColumnLayout {
                     anchors.fill: parent; spacing: Math.round(4 * Theme.scale)
                     Repeater {
                         model: [
-                            { name: "MOTOR", status: vehicleData.motorOverTempWarning ? "OVERTEMP" : "NORMAL", col: vehicleData.motorOverTempWarning ? Colors.critical : Colors.success, limit: "< 90 °C" },
-                            { name: "BATTERY", status: vehicleData.batteryOverTempWarning ? "OVERTEMP" : "NORMAL", col: vehicleData.batteryOverTempWarning ? Colors.critical : Colors.success, limit: "< 60 °C" },
-                            { name: "CONTROLLER", status: "NORMAL", col: Colors.success, limit: "< 80 °C" }
+                            { nameKey: "check_motor", statusKey: vehicleData.motorOverTempWarning ? "status_overtemp" : "status_normal", col: vehicleData.motorOverTempWarning ? Colors.critical : Colors.success, limit: "< 90 °C" },
+                            { nameKey: "check_battery", statusKey: vehicleData.batteryOverTempWarning ? "status_overtemp" : "status_normal", col: vehicleData.batteryOverTempWarning ? Colors.critical : Colors.success, limit: "< 60 °C" },
+                            { nameKey: "check_controller", statusKey: "status_normal", col: Colors.success, limit: "< 80 °C" }
                         ]
                         delegate: Rectangle {
                             Layout.fillWidth: true; Layout.fillHeight: true; color: Colors.surfaceSunken; radius: Theme.controlRadius; border.color: Colors.borderSubtle; border.width: 1
                             RowLayout {
-                                anchors.fill: parent; anchors.margins: Math.round(8 * Theme.scale)
-                                Text { text: modelData.name; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; Layout.fillWidth: true }
-                                Text { text: modelData.status; color: modelData.col; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold }
+                                anchors.fill: parent; anchors.margins: Math.round(8 * Theme.scale); spacing: 8
+                                Text { text: thermalPage.translations[modelData.nameKey][Typography.currentLanguage]; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; Layout.fillWidth: true; elide: Text.ElideRight }
+                                Text { text: thermalPage.translations[modelData.statusKey][Typography.currentLanguage]; color: modelData.col; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; Layout.alignment: Qt.AlignRight }
                                 Text { text: modelData.limit; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: 10; Layout.preferredWidth: Math.round(50 * Theme.scale); horizontalAlignment: Text.AlignRight }
                             }
                         }
@@ -233,13 +278,15 @@ Item {
             }
 
             BaseCard {
-                Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 42; title: "COOLING SYSTEM"
+                Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 42
+                title: thermalPage.translations["title_cooling"][Typography.currentLanguage]
                 RowLayout {
                     anchors.fill: parent; spacing: Math.round(20 * Theme.scale)
                     
                     Item {
                         Layout.preferredWidth: Math.round(90 * Theme.scale)
                         Layout.preferredHeight: Math.round(90 * Theme.scale)
+                        Layout.alignment: Qt.AlignVCenter
                         Canvas { 
                             anchors.fill: parent
                             onPaint: { 
@@ -265,25 +312,25 @@ Item {
                         Column { 
                             anchors.centerIn: parent
                             spacing: 1 
-                            Text { text: "FAN SPEED"; font.family: Typography.family; font.pixelSize: 8; color: Colors.textMuted; anchors.horizontalCenter: parent.horizontalCenter } 
+                            Text { text: thermalPage.translations["lbl_fan_speed"][Typography.currentLanguage]; font.family: Typography.family; font.pixelSize: 8; color: Colors.textMuted; anchors.horizontalCenter: parent.horizontalCenter } 
                             Text { text: "68 %"; font.family: Typography.family; font.pixelSize: Typography.bodySmall; font.weight: Font.Bold; color: Colors.textPrimary; anchors.horizontalCenter: parent.horizontalCenter } 
                         }
                     }
                     
                     ColumnLayout {
-                        Layout.fillWidth: true; spacing: Math.round(4 * Theme.scale)
+                        Layout.fillWidth: true; Layout.alignment: Qt.AlignVCenter; spacing: Math.round(4 * Theme.scale)
                         Repeater {
                             model: [ 
-                                { p: "Coolant Temp", v: "38 °C" }, 
-                                { p: "Coolant Flow", v: "12.4 L/min" }, 
-                                { p: "Pump Status", v: "ON" }, 
-                                { p: "Radiator Status", v: "NORMAL" } 
+                                { pKey: "lbl_coolant_temp", v: "38 °C" }, 
+                                { pKey: "lbl_coolant_flow", v: "12.4 L/min" }, 
+                                { pKey: "lbl_pump_status", vKey: "status_on" }, 
+                                { pKey: "lbl_radiator_status", vKey: "status_normal" } 
                             ]
-                            delegate: Item { 
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: Math.round(18 * Theme.scale)
-                                Text { text: modelData.p; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.label; anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter } 
-                                Text { text: modelData.v; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter } 
+                            delegate: RowLayout { 
+                                Layout.fillWidth: true; spacing: 8
+                                Text { text: thermalPage.translations[modelData.pKey][Typography.currentLanguage]; color: Colors.textMuted; font.family: Typography.family; font.pixelSize: Typography.label; Layout.fillWidth: true; elide: Text.ElideRight; Layout.alignment: Qt.AlignVCenter } 
+                                // FIXED: Wrapped vKey lookup behind an explicit ternary to block undefined lookups
+                                Text { text: modelData.vKey ? thermalPage.translations[modelData.vKey][Typography.currentLanguage] : modelData.v; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; Layout.alignment: Qt.AlignRight } 
                             }
                         }
                     }
@@ -291,18 +338,17 @@ Item {
             }
 
             BaseCard {
-                Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 30; title: "THERMAL WARNINGS"
+                Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredWidth: 30
+                title: thermalPage.translations["title_warnings"][Typography.currentLanguage]
                 ColumnLayout {
                     anchors.fill: parent; spacing: Math.round(6 * Theme.scale)
                     RowLayout { 
                         Layout.fillWidth: true
-                        Item { Layout.fillWidth: true }
                         Text { 
-                            text: (vehicleData.motorOverTempWarning || vehicleData.batteryOverTempWarning) ? "1 ACTIVE" : "0 ACTIVE"
+                            text: (vehicleData.motorOverTempWarning || vehicleData.batteryOverTempWarning) ? "1 " + thermalPage.translations["status_active_tag"][Typography.currentLanguage] : "0 " + thermalPage.translations["status_active_tag"][Typography.currentLanguage]
                             color: (vehicleData.motorOverTempWarning || vehicleData.batteryOverTempWarning) ? Colors.critical : Colors.success
-                            font.family: Typography.family
-                            font.pixelSize: 10
-                            font.weight: Font.Bold 
+                            font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold 
+                            Layout.fillWidth: true; horizontalAlignment: Text.AlignRight
                         } 
                     }
                     
@@ -310,28 +356,24 @@ Item {
                         Layout.fillWidth: true; Layout.fillHeight: true; spacing: 0
                         
                         RowLayout { 
-                            Layout.fillWidth: true; Layout.fillHeight: true
-                            Text { text: vehicleData.motorOverTempWarning ? "⚠  Motor Over Temp" : "✓  Motor Over Temp"; color: vehicleData.motorOverTempWarning ? Colors.critical : Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label } 
-                            Item { Layout.fillWidth: true } 
-                            Text { text: vehicleData.motorOverTempWarning ? "FAIL" : "OK"; color: vehicleData.motorOverTempWarning ? Colors.critical : Colors.success; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold } 
+                            Layout.fillWidth: true; spacing: 8
+                            Text { text: vehicleData.motorOverTempWarning ? "⚠  " + thermalPage.translations["warn_motor"][Typography.currentLanguage] : "✓  " + thermalPage.translations["warn_motor"][Typography.currentLanguage]; color: vehicleData.motorOverTempWarning ? Colors.critical : Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label; Layout.fillWidth: true; elide: Text.ElideRight } 
+                            Text { text: vehicleData.motorOverTempWarning ? thermalPage.translations["status_fail"][Typography.currentLanguage] : thermalPage.translations["status_ok"][Typography.currentLanguage]; color: vehicleData.motorOverTempWarning ? Colors.critical : Colors.success; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; Layout.alignment: Qt.AlignRight } 
                         }
                         RowLayout { 
-                            Layout.fillWidth: true; Layout.fillHeight: true
-                            Text { text: vehicleData.batteryOverTempWarning ? "⚠  Battery Over Temp" : "✓  Battery Over Temp"; color: vehicleData.batteryOverTempWarning ? Colors.critical : Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label } 
-                            Item { Layout.fillWidth: true } 
-                            Text { text: vehicleData.batteryOverTempWarning ? "FAIL" : "OK"; color: vehicleData.batteryOverTempWarning ? Colors.critical : Colors.success; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold } 
+                            Layout.fillWidth: true; spacing: 8
+                            Text { text: vehicleData.batteryOverTempWarning ? "⚠  " + thermalPage.translations["warn_battery"][Typography.currentLanguage] : "✓  " + thermalPage.translations["warn_battery"][Typography.currentLanguage]; color: vehicleData.batteryOverTempWarning ? Colors.critical : Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label; Layout.fillWidth: true; elide: Text.ElideRight } 
+                            Text { text: vehicleData.batteryOverTempWarning ? thermalPage.translations["status_fail"][Typography.currentLanguage] : thermalPage.translations["status_ok"][Typography.currentLanguage]; color: vehicleData.batteryOverTempWarning ? Colors.critical : Colors.success; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; Layout.alignment: Qt.AlignRight } 
                         }
                         RowLayout { 
-                            Layout.fillWidth: true; Layout.fillHeight: true
-                            Text { text: "✓  Controller Over Temp"; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label } 
-                            Item { Layout.fillWidth: true } 
-                            Text { text: "OK"; color: Colors.success; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold } 
+                            Layout.fillWidth: true; spacing: 8
+                            Text { text: "✓  " + thermalPage.translations["warn_controller"][Typography.currentLanguage]; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label; Layout.fillWidth: true; elide: Text.ElideRight } 
+                            Text { text: thermalPage.translations["status_ok"][Typography.currentLanguage]; color: Colors.success; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; Layout.alignment: Qt.AlignRight } 
                         }
                         RowLayout { 
-                            Layout.fillWidth: true; Layout.fillHeight: true
-                            Text { text: "✓  High Temp Derate"; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label } 
-                            Item { Layout.fillWidth: true } 
-                            Text { text: "OK"; color: Colors.success; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold } 
+                            Layout.fillWidth: true; spacing: 8
+                            Text { text: "✓  " + thermalPage.translations["warn_derate"][Typography.currentLanguage]; color: Colors.textPrimary; font.family: Typography.family; font.pixelSize: Typography.label; Layout.fillWidth: true; elide: Text.ElideRight } 
+                            Text { text: thermalPage.translations["status_ok"][Typography.currentLanguage]; color: Colors.success; font.family: Typography.family; font.pixelSize: Typography.label; font.weight: Font.Bold; Layout.alignment: Qt.AlignRight } 
                         }
                     }
                 }
@@ -342,16 +384,16 @@ Item {
         // ROW 3: TEMPERATURE HISTORY CONTAINER (FULLY REACTIVE SPARKLINE CELLS)
         // =========================================================================
         BaseCard {
-            Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredHeight: 150; title: "TEMPERATURE HISTORY"
+            Layout.fillWidth: true; Layout.fillHeight: true; Layout.preferredHeight: 150; title: thermalPage.translations["title_history"][Typography.currentLanguage]
 
             RowLayout {
                 anchors.fill: parent; spacing: Math.round(16 * Theme.scale)
 
                 Repeater {
                     model: [
-                        { label: "MOTOR TEMP", maxLimit: 120, minLimit: 0, col: thermalPage.motorColor },
-                        { label: "BATTERY TEMP", maxLimit: 60, minLimit: 0, col: thermalPage.batteryColor },
-                        { label: "CONTROLLER TEMP", maxLimit: 100, minLimit: 0, col: thermalPage.controllerColor }
+                        { labelKey: "lbl_motor_temp", maxLimit: 120, minLimit: 0, col: thermalPage.motorColor },
+                        { labelKey: "lbl_battery_temp", maxLimit: 60, minLimit: 0, col: thermalPage.batteryColor },
+                        { labelKey: "lbl_controller_temp", maxLimit: 100, minLimit: 0, col: thermalPage.controllerColor }
                     ]
 
                     delegate: ColumnLayout {
@@ -365,14 +407,13 @@ Item {
                         readonly property real calculatedAvg: thermalPage.calculateAverage(dataPool)
 
                         RowLayout {
-                            Layout.fillWidth: true
-                            Text { text: modelData.label; color: modelData.col; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold }
-                            Item { Layout.fillWidth: true }
+                            Layout.fillWidth: true; spacing: 8
+                            Text { text: thermalPage.translations[modelData.labelKey][Typography.currentLanguage]; color: modelData.col; font.family: Typography.family; font.pixelSize: 10; font.weight: Font.Bold; Layout.fillWidth: true; elide: Text.ElideRight }
                             Text { 
-                                text: "Max: " + Math.round(calculatedMax) + "°C  Min: " + Math.round(calculatedMin) + "°C  Avg: " + Math.round(calculatedAvg) + "°C"
-                                color: Colors.textMuted
-                                font.family: Typography.family
-                                font.pixelSize: 9 
+                                // FIXED: Translated the inline MIN/MAX/AVG row flags cleanly
+                                text: thermalPage.translations["lbl_max"][Typography.currentLanguage] + ": " + Math.round(calculatedMax) + "°C  " + thermalPage.translations["lbl_min"][Typography.currentLanguage] + ": " + Math.round(calculatedMin) + "°C  " + thermalPage.translations["lbl_avg"][Typography.currentLanguage] + ": " + Math.round(calculatedAvg) + "°C"
+                                color: Colors.textMuted; font.family: Typography.family; font.pixelSize: 9 
+                                Layout.alignment: Qt.AlignRight
                             }
                         }
 

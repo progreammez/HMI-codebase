@@ -37,6 +37,8 @@ VehicleData::VehicleData(QObject *parent)
       m_invalidFrames(15),
       m_checksumErrors(2)
 
+    
+
 {
 }
 
