@@ -294,4 +294,6 @@ See the [LICENSE](LICENSE) file for details.
 
 # Author
 
-Developed as part of the **KPIT Electric Vehicle HMI Project** using **Qt 6**, **QML**, and **C++**.
+**Aditya Pant and Rohan Bhide**
+
+Developed as part of the **KPIT Apex Lab EV Telemetry Analysis using HMI Project** using **Qt 6**, **QML**, and **C++**.
