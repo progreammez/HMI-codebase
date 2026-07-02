@@ -294,6 +294,4 @@ See the [LICENSE](LICENSE) file for details.
 
 # Author
 
-**Rohan Mhatre**
-
 Developed as part of the **KPIT Electric Vehicle HMI Project** using **Qt 6**, **QML**, and **C++**.
