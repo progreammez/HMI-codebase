@@ -145,34 +145,30 @@ if [ "$AUTOSTART" = true ]; then
     echo ""
     echo "[4/6] Configuring desktop autostart..."
 
-    EXECUTABLE="$PROJECT_ROOT/build/EV_HMI"
-
     AUTOSTART_DIR="$HOME/.config/autostart"
     mkdir -p "$AUTOSTART_DIR"
 
-    cat > "$AUTOSTART_DIR/evhmi.desktop" << EOF
+    # Ensure launcher is executable
+    chmod +x "$PROJECT_ROOT/scripts/start_hmi.sh"
+
+    cat > "$AUTOSTART_DIR/evhmi.desktop" <<EOF
 [Desktop Entry]
 Type=Application
 Version=1.0
 Name=KPIT EV HMI
 Comment=Launch KPIT EV Dashboard
-
-Exec=/bin/bash -c '
-if command -v antimicrox >/dev/null 2>&1; then
-    pgrep -x antimicrox >/dev/null || antimicrox >/dev/null 2>&1 &
-    sleep 2
-fi
-exec "$EXECUTABLE"
-'
-
+Exec=$PROJECT_ROOT/scripts/start_hmi.sh
 Terminal=false
-X-GNOME-Autostart-enabled=true
+StartupNotify=false
 EOF
 
-    echo "Desktop autostart configured."
-    echo "The HMI will automatically launch after login."
+    chmod 644 "$AUTOSTART_DIR/evhmi.desktop"
 
-fi 
+    echo "Desktop autostart configured."
+    echo "Startup Script : $PROJECT_ROOT/scripts/start_hmi.sh"
+    echo "Desktop Entry  : $AUTOSTART_DIR/evhmi.desktop"
+
+fi
 
 #############################################
 # Run
