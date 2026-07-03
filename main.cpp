@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QUrl>
+#include <QQuickWindow>
 
 #include "backend/VehicleData.h"
 #include "backend/VirtualVehicle.h"
@@ -250,6 +251,14 @@ int main(int argc, char *argv[])
 
     if (engine.rootObjects().isEmpty())
         return -1;
+
+    // Force fullscreen
+    QQuickWindow *window =
+        qobject_cast<QQuickWindow *>(engine.rootObjects().first());
+
+    if (window) {
+        window->showFullScreen();
+    }
 
     return app.exec();
 }
