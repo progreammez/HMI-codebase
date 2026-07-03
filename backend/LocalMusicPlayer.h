@@ -143,6 +143,7 @@ private:
     QAudioOutput *m_audioOutput;
 
     QStringList m_playlist;
+    QString m_assetsPath;
 
     int m_currentIndex = 0;
 

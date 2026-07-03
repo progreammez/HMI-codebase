@@ -114,9 +114,11 @@ void LocalMusicPlayer::startNextScan()
 {
     if (m_scanQueue.isEmpty()) return;
 
+    QString assetsPath = QCoreApplication::applicationDirPath() + "/../assets/";
+
     QString nextTrackFile = m_scanQueue.first();
 
-    QString fullPath = m_assetsPath + "music/" + nextTrackFile;
+    QString fullPath = assetsPath + "music/" + nextTrackFile;
 
     m_metaScannerPlayer->setSource(QUrl::fromLocalFile(fullPath));
     m_metaScannerPlayer->pause(); // Pre-rolls headers cleanly without playing noise
@@ -146,11 +148,7 @@ void LocalMusicPlayer::loadTrack(int index)
 
     QString songPath = assetsPath + "music/" + m_playlist[index];
 
-    QString coverPath =
-            assetsPath +
-            "albumcovers/" +
-            QFileInfo(songPath).baseName() +
-            ".png";
+    QString coverPath = assetsPath + "albumcovers/" + QFileInfo(songPath).baseName() + ".png";
 
     if (QFile::exists(coverPath)) {
         m_albumArtUrl = QUrl::fromLocalFile(coverPath).toString();
