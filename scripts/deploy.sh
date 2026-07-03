@@ -137,46 +137,42 @@ cmake ..
 cmake --build . --parallel $(nproc)
 
 #############################################
-# Install systemd service
+# Install Desktop Autostart
 #############################################
 
 if [ "$AUTOSTART" = true ]; then
 
     echo ""
-    echo "[4/6] Installing autostart service..."
+    echo "[4/6] Configuring desktop autostart..."
 
     EXECUTABLE="$PROJECT_ROOT/build/EV_HMI"
 
-    cat << EOF | sudo tee /etc/systemd/system/$SERVICE_NAME > /dev/null
-[Unit]
-Description=KPIT EV HMI
-After=graphical.target
+    AUTOSTART_DIR="$HOME/.config/autostart"
+    mkdir -p "$AUTOSTART_DIR"
 
-[Service]
-Type=simple
-User=$USER
-WorkingDirectory=$PROJECT_ROOT/build
-ExecStart=/bin/bash -c '
+    cat > "$AUTOSTART_DIR/evhmi.desktop" << EOF
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=KPIT EV HMI
+Comment=Launch KPIT EV Dashboard
+
+Exec=/bin/bash -c '
 if command -v antimicrox >/dev/null 2>&1; then
     pgrep -x antimicrox >/dev/null || antimicrox >/dev/null 2>&1 &
     sleep 2
 fi
 exec "$EXECUTABLE"
 '
-Restart=always
-RestartSec=2
-Environment=QT_QPA_PLATFORM=wayland
 
-[Install]
-WantedBy=graphical.target
+Terminal=false
+X-GNOME-Autostart-enabled=true
 EOF
 
-    sudo systemctl daemon-reload
-    sudo systemctl enable "$SERVICE_NAME"
+    echo "Desktop autostart configured."
+    echo "The HMI will automatically launch after login."
 
-    echo "Autostart enabled."
-
-fi
+fi 
 
 #############################################
 # Run
