@@ -102,7 +102,8 @@ if [ "$INSTALL" = true ]; then
         qt6-networkauth-dev \
         qt6-wayland \
         qt6-serialport-dev \
-        libxcb-cursor0
+        libxcb-cursor0 \
+        antimicrox
 
 fi
 
@@ -141,7 +142,7 @@ cmake --build . --parallel $(nproc)
 if [ "$AUTOSTART" = true ]; then
 
     echo ""
-    echo "[4/5] Installing autostart service..."
+    echo "[4/6] Installing autostart service..."
 
     EXECUTABLE="$PROJECT_ROOT/build/EV_HMI"
 
@@ -154,7 +155,13 @@ After=graphical.target
 Type=simple
 User=$USER
 WorkingDirectory=$PROJECT_ROOT/build
-ExecStart=$EXECUTABLE
+ExecStart=/bin/bash -c '
+if command -v antimicrox >/dev/null 2>&1; then
+    pgrep -x antimicrox >/dev/null || antimicrox >/dev/null 2>&1 &
+    sleep 2
+fi
+exec "$EXECUTABLE"
+'
 Restart=always
 RestartSec=2
 Environment=QT_QPA_PLATFORM=wayland
@@ -164,7 +171,7 @@ WantedBy=graphical.target
 EOF
 
     sudo systemctl daemon-reload
-    sudo systemctl enable $SERVICE_NAME
+    sudo systemctl enable "$SERVICE_NAME"
 
     echo "Autostart enabled."
 
@@ -177,14 +184,33 @@ fi
 if [ "$RUN" = true ]; then
 
     echo ""
-    echo "[5/5] Launching..."
+
+    #############################################
+    # Launch AntiMicroX (if installed)
+    #############################################
+
+    if command -v antimicrox >/dev/null 2>&1; then
+
+        if pgrep -x "antimicrox" >/dev/null; then
+            echo "[5/6] AntiMicroX already running."
+        else
+            echo "[5/6] Starting AntiMicroX (PS3 Controller)..."
+            antimicrox >/dev/null 2>&1 &
+            sleep 2
+        fi
+
+    else
+        echo "[5/6] AntiMicroX not found. Skipping controller support."
+    fi
+
+    echo ""
+    echo "[6/6] Launching EV_HMI..."
 
     ./EV_HMI
-else
 
+else
 
     echo ""
     echo "Build completed."
-
 
 fi
