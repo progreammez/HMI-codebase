@@ -121,6 +121,15 @@ The dashboard supports six custom dashboard themes, each available in Light and 
 - Factory Reset
 - Brightness & Contrast Adjustment
 
+### Input Support
+
+The dashboard supports multiple input methods during development and demonstration.
+
+- Keyboard input
+- PlayStation 3 Controller (via AntiMicroX)
+
+The PlayStation 3 controller is mapped to the same keyboard controls used by the simulator, allowing seamless operation without modifying the application's input handling.
+
 ---
 
 # Technology Stack
@@ -205,6 +214,15 @@ The backend exposes data to QML through context properties, ensuring a clean sep
 # Deployment
 
 The project includes a unified deployment script for dependency installation, building, and Raspberry Pi deployment.
+
+## Prerequisites
+
+Clone the repository:
+
+```bash
+git clone https://github.com/progreammez/HMI-codebase.git EV_HMI
+cd EV_HMI
+```
 
 ## First-Time Setup
 
