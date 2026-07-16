@@ -33,7 +33,10 @@ int main(int argc, char *argv[])
     VirtualVehicle virtualVehicle(&vehicleData, &driverInput, &stmSimulator);
     TelemetryLogger telemetryLogger(&vehicleData);
     WarningManager warningManager(&vehicleData, &telemetryLogger);
-    TelemetryParser parser(&vehicleData);
+    // Route real telemetry through stmSimulator so each field is stamped
+    // "live" on arrival; this is what makes VirtualVehicle yield to real
+    // hardware values instead of overwriting them every tick.
+    TelemetryParser parser(&vehicleData, &stmSimulator);
 
     if (!serialManager.connectPort("/dev/ttyACM0"))
         {
@@ -186,12 +189,10 @@ int main(int argc, char *argv[])
         &VirtualVehicle::cycleDriveMode
     );
 
-    // NOTE: TelemetryParser currently writes STM32 telemetry straight into
-    // VehicleData. For VirtualVehicle's field-authority check to work,
-    // route real telemetry through stmSimulator's onXReceived() slots
-    // instead (e.g. connect TelemetryParser::speedParsed to
-    // stmSimulator.onSpeedReceived) so STMDataSimulator can stamp each
-    // field as "live" at the moment real data arrives.
+    // TelemetryParser is constructed with &stmSimulator (above), so parsed
+    // STM32 telemetry flows through stmSimulator's onXReceived() slots and is
+    // stamped "live" on arrival. VirtualVehicle's publish() then defers to
+    // those live fields, so real hardware values win over the simulation.
 
     stmSimulator.start();
     //musicPlayer.play();

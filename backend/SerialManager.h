@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QSerialPort>
+#include <QTimer>
 
 class SerialManager : public QObject
 {
@@ -11,6 +12,10 @@ class SerialManager : public QObject
 public:
     explicit SerialManager(QObject *parent = nullptr);
 
+    // Opens the port. On failure (e.g. the STM32 hasn't enumerated yet at
+    // boot) this returns false but ALSO arms an auto-reconnect timer, so the
+    // link comes up on its own once the device appears -- the caller no
+    // longer has to get the startup ordering exactly right.
     bool connectPort(const QString &portName);
 
     void disconnectPort();
@@ -24,11 +29,18 @@ signals:
 
 private slots:
     void readData();
+    void handleError(QSerialPort::SerialPortError error);
+    void tryReconnect();
 
 private:
-    QSerialPort m_serial;
+    bool openPort();
 
+    QSerialPort m_serial;
     QString m_buffer;
+
+    QString m_portName;
+    QTimer m_reconnectTimer;
+    static constexpr int kReconnectIntervalMs = 2000;
 };
 
 #endif

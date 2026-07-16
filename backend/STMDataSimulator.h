@@ -37,7 +37,9 @@ enum class StmField
     GearState,
     LeftIndicator,
     RightIndicator,
-    Count
+    BatteryPercent,   // real coulomb-counted SoC from the STM32
+    MotorPower,       // real motor power (kW) derived from the current sensor
+    Count             // keep last -- used to size the liveness sweep
 };
 
 class STMDataSimulator : public QObject, public IDataSource
@@ -83,12 +85,19 @@ public slots:
     void onGearStateReceived(const QString &gear);
     void onLeftIndicatorReceived(bool on);
     void onRightIndicatorReceived(bool on);
+    void onBatteryPercentReceived(int percent);
+    void onMotorPowerReceived(float kilowatts);
 
 private slots:
     void checkLiveness();
 
 private:
     void markLive(StmField field);
+
+    // True when real hardware values should be written straight to the
+    // dashboard -- i.e. the simulation toggle is OFF. Liveness is still
+    // recorded when this is false; only the value write is suppressed.
+    bool hardwareOwnsOutput() const;
 
     VehicleData *m_vehicleData;
 

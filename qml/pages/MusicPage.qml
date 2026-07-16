@@ -505,10 +505,6 @@ Item {
                                 width: 110
                                 height: 110
                                 fillMode: Image.PreserveAspectFit
-
-                                onStatusChanged: {
-        console.log("Spotify image status:", status)
-    }
                             }
 
                             Text {

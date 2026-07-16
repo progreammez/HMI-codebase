@@ -459,41 +459,60 @@ void VirtualVehicle::updateWarnings()
 // ----------------------------------------------------------
 void VirtualVehicle::publish()
 {
-    auto stmOwns = [this](StmField field) {
-        return m_stmDataSimulator && m_stmDataSimulator->isLive(field);
+    // A "Real" field is published by the simulator when the simulation
+    // toggle is ON, OR -- as a live fallback -- when the STM is not currently
+    // supplying that field (so a dead/absent hardware link never leaves a
+    // gauge frozen). When the toggle is OFF and the STM is live, the sim
+    // stays silent and the parser's real value (written via
+    // STMDataSimulator::onXReceived) is what the dashboard shows.
+    // For fields the STM never sends, isLive() is always false, so these are
+    // published unconditionally regardless of the toggle -- i.e. always
+    // simulated, which is exactly what "fully simulated" fields want.
+    auto simPublishes = [this](StmField field) {
+        return m_vehicleData->simulationActive()
+            || !(m_stmDataSimulator && m_stmDataSimulator->isLive(field));
     };
 
-    if (!stmOwns(StmField::Speed))
+    if (simPublishes(StmField::Speed))
         m_vehicleData->setSpeed(m_state.speedKmh);
 
-    if (!stmOwns(StmField::Rpm))
+    if (simPublishes(StmField::Rpm))
         m_vehicleData->setRpm(m_state.rpmPublished);
 
-    if (!stmOwns(StmField::MotorTemp))
+    if (simPublishes(StmField::MotorTemp))
         m_vehicleData->setMotorTemp(static_cast<int>(std::round(m_state.motorTempC)));
 
-    if (!stmOwns(StmField::BatteryTemp))
+    if (simPublishes(StmField::BatteryTemp))
         m_vehicleData->setBatteryTemp(static_cast<int>(std::round(m_state.batteryTempC)));
 
-    if (!stmOwns(StmField::ControllerTemp))
+    if (simPublishes(StmField::ControllerTemp))
         m_vehicleData->setControllerTemp(static_cast<int>(std::round(m_state.controllerTempC)));
 
-    if (!stmOwns(StmField::DriveMode))
+    if (simPublishes(StmField::DriveMode))
         m_vehicleData->setDriveMode(m_state.driveMode);
 
-    if (!stmOwns(StmField::GearState))
+    if (simPublishes(StmField::GearState))
         m_vehicleData->setGearState(m_state.gearState);
 
-    if (!stmOwns(StmField::LeftIndicator))
+    if (simPublishes(StmField::LeftIndicator))
         m_vehicleData->setLeftIndicator(m_state.leftIndicator);
 
-    if (!stmOwns(StmField::RightIndicator))
+    if (simPublishes(StmField::RightIndicator))
         m_vehicleData->setRightIndicator(m_state.rightIndicator);
+
+    // Battery SoC and motor power ARE supplied by the STM (coulomb-counted
+    // SoC and current-sensor-derived power), gated the same way.
+    if (simPublishes(StmField::BatteryPercent))
+        m_vehicleData->setBatteryPercent(m_state.batteryPercent);
+
+    if (simPublishes(StmField::MotorPower))
+        m_vehicleData->setMotorPower(m_state.motorPowerKw);
 
     // Fields STM never supplies -- always owned by the simulation.
     m_vehicleData->setHandBrake(m_state.handBrake);
 
-    m_vehicleData->setBatteryPercent(m_state.batteryPercent);
+    // rangeKm stays simulation-owned: the STM only sends a fixed placeholder
+    // (RNG=180), while the simulator derives range from live SoC.
     m_vehicleData->setRangeKm(m_state.rangeKm);
     m_vehicleData->setBatteryVoltage(m_state.batteryVoltage);
 
@@ -506,7 +525,7 @@ void VirtualVehicle::publish()
     m_vehicleData->setHeadlights(m_state.headlights);
     m_vehicleData->setHighBeam(m_state.highBeam);
 
-    m_vehicleData->setMotorPower(m_state.motorPowerKw);
+    // NOTE: motorPower is published above, gated behind StmField::MotorPower.
     m_vehicleData->setRegenLevel(m_state.regenLevel);
 
     m_vehicleData->setCharging(m_state.charging);

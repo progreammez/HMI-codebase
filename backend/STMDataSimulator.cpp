@@ -62,56 +62,89 @@ void STMDataSimulator::checkLiveness()
 // REAL TELEMETRY INTAKE -- pure forwarding, no fabrication
 // ==========================================================
 
+// Each intake slot stamps liveness unconditionally (so communicationFault
+// always reflects the true link state) but only writes the value onto the
+// dashboard when the simulation toggle is OFF. When the toggle is ON the
+// simulator owns these "Real" fields, so writing here too would make the two
+// sources fight at 10 Hz. `hardwareOwnsOutput()` centralises that rule.
+bool STMDataSimulator::hardwareOwnsOutput() const
+{
+    return !m_vehicleData->simulationActive();
+}
+
 void STMDataSimulator::onSpeedReceived(int speed)
 {
-    m_vehicleData->setSpeed(speed);
+    if (hardwareOwnsOutput())
+        m_vehicleData->setSpeed(speed);
     markLive(StmField::Speed);
 }
 
 void STMDataSimulator::onRpmReceived(int rpm)
 {
-    m_vehicleData->setRpm(rpm);
+    if (hardwareOwnsOutput())
+        m_vehicleData->setRpm(rpm);
     markLive(StmField::Rpm);
 }
 
 void STMDataSimulator::onMotorTempReceived(int celsius)
 {
-    m_vehicleData->setMotorTemp(celsius);
+    if (hardwareOwnsOutput())
+        m_vehicleData->setMotorTemp(celsius);
     markLive(StmField::MotorTemp);
 }
 
 void STMDataSimulator::onBatteryTempReceived(int celsius)
 {
-    m_vehicleData->setBatteryTemp(celsius);
+    if (hardwareOwnsOutput())
+        m_vehicleData->setBatteryTemp(celsius);
     markLive(StmField::BatteryTemp);
 }
 
 void STMDataSimulator::onControllerTempReceived(int celsius)
 {
-    m_vehicleData->setControllerTemp(celsius);
+    if (hardwareOwnsOutput())
+        m_vehicleData->setControllerTemp(celsius);
     markLive(StmField::ControllerTemp);
 }
 
 void STMDataSimulator::onDriveModeReceived(const QString &mode)
 {
-    m_vehicleData->setDriveMode(mode);
+    if (hardwareOwnsOutput())
+        m_vehicleData->setDriveMode(mode);
     markLive(StmField::DriveMode);
 }
 
 void STMDataSimulator::onGearStateReceived(const QString &gear)
 {
-    m_vehicleData->setGearState(gear);
+    if (hardwareOwnsOutput())
+        m_vehicleData->setGearState(gear);
     markLive(StmField::GearState);
 }
 
 void STMDataSimulator::onLeftIndicatorReceived(bool on)
 {
-    m_vehicleData->setLeftIndicator(on);
+    if (hardwareOwnsOutput())
+        m_vehicleData->setLeftIndicator(on);
     markLive(StmField::LeftIndicator);
 }
 
 void STMDataSimulator::onRightIndicatorReceived(bool on)
 {
-    m_vehicleData->setRightIndicator(on);
+    if (hardwareOwnsOutput())
+        m_vehicleData->setRightIndicator(on);
     markLive(StmField::RightIndicator);
+}
+
+void STMDataSimulator::onBatteryPercentReceived(int percent)
+{
+    if (hardwareOwnsOutput())
+        m_vehicleData->setBatteryPercent(percent);
+    markLive(StmField::BatteryPercent);
+}
+
+void STMDataSimulator::onMotorPowerReceived(float kilowatts)
+{
+    if (hardwareOwnsOutput())
+        m_vehicleData->setMotorPower(kilowatts);
+    markLive(StmField::MotorPower);
 }
