@@ -312,6 +312,6 @@ See the [LICENSE](LICENSE) file for details.
 
 # Author
 
-**Aditya Pant and Rohan Bhide**
+**Aditya Pant, Pulkit Dhingra and Rohan Bhide**
 
 Developed as part of the **KPIT Apex Lab EV Telemetry Analysis using HMI Project** using **Qt 6**, **QML**, and **C++**.
