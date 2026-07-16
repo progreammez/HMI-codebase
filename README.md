@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../assets/docs/hero-dashboard.png" width="100%">
+  <img src="assets/docs/hero-dashboard.png" width="100%">
 </p>
 
 <h1 align="center">EV_HMI</h1>
@@ -32,7 +32,7 @@ The application follows a modular architecture with a clear separation between t
 ## Digital Cockpit
 
 <p align="center">
-<img src="../assets/docs/hero-dashboard.png" width="900">
+<img src="assets/docs/hero-dashboard.png" width="900">
 </p>
 
 The primary dashboard displays the most important driving information including vehicle speed, battery state of charge, remaining range, drive mode, gear indication, charging status, warning indicators, and vehicle telemetry. The interface is designed to maximize readability while minimizing driver distraction.
@@ -42,7 +42,7 @@ The primary dashboard displays the most important driving information including 
 ## Infotainment
 
 <p align="center">
-<img src="../assets/docs/infotainment.png" width="900">
+<img src="assets/docs/infotainment.png" width="900">
 </p>
 
 The infotainment system provides a modern multimedia experience with support for local music playback, Spotify integration, Bluetooth audio, album artwork, playlists, playback controls, and seamless switching between media sources.
@@ -52,7 +52,7 @@ The infotainment system provides a modern multimedia experience with support for
 ## Diagnostics & Engineering Mode
 
 <p align="center">
-<img src="../assets/docs/diagnostics.png" width="900">
+<img src="assets/docs/diagnostics.png" width="900">
 </p>
 
 A long press on the Diagnostics page unlocks Engineering Mode, providing access to live telemetry, thermal monitoring, powertrain analysis, communication diagnostics, simulator controls, telemetry logging, and fault monitoring for development and testing.
@@ -62,7 +62,7 @@ A long press on the Diagnostics page unlocks Engineering Mode, providing access 
 ## Personalisation
 
 <p align="center">
-<img src="../assets/docs/settings-themes.png" width="900">
+<img src="assets/docs/settings-themes.png" width="900">
 </p>
 
 The dashboard supports six custom dashboard themes, each available in Light and Dark modes. Users can further personalize the interface through brightness and contrast adjustment, language selection, Spotify or local music configuration, and factory reset options.
